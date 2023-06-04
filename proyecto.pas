@@ -3,6 +3,7 @@ Program daniComm;
 
 Var 
   daniel: integer;
+	samuel: String;
 
 Begin
 
@@ -10,6 +11,9 @@ Begin
 
   writeln('Daniel', daniel);
 
+	samuel:= ('Samuel');
+	writeLn(samuel);
 
 
+Readln;
 End.
