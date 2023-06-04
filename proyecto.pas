@@ -2,8 +2,8 @@
 Program daniComm;
 
 Var 
-  daniel: integer;
-	samuel: String;
+  daniel, i: integer;
+  samuel: String;
 
 Begin
 
@@ -11,9 +11,15 @@ Begin
 
   writeln('Daniel', daniel);
 
-	samuel:= ('Samuel');
-	writeLn(samuel);
+  samuel := ('Samuel');
+  writeLn(samuel);
 
+  writeln('daniel Gonzalez', daniel);
 
-Readln;
+  For i := 0 To daniel Do
+    Begin
+      writeLn('daniel');
+    End;
+
+  Readln;
 End.
