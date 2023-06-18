@@ -27,8 +27,10 @@ Const
 Type 
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
+  Victoria = (sigue, gano);
 
-Procedure relleno(Var terreno: mapa; Var nave: vector; fila, colum: integer);
+Procedure relleno(Var terreno: mapa; Var nave, planeta: vector; fil, col:
+                  integer);
 
 Var 
   i, j: integer;
@@ -36,17 +38,29 @@ Begin
 
   randomize;
 
-  nave[1] := random(fila)+1;
-  nave[2] := random(colum)+1;
+{Randomizo la nave}
+  nave[1] := random(fil)+1;
+  nave[2] := random(col)+1;
 
-  For i := 1 To fila Do
+{Randomizo el planeta}
+  Repeat
+    planeta[1] := random(fil)+1;
+    planeta[2] := random(col)+1;
+  Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
+
+  For i := 1 To fil Do
     Begin
       j := 1;
-      For j:= 1 To colum Do
+      For j:= 1 To col Do
         Begin
-          If ((i = nave[1]) And (j = nave[2])) Then
+        {Posiciono la nave en el terreno}
+          If ((nave[1] = i) And (nave[2] = j) Or ((planeta[1] = i) And (planeta[
+             2] = j))) Then
             Begin
-              terreno[i, j] := PERSONAJEPOS;
+              If ((nave[1] = i) And (nave[2] = j)) Then
+                terreno[i, j] := PERSONAJEPOS;
+              If ((planeta[1] = i) And (planeta[2] = j)) Then
+                terreno[i, j] :=  BANDERA;
             End
           Else
             terreno[i, j] := CELDA;
@@ -56,10 +70,7 @@ End;
 
 // Funciones
 
-Procedure Personaje(Var nave: vector; fila, colum, tecla: integer);
-
-Var 
-  i: integer;
+Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
 
@@ -71,13 +82,13 @@ Begin
   If ((tecla = W) And (nave[1] > 1)) Then
     nave[1] := nave[1] - 1;
 
-  If ((tecla = S) And (nave[1] < fila)) Then
+  If ((tecla = S) And (nave[1] < fil)) Then
     nave[1] := nave[1] + 1;
 
   If ((tecla = A) And (nave[2] > 1)) Then
     nave[2] := nave[2] - 1;
 
-  If ((tecla = D) And (nave[2] < colum)) Then
+  If ((tecla = D) And (nave[2] < col)) Then
     nave[2] := nave[2] + 1;
 
 
@@ -89,19 +100,19 @@ Begin
       nave[2] := nave[2] - 1;
     End;
 
-  If ((tecla = E) And (nave[1] > 1) And (nave[2] < colum)) Then
+  If ((tecla = E) And (nave[1] > 1) And (nave[2] < col)) Then
     Begin
       nave[1] := nave[1] - 1;
       nave[2] := nave[2] + 1;
     End;
 
-  If ((tecla = Z) And (nave[1] < fila) And (nave[2] > 1)) Then
+  If ((tecla = Z) And (nave[1] < fil) And (nave[2] > 1)) Then
     Begin
       nave[1] := nave[1] + 1;
       nave[2] := nave[2] - 1;
     End;
 
-  If ((tecla = X) And (nave[1] < fila) And (nave[2] < colum)) Then
+  If ((tecla = X) And (nave[1] < fil) And (nave[2] < col)) Then
     Begin
       nave[1] := nave[1] + 1;
       nave[2] := nave[2] + 1;
@@ -110,9 +121,31 @@ Begin
 
 End;
 
+// ANIMACIONES 
+
+Procedure AnimacionGanar(desarrollo: Victoria);
+Begin
+
+  If (desarrollo = gano) Then
+    Begin
+      clrscr;
+
+      textcolor(red);
+      writeln('!Ganaste!, Felicitaciones');
+
+      writeln;
+      writeln;
+
+      readkey;
+
+    End;
+
+End;
+
 // LEER EL MAPA FINAL PROCEDIMIENTO
 
-Procedure leerMapa(Var terreno: mapa; Var nave: vector; fila, colum, tecla:
+Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla
+                   :
                    integer)
 ;
 
@@ -128,17 +161,17 @@ Begin
 
   If (tecla > 0) Then
     Begin
-      Personaje(nave, fila, colum, tecla);
+      Personaje(nave, fil, col, tecla);
       terreno[nave[1], nave[2]] := PERSONAJEPOS;
       writeln(nave[1], nave[2]);
     End;
 
   // Colocar Celdas:
 
-  For i := 1 To fila Do
+  For i := 1 To fil Do
     Begin
       j := 0;
-      For j := 1 To colum Do
+      For j := 1 To col Do
         Begin
           If ((j = 1) And (i < 10)) Then
             write(i, '  ', PARED, ' ');
@@ -166,47 +199,61 @@ End;
 
 // Aqui se desarrolla el bucle principal del juego
 
-Procedure Partida(Var terreno: mapa; nave: vector; fila, colum, tecla: integer);
+Procedure Partida(Var terreno: mapa; nave, planeta: vector; fil, col, tecla:
+                  integer);
 {Entero de la tecla}
 
 Var 
   ch: char;
+  desarrollo: Victoria;
 
 Begin
+{Se declara la partida}
+  desarrollo := sigue;
 
 {Se renderiza el mapa inicial}
-  leerMapa(terreno, nave, fila, colum, 0);
+  leerMapa(terreno, nave, fil, col, 0);
 
 {Bucle para detectar los movimientos}
   Repeat
     terreno[nave[1], nave[2]] := CELDA;
     ch := upcase(readkey);
-    leerMapa(terreno, nave, fila, colum, ord(ch));
-  Until (ord(ch) = ESC);
+    leerMapa(terreno, nave, fil, col, ord(ch));
+    If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+      desarrollo := gano;
+  Until ((ord(ch) = ESC) Or (desarrollo = gano));
+
+
+  If (desarrollo = gano) Then
+    AnimacionGanar(desarrollo);
 
 End;
 
 // Muestra
 
 Var 
-  fila, colum: integer;
+  fil, col: integer;
   terreno: mapa;
-  ch: char;
-  nave: vector;
+  nave, planeta: vector;
 
 Begin
   clrscr;
 
-  fila := 8;
-  colum := 9;
+  fil := 8;
+  col := 9;
 
-  // Inicializar las variables de las naves
+{Inicializar las variables de la nave}
   nave[1] := 1;
   nave[2] := 1;
 
-  relleno(terreno, nave, fila, colum);
+{Inicializar las variables de la bandera}
+  planeta[1] := 1;
+  planeta[2] := 2;
+
+
+  relleno(terreno, nave, planeta, fil, col);
 
   // Partida principal
-  Partida(terreno, nave, fila, colum, 0);
+  Partida(terreno, nave, planeta, fil, col, 0);
 
 End.
