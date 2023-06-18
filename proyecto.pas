@@ -26,6 +26,21 @@ Const
 Type 
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
+	
+Var
+  fil, col: Integer;
+
+Function validarDim(n: Integer; mensaje: String):Integer;
+Begin
+   Repeat
+	    Write('Indique la cantidad de ', mensaje, ' a ingresar: ');
+			ReadLn(n);
+			if (n < 0) or (n > LIMITE) Then
+			   writeLn('Error, la cantidad de ', mensaje, ' debe estar comprendido entre 1 y ', LIMITE);
+	 Until (n>=1) and (n<=LIMITE);
+
+	 validarDim:= n;
+End;	 
 
 Procedure relleno(Var terreno: mapa; nave: vector; fila, colum: integer);
 
@@ -160,6 +175,12 @@ Var
 
 Begin
   clrscr;
+
+	// Pedir filas y columnas al usuario
+	fil:= validarDim(fil, 'filas');
+	col:= validarDim(col, 'columnas');
+
+  n := 10;
 
   fila := 8;
   colum := 9;
