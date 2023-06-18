@@ -27,6 +27,7 @@ Const
 Type 
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
+  {Aqui esta el booleano de si la partida sigue o acaba porque llego al planeta}
   Victoria = (sigue, gano);
 
 Procedure relleno(Var terreno: mapa; Var nave, planeta: vector; fil, col:
@@ -53,12 +54,14 @@ Begin
       j := 1;
       For j:= 1 To col Do
         Begin
-        {Posiciono la nave en el terreno}
+        {Posiciono la nave o el planeta en el terreno}
           If ((nave[1] = i) And (nave[2] = j) Or ((planeta[1] = i) And (planeta[
              2] = j))) Then
             Begin
+            {Nave}
               If ((nave[1] = i) And (nave[2] = j)) Then
                 terreno[i, j] := PERSONAJEPOS;
+             {Planeta}
               If ((planeta[1] = i) And (planeta[2] = j)) Then
                 terreno[i, j] :=  BANDERA;
             End
@@ -73,6 +76,14 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
+
+
+
+
+
+
 
 
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
@@ -126,6 +137,7 @@ End;
 Procedure AnimacionGanar(desarrollo: Victoria);
 Begin
 
+  {Si el personaje llego a el planeta}
   If (desarrollo = gano) Then
     Begin
       clrscr;
@@ -157,17 +169,14 @@ Begin
   writeln('!!Intenta encontrar el Planeta!!');
   writeln;
 
-  // Movimiento del personaje:
-
+  {Procedo a mover el personaje}
   If (tecla > 0) Then
     Begin
       Personaje(nave, fil, col, tecla);
       terreno[nave[1], nave[2]] := PERSONAJEPOS;
-      writeln(nave[1], nave[2]);
     End;
 
-  // Colocar Celdas:
-
+  {Coloco las celdas}
   For i := 1 To fil Do
     Begin
       j := 0;
@@ -197,11 +206,10 @@ Begin
   writeln('Presiona ESC para salir');
 End;
 
-// Aqui se desarrolla el bucle principal del juego
+{Aqui se desarrolla el bucle principal del juego}
 
 Procedure Partida(Var terreno: mapa; nave, planeta: vector; fil, col, tecla:
                   integer);
-{Entero de la tecla}
 
 Var 
   ch: char;
@@ -214,7 +222,7 @@ Begin
 {Se renderiza el mapa inicial}
   leerMapa(terreno, nave, fil, col, 0);
 
-{Bucle para detectar los movimientos}
+{Bucle donde se desarollan los movimientos}
   Repeat
     terreno[nave[1], nave[2]] := CELDA;
     ch := upcase(readkey);
@@ -224,6 +232,7 @@ Begin
   Until ((ord(ch) = ESC) Or (desarrollo = gano));
 
 
+  {Victoria}
   If (desarrollo = gano) Then
     AnimacionGanar(desarrollo);
 
@@ -234,7 +243,7 @@ End;
 Var 
   fil, col: integer;
   terreno: mapa;
-  nave, planeta: vector;
+  nave, planeta, destructor: vector;
 
 Begin
   clrscr;
@@ -250,10 +259,10 @@ Begin
   planeta[1] := 1;
   planeta[2] := 2;
 
-
+{Relleno del mapa}
   relleno(terreno, nave, planeta, fil, col);
 
-  // Partida principal
+{PARTIDA PRINCIPAL}
   Partida(terreno, nave, planeta, fil, col, 0);
 
 End.
