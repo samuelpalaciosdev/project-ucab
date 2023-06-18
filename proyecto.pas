@@ -13,6 +13,7 @@ Const
   BOMBA = 'O';
   // Letras
   ENTER = 13;
+  ESC = 27;
   Q = 81;
   W = 87;
   E = 69;
@@ -27,7 +28,7 @@ Type
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
 
-Procedure relleno(Var terreno: mapa; nave: vector; fila, colum: integer);
+Procedure relleno(Var terreno: mapa; Var nave: vector; fila, colum: integer);
 
 Var 
   i, j: integer;
@@ -61,6 +62,9 @@ Var
   i: integer;
 
 Begin
+
+
+{Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
 
@@ -108,7 +112,9 @@ End;
 
 // LEER EL MAPA FINAL PROCEDIMIENTO
 
-Procedure leerMapa(terreno: mapa; fila, colum: integer);
+Procedure leerMapa(Var terreno: mapa; Var nave: vector; fila, colum, tecla:
+                   integer)
+;
 
 Var 
   i, j: integer;
@@ -117,6 +123,15 @@ Begin
 
   writeln('!!Intenta encontrar el Planeta!!');
   writeln;
+
+  // Movimiento del personaje:
+
+  If (tecla > 0) Then
+    Begin
+      Personaje(nave, fila, colum, tecla);
+      terreno[nave[1], nave[2]] := PERSONAJEPOS;
+      writeln(nave[1], nave[2]);
+    End;
 
   // Colocar Celdas:
 
@@ -135,7 +150,6 @@ Begin
 
     End;
 
-
   writeln;
   writeln('Presiona la letra para moverte: ');
   writeln;
@@ -147,7 +161,29 @@ Begin
   writeln('             v');
 
   writeln;
-  writeln('Presiona ENTER para salir');
+  writeln('Presiona ESC para salir');
+End;
+
+// Aqui se desarrolla el bucle principal del juego
+
+Procedure Partida(Var terreno: mapa; nave: vector; fila, colum, tecla: integer);
+{Entero de la tecla}
+
+Var 
+  ch: char;
+
+Begin
+
+{Se renderiza el mapa inicial}
+  leerMapa(terreno, nave, fila, colum, 0);
+
+{Bucle para detectar los movimientos}
+  Repeat
+    terreno[nave[1], nave[2]] := CELDA;
+    ch := upcase(readkey);
+    leerMapa(terreno, nave, fila, colum, ord(ch));
+  Until (ord(ch) = ESC);
+
 End;
 
 // Muestra
@@ -163,15 +199,14 @@ Begin
 
   fila := 8;
   colum := 9;
-  nave[1] := 1;
-  nave[2] := 2;
 
+  // Inicializar las variables de las naves
+  nave[1] := 1;
+  nave[2] := 1;
 
   relleno(terreno, nave, fila, colum);
-  Personaje(nave, fila, colum, 86);
 
-  Repeat
-    leerMapa(terreno, fila, colum);
-    ch := readkey;
-  Until (ord(ch) = ENTER);
+  // Partida principal
+  Partida(terreno, nave, fila, colum, 0);
+
 End.
