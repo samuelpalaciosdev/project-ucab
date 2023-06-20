@@ -2,24 +2,28 @@ Program prueba_archivos;
 
 Const
   limite = 30;
+	limiteEstrellas = 10;
 
 Type
   matriz = Array[1..limite, 1..limite] of Integer;
+	// Tipo de dato usado en varias keys del objeto
+	coordenada = Record
+	  posicionX: Integer;
+		posicionY: Integer;
+	end;
+	// Objeto donde se almacena toda la info del archivo
   datamapa = record
     dimensiones: record
       fil: Integer;
       col: Integer;
     end;
-    nave: record
-      posicionX: Integer;
-      posicionY: Integer;
-    end;
-    planetaT: record
-      posicionX: Integer;
-      posicionY: Integer;
-    end;
+    nave: coordenada;
+    planetaT: coordenada;
+		estrellas: Record
+		  cantidad: Integer;
+			coordenadas: Array[1..limiteEstrellas] of coordenada;
+		end;
   end;
-
 Var
   m: matriz; fil,col:Integer;
 	archivo: text;
@@ -37,6 +41,8 @@ Begin
 	Read(archivo, datosMapa.nave.posicionX, datosMapa.nave.posicionY);
 	// Guardar posicion planetaT (X,Y)
 	Read(archivo, datosMapa.planetaT.posicionX, datosMapa.planetaT.posicionY);
+	// Guardar cantidad de estrellas
+	Read(archivo, datosMapa.estrellas.cantidad);
 
 End;
 
