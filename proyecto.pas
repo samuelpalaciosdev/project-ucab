@@ -84,8 +84,6 @@ Begin
 
   randomize;
 
-  nave[1] := random(fil)+1;
-  nave[2] := random(col)+1;
 {Randomizo la nave}
   nave[1] := random(fil)+1;
   nave[2] := random(col)+1;
@@ -123,17 +121,6 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -356,7 +343,6 @@ Var
   fil, col: integer;
   // Juego
   terreno: mapa;
-  ch: char;
   nave, planeta: vector;
   opc: Integer;
   // Menu
