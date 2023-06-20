@@ -26,12 +26,7 @@ Const
 Type 
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
-  mapa2 = array[1..LIMITE, 1..LIMITE] Of Integer;
   Victoria = (sigue, gano);
-  // MAPA SAMUEL
-
-  // Variables principales
-
 
   // Funci�n que valida tanto filas como columnas
 Function validarDim(n: Integer; mensaje: String): Integer;
@@ -47,40 +42,8 @@ Begin
   validarDim := n;
 End;
 
-Procedure generarMapa(Var terreno: mapa2; fil,col:integer);
-
-Var 
-  i,j: integer;
-Begin
-  randomize;
-  For i:=1 To fil Do
-    Begin
-      For j:=1 To col Do
-        Begin
-          terreno[i,j] := random(9)+1;
-        End;
-    End;
-End;
-
-Procedure imprimirMapa(terreno: mapa2; fil, col:Integer);
-
-Var 
-  i, j: Integer;
-Begin
-
-  For i:=1 To fil Do
-    Begin
-      For j:=1 To col Do
-        Begin
-          write(terreno[i,j], ' ');
-        End;
-      writeLn;
-    End;
-End;
-
-
 // Menu tutorial
-Procedure menuTutorial;
+Procedure menuTutorial(Var opc: integer; Var volver, salir: boolean);
 Begin
 
   salir := false;
@@ -110,47 +73,10 @@ Begin
     End;
   Until (salir) Or (volver);
 End;
-// Menu opcion jugar
-Procedure menuJugar;
-Begin
-
-  salir := false;
-  volver := false;
-  Repeat
-    clrscr;
-    Delay(300);
-    writeLn('---LE NAVE---');
-    writeLn('Selecciona una de las siguientes modalidades de juego: ');
-    writeln('1. Mapa personalizado');
-    writeln('2. Mapa al azar');
-    writeln('3. Volver');
-    writeln('4. Salir');
-    Readln(opc);
-    Case opc Of 
-      1:
-         Begin
-           Clrscr;
-           Delay(300);
-           fil := validarDim(fil, 'filas');
-           col := validarDim(col, 'columnas');
-           generarMapa(terreno2, fil,col);
-           imprimirMapa(terreno2,fil,col);
-           Readln;
-         End;
-      2: writeln('Mapa al azar');
-      3: volver := true;
-      4: salir := true;
-      Else
-        Begin
-          writeLn('Error, la opcion', opc, ' no existe');
-          readLn;
-        End;
-    End;
-  Until (salir) Or (volver);
-End;
 
 
-Procedure relleno(Var terreno: mapa; nave: vector; fila, colum: integer);
+Procedure relleno(Var terreno: mapa; Var nave, planeta: vector; fil, col:
+                  integer);
 
 Var 
   i, j: integer;
@@ -197,6 +123,11 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
+
+
+
 
 
 
@@ -338,6 +269,8 @@ Var
   desarrollo: Victoria;
 
 Begin
+  clrscr;
+
 {Se declara la partida}
   desarrollo := sigue;
 
@@ -360,20 +293,63 @@ Begin
 
 End;
 
+// MENU JUGAR::
+
+// Menu opcion jugar
+Procedure menuJugar(terreno: mapa; nave, planeta: vector; Var opc: integer;
+                    Var volver, salir: boolean;
+                    Var fil, col:
+                    integer);
+
+
+Begin
+
+  salir := false;
+  volver := false;
+  Repeat
+    clrscr;
+    Delay(300);
+    writeLn('---LE NAVE---');
+    writeLn('Selecciona una de las siguientes modalidades de juego: ');
+    writeln('1. Mapa personalizado');
+    writeln('2. Mapa al azar');
+    writeln('3. Volver');
+    writeln('4. Salir');
+    Readln(opc);
+    Case opc Of 
+      1:
+         Begin
+           Clrscr;
+           Delay(300);
+           fil := validarDim(fil, 'filas');
+           col := validarDim(col, 'columnas');
+           Partida(terreno, nave, planeta, fil, col, 0);
+           Readln;
+         End;
+      2: writeln('Mapa al azar');
+      3: volver := true;
+      4: salir := true;
+      Else
+        Begin
+          writeLn('Error, la opcion', opc, ' no existe');
+          readLn;
+        End;
+    End;
+  Until (salir) Or (volver);
+End;
+
 // Muestra
 
 Var 
   fil, col: integer;
   // Juego
   terreno: mapa;
-  terreno2: mapa2;
   // MAPA SAMUEL
   ch: char;
-  nave, planeta, destructor: vector;
+  nave, planeta: vector;
   opc: Integer;
   // Menu
   salir, volver: Boolean;
-
 
 Begin
   clrscr;
@@ -389,9 +365,10 @@ Begin
   nave[1] := 1;
   nave[2] := 2;
 
+{Inicializar variables del planeta}
+  planeta[1] := 1;
+  planeta[2] := 2;
 
-{PARTIDA PRINCIPAL}
-  Partida(terreno, nave, planeta, fil, col, 0);
 
   Repeat
     clrscr;
@@ -402,8 +379,8 @@ Begin
     readln(opc);
     writeLn;
     Case opc Of 
-      1: menuJugar;
-      2: menuTutorial;
+      1: menuJugar(terreno, nave, planeta, opc, volver, salir, fil, col);
+      2: menuTutorial(opc, volver, salir);
       3: salir := true;
       Else
         Begin
