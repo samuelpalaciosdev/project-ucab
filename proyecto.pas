@@ -126,6 +126,17 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
@@ -267,16 +278,25 @@ Begin
 {Se declara la partida}
   desarrollo := sigue;
 
+{Relleno el Mapa}
+  relleno(terreno, nave, planeta, fil, col);
+
 {Se renderiza el mapa inicial}
   leerMapa(terreno, nave, fil, col, 0);
 
 {Bucle donde se desarollan los movimientos}
+
+
+
   Repeat
-    terreno[nave[1], nave[2]] := CELDA;
-    ch := upcase(readkey);
-    leerMapa(terreno, nave, fil, col, ord(ch));
-    If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
-      desarrollo := gano;
+    Begin
+      terreno[nave[1], nave[2]] := CELDA;
+      ch := upcase(readkey);
+      leerMapa(terreno, nave, fil, col, ord(ch));
+      If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+        desarrollo := gano;
+    End;
+
   Until ((ord(ch) = ESC) Or (desarrollo = gano));
 
 
@@ -336,7 +356,6 @@ Var
   fil, col: integer;
   // Juego
   terreno: mapa;
-  // MAPA SAMUEL
   ch: char;
   nave, planeta: vector;
   opc: Integer;
@@ -345,13 +364,10 @@ Var
 
 Begin
   clrscr;
-  salir := false;
+
   // Inicializando estados de salir y volver
+  salir := false;
   volver := false;
-
-
-  fil := 8;
-  col := 9;
 
 {Inicializar las variables de la nave}
   nave[1] := 1;
@@ -361,24 +377,12 @@ Begin
   planeta[1] := 1;
   planeta[2] := 2;
 
+{FILA Y COLUMNA PROVISIONAL}
+  fil := 9;
+  col := 9;
 
-  Repeat
-    clrscr;
-    writeln('---Bienvenido a L nave---');
-    writeln('1. Jugar');
-    writeln('2. Tutorial');
-    writeln('3. Salir');
-    readln(opc);
-    writeLn;
-    Case opc Of 
-      1: menuJugar(terreno, nave, planeta, opc, volver, salir, fil, col);
-      2: menuTutorial(opc, volver, salir);
-      3: salir := true;
-      Else
-        Begin
-          writeLn('Error, la opcion ', opc, ' no existe');
-          Readln;
-        End;
-    End;
-  Until (salir);
+{Inicio de PARTIDA}
+  Partida(terreno, nave, planeta, fil, col, 0);
+
+
 End.
