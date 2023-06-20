@@ -24,17 +24,16 @@ Const
 Type
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
-  mapa2 = array[1..LIMITE, 1..LIMITE] Of Integer;    // MAPA SAMUEL
 
 // Variables principales
 Var
   fil, col: integer; // Juego
   terreno: mapa;
-	terreno2: mapa2;   // MAPA SAMUEL
   ch: char;
 	nave: vector;
 	opc: Integer; // Menu
 	salir, volver: Boolean;
+	obj: Record;      
 
 // Función que valida tanto filas como columnas
 Function validarDim(n: Integer; mensaje: String):Integer;
@@ -49,37 +48,18 @@ Begin
 	 validarDim:= n;
 End;
 
-procedure generarMapa(var terreno: mapa2; fil,col:integer);
-var
-  i,j:integer;
-begin
-  randomize;
-  for i:=1 to fil do
-     begin
-       for j:=1 to col do
-         begin
-            terreno[i,j]:=random(9)+1;
-         end;
-     end;
-end;
+// ----------------------- ARCHIVOS ----------------------- 
 
-Procedure imprimirMapa(terreno: mapa2; fil, col:Integer);
+Procedure generarMapaConObjeto(var m: matriz; obj: record);
 Var
    i, j: Integer;
 Begin
 
-   for i:=1 to fil Do
-	 Begin
-	    for j:=1 to col Do
-			Begin
-			   write(terreno[i,j], ' ');
-			End;
-			writeLn;
-	 End;
 End;
-			   
 
-// Menu tutorial
+   
+
+{ Menu tutorial
 Procedure menuTutorial;
 Begin
 
@@ -148,6 +128,29 @@ Begin
 	Until(salir) or (volver);
 End;
 
+Procedure menuInicio(Var salir, volver: Boolean);
+Begin
+  Repeat
+	   clrscr;
+     writeln('---Bienvenido a L nave---');
+     writeln('1. Jugar');
+     writeln('2. Tutorial');
+     writeln('3. Salir');
+     readln(opc);
+		 writeLn;
+		 case opc of
+		    1: menuJugar;
+		    2: menuTutorial;
+		    3: salir:= true;
+				Else
+				Begin
+				   writeLn('Error, la opcion ', opc, ' no existe');
+					 Readln;
+				End;
+		 End;
+  Until(salir);
+End;
+}
 Procedure relleno(Var terreno: mapa; nave: vector; fil, col: integer);
 
 Var
@@ -274,8 +277,8 @@ End;
 // PROGRAMA PRINCIPAL ------------------------------
 Begin
   clrscr;
-	salir:= false; // Inicializando estados de salir y volver
-	volver:= false;
+	{salir:= false; // Inicializando estados de salir y volver
+	volver:= false; }
 
 	{// Pedir filas y columnas al usuario
 	fil:= validarDim(fil, 'filas');
@@ -297,23 +300,7 @@ Begin
 
 	// MENU PRINCIPAL
 
-  Repeat
-	   clrscr;
-     writeln('---Bienvenido a L nave---');
-     writeln('1. Jugar');
-     writeln('2. Tutorial');
-     writeln('3. Salir');
-     readln(opc);
-		 writeLn;
-		 case opc of
-		    1: menuJugar;
-		    2: menuTutorial;
-		    3: salir:= true;
-				Else
-				Begin
-				   writeLn('Error, la opcion ', opc, ' no existe');
-					 Readln;
-				End;
-		 End;
-  Until(salir);
+	writeLn('Hola');
+
+Readln;
 End.
