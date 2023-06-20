@@ -23,15 +23,134 @@ Const
   Z = 90;
   X = 88;
 
-
 Type 
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
-  {Aqui esta el booleano de si la partida sigue o acaba porque llego al planeta}
+  mapa2 = array[1..LIMITE, 1..LIMITE] Of Integer;
   Victoria = (sigue, gano);
+  // MAPA SAMUEL
 
-Procedure relleno(Var terreno: mapa; Var nave, planeta: vector; fil, col:
-                  integer);
+  // Variables principales
+
+
+  // Funci�n que valida tanto filas como columnas
+Function validarDim(n: Integer; mensaje: String): Integer;
+Begin
+  Repeat
+    Write('Indique la cantidad de ', mensaje, ' a ingresar: ');
+    ReadLn(n);
+    If (n < 0) Or (n > LIMITE) Then
+      writeLn('Error, la cantidad de ', mensaje,
+              ' debe estar comprendido entre 1 y ', LIMITE);
+  Until (n>=1) And (n<=LIMITE);
+
+  validarDim := n;
+End;
+
+Procedure generarMapa(Var terreno: mapa2; fil,col:integer);
+
+Var 
+  i,j: integer;
+Begin
+  randomize;
+  For i:=1 To fil Do
+    Begin
+      For j:=1 To col Do
+        Begin
+          terreno[i,j] := random(9)+1;
+        End;
+    End;
+End;
+
+Procedure imprimirMapa(terreno: mapa2; fil, col:Integer);
+
+Var 
+  i, j: Integer;
+Begin
+
+  For i:=1 To fil Do
+    Begin
+      For j:=1 To col Do
+        Begin
+          write(terreno[i,j], ' ');
+        End;
+      writeLn;
+    End;
+End;
+
+
+// Menu tutorial
+Procedure menuTutorial;
+Begin
+
+  salir := false;
+  volver := false;
+  Repeat
+    clrscr;
+    Delay(300);
+    writeLn('---Bienvenido al tutorial de LE NAVE---');
+    writeLn('Selecciona una opcion: ');
+    writeLn('1. Controles');
+    writeLn('2. Como funciona?');
+    writeLn('3. Truquitos');
+    writeLn('4. Volver');
+    writeLn('5. Salir');
+    Readln(opc);
+    Case opc Of 
+      1: writeLn('Los controles son...');
+      2: writeLn('Como tu quieras');
+      3: writeLn('No hay truquitos');
+      4: volver := True;
+      5: salir := True;
+      Else
+        Begin
+          writeLn('La opcion ', opc, ' no existe');
+          readLn;
+        End;
+    End;
+  Until (salir) Or (volver);
+End;
+// Menu opcion jugar
+Procedure menuJugar;
+Begin
+
+  salir := false;
+  volver := false;
+  Repeat
+    clrscr;
+    Delay(300);
+    writeLn('---LE NAVE---');
+    writeLn('Selecciona una de las siguientes modalidades de juego: ');
+    writeln('1. Mapa personalizado');
+    writeln('2. Mapa al azar');
+    writeln('3. Volver');
+    writeln('4. Salir');
+    Readln(opc);
+    Case opc Of 
+      1:
+         Begin
+           Clrscr;
+           Delay(300);
+           fil := validarDim(fil, 'filas');
+           col := validarDim(col, 'columnas');
+           generarMapa(terreno2, fil,col);
+           imprimirMapa(terreno2,fil,col);
+           Readln;
+         End;
+      2: writeln('Mapa al azar');
+      3: volver := true;
+      4: salir := true;
+      Else
+        Begin
+          writeLn('Error, la opcion', opc, ' no existe');
+          readLn;
+        End;
+    End;
+  Until (salir) Or (volver);
+End;
+
+
+Procedure relleno(Var terreno: mapa; nave: vector; fila, colum: integer);
 
 Var 
   i, j: integer;
@@ -39,6 +158,8 @@ Begin
 
   randomize;
 
+  nave[1] := random(fil)+1;
+  nave[2] := random(col)+1;
 {Randomizo la nave}
   nave[1] := random(fil)+1;
   nave[2] := random(col)+1;
@@ -76,6 +197,8 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
 
 
 
@@ -237,31 +360,56 @@ Begin
 
 End;
 
-// Consola
+// Muestra
 
 Var 
   fil, col: integer;
+  // Juego
   terreno: mapa;
+  terreno2: mapa2;
+  // MAPA SAMUEL
+  ch: char;
   nave, planeta, destructor: vector;
+  opc: Integer;
+  // Menu
+  salir, volver: Boolean;
+
 
 Begin
   clrscr;
+  salir := false;
+  // Inicializando estados de salir y volver
+  volver := false;
+
 
   fil := 8;
   col := 9;
 
 {Inicializar las variables de la nave}
   nave[1] := 1;
-  nave[2] := 1;
+  nave[2] := 2;
 
-{Inicializar las variables de la bandera}
-  planeta[1] := 1;
-  planeta[2] := 2;
-
-{Relleno del mapa}
-  relleno(terreno, nave, planeta, fil, col);
 
 {PARTIDA PRINCIPAL}
   Partida(terreno, nave, planeta, fil, col, 0);
 
+  Repeat
+    clrscr;
+    writeln('---Bienvenido a L nave---');
+    writeln('1. Jugar');
+    writeln('2. Tutorial');
+    writeln('3. Salir');
+    readln(opc);
+    writeLn;
+    Case opc Of 
+      1: menuJugar;
+      2: menuTutorial;
+      3: salir := true;
+      Else
+        Begin
+          writeLn('Error, la opcion ', opc, ' no existe');
+          Readln;
+        End;
+    End;
+  Until (salir);
 End.
