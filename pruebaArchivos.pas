@@ -33,6 +33,10 @@ Begin
   reset(archivo);
 	// Guardar fila y columna en el objeto
 	Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
+	// Guardar posicion nave     (X,Y)
+	Read(archivo, datosMapa.nave.posicionX, datosMapa.nave.posicionY);
+	// Guardar posicion planetaT (X,Y)
+	Read(archivo, datosMapa.planetaT.posicionX, datosMapa.planetaT.posicionY);
 
 End;
 
@@ -41,7 +45,8 @@ Begin
 
   Assign(archivo, 'E:\Default Folders\Samuel\Desktop\UCAB 2do semestre\project-ucab\est.dat');
 	leerArchivo(archivo);
-	writeLn('El valor de filas es: ', datosMapa.dimensiones.fil, ' el valor de columnas es: ', datosMapa.dimensiones.col);
-
+	writeLn('El valor de filas es ', datosMapa.dimensiones.fil, ' y de columnas ', datosMapa.dimensiones.col);
+	writeLn('Las coordenadas de la nave son: ', datosMapa.nave.posicionX, ' y ', datosMapa.nave.posicionY);
+	writeLn('Las coordenadas de el planeta T son: ', datosMapa.planetaT.posicionX, ' y ', datosMapa.planetaT.posicionY);
 Readln;
 End.
