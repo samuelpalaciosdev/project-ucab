@@ -79,13 +79,6 @@ Begin
 
 
 
-
-
-
-
-
-
-
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
@@ -133,6 +126,8 @@ Begin
 End;
 
 // ANIMACIONES 
+//
+// 
 
 Procedure AnimacionGanar(desarrollo: Victoria);
 Begin
@@ -155,6 +150,8 @@ Begin
 End;
 
 // LEER EL MAPA FINAL PROCEDIMIENTO
+//
+//
 
 Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla
                    :
@@ -207,6 +204,8 @@ Begin
 End;
 
 {Aqui se desarrolla el bucle principal del juego}
+//
+//
 
 Procedure Partida(Var terreno: mapa; nave, planeta: vector; fil, col, tecla:
                   integer);
@@ -238,7 +237,7 @@ Begin
 
 End;
 
-// Muestra
+// Consola
 
 Var 
   fil, col: integer;
