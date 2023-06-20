@@ -125,6 +125,7 @@ Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 Begin
 
 
+
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
@@ -316,7 +317,6 @@ Begin
            fil := validarDim(fil, 'filas');
            col := validarDim(col, 'columnas');
            Partida(terreno, nave, planeta, fil, col, 0);
-           Readln;
          End;
       2: writeln('Mapa al azar');
       3: volver := true;
