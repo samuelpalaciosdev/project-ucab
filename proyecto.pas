@@ -125,14 +125,6 @@ Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 Begin
 
 
-
-
-
-
-
-
-
-
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
