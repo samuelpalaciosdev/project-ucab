@@ -24,6 +24,31 @@ Const
 Type
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
+	datosMapa = Record
+	 						Dimensiones: Record
+							  Fil: Integer;
+								Col: Integer;
+							End;
+							Nave: Record
+							  PosicionX: Integer;
+								PosicionY: Integer;
+							End;
+							PlanetaT: Record
+							  PosicionX: Integer;
+								PosicionY: Integer;
+							End;
+							Estrellas: Record
+							  Cantidad: Integer;
+								Coordenadas: Array of Record
+								  PosicionX: Integer;
+									PosicionY: Integer;     
+							End;
+							Destructores: Record
+							  Cantidad: Integer;
+								Coordenadas: Array of Record
+								  PosicionX: Integer;
+									PosicionY: Integer;
+							End;
 
 // Variables principales
 Var
