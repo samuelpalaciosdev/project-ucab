@@ -126,6 +126,7 @@ Begin
 
 
 
+
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
@@ -268,6 +269,9 @@ Begin
   desarrollo := sigue;
 
 {Se renderiza el mapa inicial}
+  relleno(terreno, nave, planeta, fil, col);
+
+{Se lee el mapa inicial}
   leerMapa(terreno, nave, fil, col, 0);
 
 {Bucle donde se desarollan los movimientos}
