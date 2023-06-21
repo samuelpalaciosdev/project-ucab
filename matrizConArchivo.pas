@@ -67,7 +67,7 @@ Procedure leerArchivo(var archivo: text; var datosMapa: dataMapa);
 Var
   i, j: Integer;
 Begin
-
+	// Abrir archivo
   reset(archivo);
 	// Guardar fila y columna en el objeto
 	Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
@@ -81,6 +81,7 @@ Begin
 	// Guardar cantidad y coordenadas de destructores
 	leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas);
 
+  Close(archivo);
 End;
 
 // Mostrar cantidad y coordenadas Procedure reutilizable para (ESTRELLAS Y DESTRUCTORES)
@@ -103,11 +104,17 @@ begin
   // Inicializar la matriz con espacios en blanco
   for i := 1 to limite do
     for j := 1 to limite do
-      m[i, j] := 'o';
+      m[i, j] := '#';
+
+	// Asignar posicion de la nave en la matriz
+	m[datosMapa.nave.posicionX, datosMapa.nave.posicionY] := 'H';
+
+	// Asignar posicion del planetaT en la matriz
+	m[datosMapa.planetaT.posicionX, datosMapa.planetaT.posicionY] := 'T';
 
   // Asignar las coordenadas de las estrellas en la matriz
   for i := 1 to datosMapa.estrellas.cantidad do
-    m[datosMapa.estrellas.coordenadas[i].posicionX, datosMapa.estrellas.coordenadas[i].posicionY] := '*';
+    m[datosMapa.estrellas.coordenadas[i].posicionX, datosMapa.estrellas.coordenadas[i].posicionY] := 'E';
 
   // Asignar las coordenadas de los destructores en la matriz
   for i := 1 to datosMapa.destructores.cantidad do
