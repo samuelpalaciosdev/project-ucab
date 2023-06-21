@@ -5,6 +5,7 @@ Uses crt;
 
 Const 
   LIMITE = 30;
+  LIMITE_ESTRELLAS = 10;
   CELDA = '#';
   PARED = '|';
   PISO = '_';
@@ -33,32 +34,29 @@ Type
     posicionX: Integer;
     posicionY: Integer;
   End;
+
   // Objeto donde se almacena toda la info del archivo
   dataMapa = Record
+    plano: mapa;
     dimensiones: Record
       fil: Integer;
       col: Integer;
     End;
-    nave: vector;
-    planeta: vector;
+    naveT: vector;
+    planetaT: vector;
     estrellas: Record
       cantidad: Integer;
-      coordenadas: Array[1..limiteEstrellas] Of coordenada;
+      coordenadas: Array[1..LIMITE_ESTRELLAS] Of coordenada;
     End;
     destructores: Record
       cantidad: Integer;
-      coordenadas: Array[1..limiteEstrellas] Of coordenada;
+      coordenadas: Array[1..LIMITE_ESTRELLAS] Of coordenada;
     End;
   End;
 
   // ARCHIVOS
   //
   //
-
-
-
-
-
 
 
 
@@ -90,6 +88,10 @@ Begin
 
 
 
+
+
+
+
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
   // Nro < a 10 (0 n) (ej. 0 7) = 7
   Read(archivo, cant_1);
@@ -97,6 +99,10 @@ Begin
     Begin
       Read(archivo, cantidad);
     End
+
+
+
+
 
 
 
@@ -119,6 +125,15 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
 	       obj de coordenadas dentro de un array}
   For i := 1 To cantidad Do
@@ -127,20 +142,48 @@ Begin
     End;
 End;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Mostrar cantidad y coordenadas Procedure reutilizable para (ESTRELLAS Y DESTRUCTORES)
+Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas: Array Of
+                                      coordenada; mensaje: String);
+
+Var 
+  i: Integer;
+Begin
+  writeLn('Cantidad de ', mensaje, ': ', cantidad);
+  writeln('Coordenadas de ', mensaje, ':');
+  For i := 1 To cantidad Do
+    Begin
+      writeln(i, ': X=', coordenadas[i].posicionX, ', Y=', coordenadas[i].
+              posicionY);
+    End;
+End;
+
 // Leer Archivo Principal
 Procedure leerArchivo(Var archivo: text; Var datosMapa: dataMapa);
 
-Var 
-  i, j: Integer;
 Begin
   // Abrir archivo
   reset(archivo);
   // Guardar fila y columna en el objeto
   Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
   // Guardar posicion nave     (X,Y)
-  Read(archivo, datosMapa.nave[1], datosMapa.nave[2]);
+  Read(archivo, datosMapa.naveT[1], datosMapa.naveT[2]);
   // Guardar posicion planetaT (X,Y)
-  Read(archivo, datosMapa.planeta[1], datosMapa.planeta[2]);
+  Read(archivo, datosMapa.planetaT[1], datosMapa.planetaT[2]);
 
   // Guarda cantidad y coordenadas de estrellas
   leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.
@@ -155,16 +198,17 @@ End;
 // Procesar datos del Archivo
 // 
 
-Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa);
+Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa;
+                          baseArchivo: String);
 Begin
-  Assign(archivo, 'est.dat');
+  Assign(archivo, baseArchivo);
   leerArchivo(archivo, datosMapa);
   writeLn('El valor de filas es ', datosMapa.dimensiones.fil, ' y de columnas ',
           datosMapa.dimensiones.col);
-  writeLn('Las coordenadas de la nave son: ', datosMapa.nave.posicionX, ' y ',
-          datosMapa.nave.posicionY);
-  writeLn('Las coordenadas de el planeta T son: ', datosMapa.planetaT.posicionX,
-          ' y ', datosMapa.planetaT.posicionY);
+  writeLn('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ',
+          datosMapa.naveT[2]);
+  writeLn('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],
+          ' y ', datosMapa.planetaT[2]);
   MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.
                               coordenadas, 'estrellas');
   MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.
@@ -219,6 +263,9 @@ Begin
   Until (salir) Or (volver);
 End;
 
+// POR HACER RELLENO ESTATICO
+// 
+// 
 
 Procedure relleno(Var terreno: mapa; Var nave, planeta: vector; fil, col:
                   integer);
@@ -268,6 +315,29 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -483,45 +553,21 @@ End;
 
 // Muestra
 
+Procedure Menu(Var data: dataMapa; Var opc: integer; Var volver, salir: boolean)
+;
+
 Var 
-  // Archivo
-  archivo: text;
-  datosMapa: dataMapa;
-  // Fil y Col
-  fil, col: integer;
-  // Juego
   terreno: mapa;
-  // MAPA SAMUEL
-  ch: char;
   nave, planeta: vector;
-  opc: Integer;
-  // Menu
-  salir, volver: Boolean;
+  fil, col: integer;
 
 Begin
-  clrscr;
-  salir := false;
-  // Inicializando estados de salir y volver
-  volver := false;
-
-
-  fil := 8;
-  col := 9;
-
-{Inicializar las variables de la nave}
-  nave[1] := 1;
-  nave[2] := 2;
-
-{Inicializar variables del planeta}
-  planeta[1] := 1;
-  planeta[2] := 2;
-
-
-  // Mapa
-
-  archivo := 'est.dat';
-
-  procesarArchivo(archivo, datosMapa);
+  // Asigno variables
+  terreno := data.plano;
+  nave := data.naveT;
+  planeta := data.planetaT;
+  fil := data.dimensiones.fil;
+  col := data.dimensiones.col;
 
 
   Repeat
@@ -543,4 +589,45 @@ Begin
         End;
     End;
   Until (salir);
+
+End;
+
+Var 
+  // Archivo
+  archivo: text;
+  baseArchivo: string;
+  datosMapa: dataMapa;
+  // Fil y Col
+  fil, col: integer;
+  // Juego
+  terreno: mapa;
+  // MAPA SAMUEL
+  ch: char;
+  nave, planeta: vector;
+  opc: Integer;
+  // Menu
+  salir, volver: Boolean;
+
+Begin
+  clrscr;
+
+  // base archivo estatico
+  baseArchivo := 'est.dat';
+
+  // Inicializando estados de salir y volver
+  salir := false;
+  volver := false;
+
+{Inicializar las variables de la nave}
+  nave[1] := 1;
+  nave[2] := 2;
+
+{Inicializar variables del planeta}
+  planeta[1] := 1;
+  planeta[2] := 2;
+
+  procesarArchivo(archivo, datosMapa, baseArchivo);
+  Menu(datosMapa, opc, volver, salir);
+
+
 End.
