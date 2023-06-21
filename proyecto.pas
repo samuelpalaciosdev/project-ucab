@@ -5,12 +5,14 @@ Uses crt;
 
 Const 
   LIMITE = 30;
+  LIMITE_ESTRELLAS = 10;
   CELDA = '#';
   PARED = '|';
   PISO = '_';
   PERSONAJEPOS = 'A';
   BANDERA = '~';
   BOMBA = 'O';
+  ESTRELLA = '*';
   // Letras
   ENTER = 13;
   ESC = 27;
@@ -26,9 +28,46 @@ Const
 Type 
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
-  Victoria = (sigue, gano);
 
-  // Funci�n que valida tanto filas como columnas
+  Victoria = (sigue, gano);
+  posiciones = Record
+    posicionX: Integer;
+    posicionY: Integer;
+  End;
+
+  coordArray = Array[1..LIMITE_ESTRELLAS] Of posiciones;
+
+  elementos = Record
+    cantidadEstrellas: Integer;
+    coordenadasEstrellas: coordArray;
+    cantidadDestructores: Integer;
+    coordenadasDestructores: coordArray;
+  End;
+
+Procedure generarElem(Var cant: integer; Var param:
+                      coordArray; fil, col: integer)
+;
+
+Var 
+  i: integer;
+
+Begin
+  randomize;
+  cant := random(10)+1;
+
+  For i := 1 To cant Do
+    Begin
+      param[i].posicionX := random(fil)+1;
+      param[i].posicionY := random(col)+1;
+
+      writeln('Coordenada X: ', param[i].posicionX,
+              ' Coordenada Y: ', param[i].posicionY);
+    End;
+
+
+End;
+
+// Funci�n que valida tanto filas como columnas
 Function validarDim(n: Integer; mensaje: String): Integer;
 Begin
   Repeat
@@ -75,7 +114,8 @@ Begin
 End;
 
 
-Procedure relleno(Var terreno: mapa; Var nave, planeta: vector; fil, col:
+Procedure relleno(Var terreno: mapa; Var data: elementos; Var nave, planeta:
+                  vector; fil, col:
                   integer);
 
 Var 
@@ -94,13 +134,26 @@ Begin
     planeta[2] := random(col)+1;
   Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
 
+{Genero las posiciones de los destructores y estrellas}
+
+  writeln('Estrellas: ');
+  generarElem(data.cantidadEstrellas, data.coordenadasEstrellas, fil, col);
+  writeln;
+  writeln('Destructores: ');
+  generarElem(data.cantidadDestructores, data.coordenadasDestructores, fil, col)
+  ;
+
+  readkey;
+
+
   For i := 1 To fil Do
     Begin
       j := 1;
       For j:= 1 To col Do
         Begin
         {Posiciono la nave o el planeta en el terreno}
-          If ((nave[1] = i) And (nave[2] = j) Or ((planeta[1] = i) And (planeta[
+          If ((nave[1] = i) And (nave[2] = j) Or ((planeta[1] = i) And (
+             planeta[
              2] = j))) Then
             Begin
             {Nave}
@@ -121,6 +174,13 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
+
+
+
+
+
 
 
 
@@ -252,7 +312,8 @@ End;
 //
 //
 
-Procedure Partida(Var terreno: mapa; nave, planeta: vector; fil, col, tecla:
+Procedure Partida(Var terreno: mapa; Var data: elementos; nave, planeta: vector;
+                  fil, col, tecla:
                   integer);
 
 Var 
@@ -266,7 +327,7 @@ Begin
   desarrollo := sigue;
 
 {Relleno el Mapa}
-  relleno(terreno, nave, planeta, fil, col);
+  relleno(terreno, data, nave, planeta, fil, col);
 
 {Se renderiza el mapa inicial}
   leerMapa(terreno, nave, fil, col, 0);
@@ -296,7 +357,8 @@ End;
 // MENU JUGAR::
 
 // Menu opcion jugar
-Procedure menuJugar(terreno: mapa; nave, planeta: vector; Var opc: integer;
+Procedure menuJugar(terreno: mapa; Var data: elementos; nave, planeta: vector;
+                    Var opc: integer;
                     Var volver, salir: boolean;
                     Var fil, col:
                     integer);
@@ -323,7 +385,7 @@ Begin
            Delay(300);
            fil := validarDim(fil, 'filas');
            col := validarDim(col, 'columnas');
-           Partida(terreno, nave, planeta, fil, col, 0);
+           Partida(terreno, data, nave, planeta, fil, col, 0);
          End;
       2: writeln('Mapa al azar');
       3: volver := true;
@@ -340,7 +402,10 @@ End;
 // Muestra
 
 Var 
+  // filas y columnas
   fil, col: integer;
+  // Data completa
+  data: elementos;
   // Juego
   terreno: mapa;
   nave, planeta: vector;
@@ -368,7 +433,7 @@ Begin
   col := 9;
 
 {Inicio de PARTIDA}
-  Partida(terreno, nave, planeta, fil, col, 0);
+  Partida(terreno, data, nave, planeta, fil, col, 0);
 
 
 End.
