@@ -95,6 +95,7 @@ End;
 
 
 
+
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
                                    coordenadas: Array Of coordenada);
@@ -111,6 +112,7 @@ Begin
 
 
 
+
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
   // Nro < a 10 (0 n) (ej. 0 7) = 7
   Read(archivo, cant_1);
@@ -118,6 +120,7 @@ Begin
     Begin
       Read(archivo, cantidad);
     End
+
 
 
 
@@ -145,6 +148,7 @@ Begin
 
 
 
+
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
 	       obj de coordenadas dentro de un array}
   For i := 1 To cantidad Do
@@ -152,6 +156,7 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
+
 
 
 
@@ -343,6 +348,7 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
 
 
 
@@ -574,8 +580,7 @@ Begin
   Until (salir) Or (volver);
 End;
 
-// Muestra
-
+// Menu
 Procedure Menu(Var data: dataMapa; Var opc: integer; Var volver, salir: boolean)
 ;
 
