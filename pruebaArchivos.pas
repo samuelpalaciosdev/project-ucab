@@ -2,8 +2,8 @@ Program prueba_archivos;
 
 Const
   limite = 30;
-	// Debería ser una variable que cambia segun el max de estrellas expresado en el archivo
-	limiteEstrellas = 10;
+	limiteEstrellas = 15;
+
 
 Type
   matriz = Array[1..limite, 1..limite] of Integer;
@@ -25,20 +25,19 @@ Type
 			coordenadas: Array[1..limiteEstrellas] of coordenada;
 		end;
   end;
-	
-// Variables principales	
+
+  // Variables principales
 Var
   m: matriz; fil,col:Integer;
 	archivo: text;
 	datosMapa: dataMapa;
 	estrellas: Integer;
 	estrellasMod: Integer;
-	cantidadEstrellas: Integer;
 
-Procedure leerArchivo(var archivo: text; var cantidadEstrellas:Integer);
+Procedure leerArchivo(var archivo: text; var datosMapa: dataMapa);
 Var
   i, j: Integer;
-	cantEstrellas_1, cantEstrellas_2: Integer;
+	cantidadEstrellas, cantEstrellas_1, cantEstrellas_2: Integer;
 Begin
 
   reset(archivo);
@@ -62,7 +61,6 @@ Begin
 	// Nro de estrellas > a 10 (1 n ó 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15 estrellas
 	Begin
 	  Read(archivo, cantEstrellas_2);
-		writeLn('Estrellas 2: ', cantEstrellas_2);
 		cantidadEstrellas:= cantEstrellas_1 * 10 + cantEstrellas_2;
 		datosMapa.estrellas.cantidad:= cantidadEstrellas;
 	End;
@@ -70,26 +68,34 @@ Begin
 	// ---- Leer coordenadas de estrellas
 	for i:=1 to cantidadEstrellas Do
 	Begin
-
+    Read(archivo, datosMapa.estrellas.coordenadas[i].posicionX, datosMapa.estrellas.coordenadas[i].posicionY);
 	End;
-	   	   
-
 
 
 End;
+
+procedure MostrarCoordenadasEstrellas(datosMapa: datamapa);
+var
+  i: Integer;
+begin
+  writeln('Coordenadas de las estrellas:');
+  for i := 1 to datosMapa.estrellas.cantidad do
+  begin
+    writeln('Estrella ', i, ': X=', datosMapa.estrellas.coordenadas[i].posicionX, ', Y=', datosMapa.estrellas.coordenadas[i].posicionY);
+  end;
+end;
 
 
 Begin
 
   Assign(archivo, 'E:\Default Folders\Samuel\Desktop\UCAB 2do semestre\project-ucab\est.dat');
-	leerArchivo(archivo, cantidadEstrellas);
+	leerArchivo(archivo, datosMapa);
 	writeLn('El valor de filas es ', datosMapa.dimensiones.fil, ' y de columnas ', datosMapa.dimensiones.col);
 	writeLn('Las coordenadas de la nave son: ', datosMapa.nave.posicionX, ' y ', datosMapa.nave.posicionY);
 	writeLn('Las coordenadas de el planeta T son: ', datosMapa.planetaT.posicionX, ' y ', datosMapa.planetaT.posicionY);
-	writeLn('La cantidad de estrellas es: ', cantidadEstrellas);
 	estrellas:= datosMapa.estrellas.cantidad;
-	estrellasMod:= estrellas + 2;
-  writeLn(estrellasMod);
+  writeLn('Cantidad de estrellas: ', estrellas);
+	MostrarCoordenadasEstrellas(datosMapa);
 
 
 Readln;
