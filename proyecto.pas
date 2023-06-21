@@ -6,7 +6,6 @@ Uses crt;
 Const 
   LIMITE = 30;
   LIMITE_ESTRELLAS = 10;
-  LIMITE_ESTRELLAS = 10;
   CELDA = '#';
   PARED = '|';
   PISO = '_';
@@ -32,23 +31,38 @@ Type
   matriz = array[1..LIMITE_ESTRELLAS, 1..LIMITE_ESTRELLAS] Of Integer;
 
   Victoria = (sigue, gano);
-  posiciones = Record
+
+  // Tipo de dato usado en varias keys del objeto
+  coordenada = Record
     posicionX: Integer;
     posicionY: Integer;
   End;
 
-  coordArray = Array[1..LIMITE_ESTRELLAS] Of posiciones;
+  ArrayDinamico = Array[1..LIMITE_ESTRELLAS] Of coordenada;
 
-  elementos = Record
-    cantidadEstrellas: Integer;
-    coordenadasEstrellas: coordArray;
-    coordAlt: matriz;
-    cantidadDestructores: Integer;
-    coordenadasDestructores: coordArray;
+  // Objeto donde se almacena toda la info del archivo
+  dataMapa = Record
+    plano: mapa;
+    dimensiones: Record
+      fil: Integer;
+      col: Integer;
+    End;
+    naveT: vector;
+    planetaT: vector;
+    estrellas: Record
+      cantidad: Integer;
+      coordenadas: ArrayDinamico;
+    End;
+    destructores: Record
+      cantidad: Integer;
+      coordenadas: ArrayDinamico;
+    End;
   End;
 
+  // Generador
+
 Procedure Generador(Var cant: integer; Var param:
-                    coordArray; fil, col: integer)
+                    ArrayDinamico; fil, col: integer)
 ;
 
 Var 
@@ -69,34 +83,15 @@ Begin
 
 End;
 
-// Tipo de dato usado en varias keys del objeto
-coordenada = Record
-  posicionX: Integer;
-  posicionY: Integer;
-End;
-
-// Objeto donde se almacena toda la info del archivo
-dataMapa = Record
-  plano: mapa;
-  dimensiones: Record
-    fil: Integer;
-    col: Integer;
-  End;
-  naveT: vector;
-  planetaT: vector;
-  estrellas: Record
-    cantidad: Integer;
-    coordenadas: Array[1..LIMITE_ESTRELLAS] Of coordenada;
-  End;
-  destructores: Record
-    cantidad: Integer;
-    coordenadas: Array[1..LIMITE_ESTRELLAS] Of coordenada;
-  End;
-End;
 
 // ARCHIVOS
 //
 //
+
+
+
+
+
 
 
 
@@ -111,6 +106,11 @@ Begin
 
 
 
+
+
+
+
+
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
   // Nro < a 10 (0 n) (ej. 0 7) = 7
   Read(archivo, cant_1);
@@ -118,6 +118,13 @@ Begin
     Begin
       Read(archivo, cantidad);
     End
+
+
+
+
+
+
+
 
 
 
@@ -130,6 +137,14 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
 	       obj de coordenadas dentro de un array}
   For i := 1 To cantidad Do
@@ -137,6 +152,13 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
+
+
+
+
+
+
+
 
 
 
@@ -250,14 +272,13 @@ End;
 // 
 // 
 
-Procedure relleno(Var terreno: mapa; Var data: elementos; Var nave, planeta:
+Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta:
                   vector; fil, col:
                   integer);
 
 Var 
-  i, j, m, n: integer;
-  dani: integer;
-  coordEst, coordDest: coordArray;
+  i, j: integer;
+  coordEst, coordDest: ArrayDinamico;
 
 Begin
 
@@ -276,14 +297,14 @@ Begin
 {Genero las posiciones de los destructores y estrellas}
 
   writeln('Estrellas: ');
-  Generador(data.cantidadEstrellas, data.coordenadasEstrellas, fil, col);
+  Generador(data.estrellas.cantidad, data.estrellas.coordenadas, fil, col);
   writeln;
   writeln('Destructores: ');
-  Generador(data.cantidadDestructores, data.coordenadasDestructores, fil, col)
+  Generador(data.destructores.cantidad, data.destructores.coordenadas, fil, col)
   ;
 
-  coordEst := data.coordenadasEstrellas;
-  coordDest := data.coordenadasDestructores;
+  coordEst := data.estrellas.coordenadas;
+  coordDest := data.destructores.coordenadas;
 
   readkey;
 
@@ -305,11 +326,11 @@ Begin
       End;
 
   // Estrellas
-  For i := 1 To data.cantidadEstrellas Do
+  For i := 1 To data.estrellas.cantidad Do
     terreno[coordEst[i].posicionX, coordEst[i].posicionY] := STAR;
 
   // Destructores
-  For i:= 1 To data.cantidadDestructores Do
+  For i:= 1 To data.destructores.cantidad Do
     terreno[coordDest[i].posicionX, coordDest[i].posicionY] := BOMBA;
 
 
@@ -322,6 +343,19 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -453,7 +487,7 @@ End;
 //
 //
 
-Procedure Partida(Var terreno: mapa; Var data: elementos; nave, planeta:
+Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta:
                   vector;
                   fil, col, tecla:
                   integer);
@@ -471,15 +505,11 @@ Begin
 {Relleno el Mapa}
   relleno(terreno, data, nave, planeta, fil, col);
 
-{Se renderiza el mapa inicial}
-  relleno(terreno, nave, planeta, fil, col);
 
 {Se lee el mapa inicial}
   leerMapa(terreno, nave, fil, col, 0);
 
 {Bucle donde se desarollan los movimientos}
-
-
 
   Repeat
     Begin
@@ -502,7 +532,7 @@ End;
 // MENU JUGAR::
 
 // Menu opcion jugar
-Procedure menuJugar(terreno: mapa; Var data: elementos; nave, planeta: vector;
+Procedure menuJugar(terreno: mapa; Var data: dataMapa; nave, planeta: vector;
                     Var opc: integer;
                     Var volver, salir: boolean;
                     Var fil, col:
@@ -554,7 +584,6 @@ Var
   // Juego
   terreno: mapa;
   nave, planeta: vector;
-  fil, col: integer;
 
 Begin
   // Asigno variables
@@ -563,13 +592,6 @@ Begin
   planeta := data.planetaT;
   fil := data.dimensiones.fil;
   col := data.dimensiones.col;
-
-{FILA Y COLUMNA PROVISIONAL}
-  fil := 9;
-  col := 9;
-
-{Inicio de PARTIDA}
-  Partida(terreno, data, nave, planeta, fil, col, 0);
 
 
   Repeat
@@ -581,7 +603,7 @@ Begin
     readln(opc);
     writeLn;
     Case opc Of 
-      1: menuJugar(terreno, nave, planeta, opc, volver, salir, fil, col);
+      1: menuJugar(terreno, data, nave, planeta, opc, volver, salir, fil, col);
       2: menuTutorial(opc, volver, salir);
       3: salir := true;
       Else
