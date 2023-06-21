@@ -12,6 +12,7 @@ Const
   PERSONAJEPOS = 'A';
   BANDERA = '~';
   BOMBA = 'O';
+  STAR = 'Y';
   // Letras
   ENTER = 13;
   ESC = 27;
@@ -27,6 +28,8 @@ Const
 Type 
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
+  matriz = array[1..LIMITE_ESTRELLAS, 1..LIMITE_ESTRELLAS] Of Integer;
+
   Victoria = (sigue, gano);
 
   // Tipo de dato usado en varias keys del objeto
@@ -34,6 +37,8 @@ Type
     posicionX: Integer;
     posicionY: Integer;
   End;
+
+  ArrayDinamico = Array[1..LIMITE_ESTRELLAS] Of coordenada;
 
   // Objeto donde se almacena toda la info del archivo
   dataMapa = Record
@@ -46,17 +51,49 @@ Type
     planetaT: vector;
     estrellas: Record
       cantidad: Integer;
-      coordenadas: Array[1..LIMITE_ESTRELLAS] Of coordenada;
+      coordenadas: ArrayDinamico;
     End;
     destructores: Record
       cantidad: Integer;
-      coordenadas: Array[1..LIMITE_ESTRELLAS] Of coordenada;
+      coordenadas: ArrayDinamico;
     End;
   End;
 
-  // ARCHIVOS
-  //
-  //
+  // Generador
+
+Procedure Generador(Var cant: integer; Var param:
+                    ArrayDinamico; fil, col: integer)
+;
+
+Var 
+  i, j: integer;
+
+Begin
+  randomize;
+  cant := random(10)+1;
+
+  For i := 1 To cant Do
+    Begin
+      param[i].posicionX := random(fil)+1;
+      param[i].posicionY := random(col)+1;
+
+      writeln('Coordenada X: ', param[i].posicionX,
+              ' Coordenada Y: ', param[i].posicionY);
+    End;
+
+End;
+
+
+// ARCHIVOS
+//
+//
+
+
+
+
+
+
+
 
 
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
@@ -69,6 +106,13 @@ Begin
 
 
 
+
+
+
+
+
+
+
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
   // Nro < a 10 (0 n) (ej. 0 7) = 7
   Read(archivo, cant_1);
@@ -76,6 +120,15 @@ Begin
     Begin
       Read(archivo, cantidad);
     End
+
+
+
+
+
+
+
+
+
 
 
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
@@ -86,6 +139,16 @@ Begin
     End;
 
 
+
+
+
+
+
+
+
+
+
+
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
 	       obj de coordenadas dentro de un array}
   For i := 1 To cantidad Do
@@ -93,6 +156,15 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
+
+
+
+
+
+
+
+
+
 
 
 // Mostrar cantidad y coordenadas Procedure reutilizable para (ESTRELLAS Y DESTRUCTORES)
@@ -155,7 +227,6 @@ Begin
 End;
 
 
-
 // Funci�n que valida tanto filas como columnas
 Function validarDim(n: Integer; mensaje: String): Integer;
 Begin
@@ -206,17 +277,18 @@ End;
 // 
 // 
 
-Procedure relleno(Var terreno: mapa; Var nave, planeta: vector; fil, col:
+Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta:
+                  vector; fil, col:
                   integer);
 
 Var 
   i, j: integer;
+  coordEst, coordDest: ArrayDinamico;
+
 Begin
 
   randomize;
 
-  nave[1] := random(fil)+1;
-  nave[2] := random(col)+1;
 {Randomizo la nave}
   nave[1] := random(fil)+1;
   nave[2] := random(col)+1;
@@ -227,26 +299,48 @@ Begin
     planeta[2] := random(col)+1;
   Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
 
+{Genero las posiciones de los destructores y estrellas}
+
+  writeln('Estrellas: ');
+  Generador(data.estrellas.cantidad, data.estrellas.coordenadas, fil, col);
+  writeln;
+  writeln('Destructores: ');
+  Generador(data.destructores.cantidad, data.destructores.coordenadas, fil, col)
+  ;
+
+  coordEst := data.estrellas.coordenadas;
+  coordDest := data.destructores.coordenadas;
+
+  readkey;
+
   For i := 1 To fil Do
-    Begin
-      j := 1;
-      For j:= 1 To col Do
-        Begin
-        {Posiciono la nave o el planeta en el terreno}
-          If ((nave[1] = i) And (nave[2] = j) Or ((planeta[1] = i) And (planeta[
-             2] = j))) Then
-            Begin
-            {Nave}
-              If ((nave[1] = i) And (nave[2] = j)) Then
-                terreno[i, j] := PERSONAJEPOS;
-             {Planeta}
-              If ((planeta[1] = i) And (planeta[2] = j)) Then
-                terreno[i, j] :=  BANDERA;
-            End
-          Else
-            terreno[i, j] := CELDA;
-        End;
-    End;
+    For j:= 1 To col Do
+      Begin
+        If ((nave[1] = i) And (nave[2] = j) Or (planeta[1] = i) And (planeta[2]
+           = j)) Then
+          Begin
+            If ((nave[1] = i) And (nave[2] = j)) Then
+              terreno[i, j] := PERSONAJEPOS;
+
+            If ((planeta[1] = i) And (planeta[2] = j)) Then
+              terreno[i, j] := BANDERA;
+          End
+        Else
+          terreno[i, j] := CELDA;
+
+      End;
+
+  // Estrellas
+  For i := 1 To data.estrellas.cantidad Do
+    terreno[coordEst[i].posicionX, coordEst[i].posicionY] := STAR;
+
+  // Destructores
+  For i:= 1 To data.destructores.cantidad Do
+    terreno[coordDest[i].posicionX, coordDest[i].posicionY] := BOMBA;
+
+
+
+
 End;
 
 // Funciones
@@ -254,6 +348,21 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
@@ -384,7 +493,9 @@ End;
 //
 //
 
-Procedure Partida(Var terreno: mapa; nave, planeta: vector; fil, col, tecla:
+Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta:
+                  vector;
+                  fil, col, tecla:
                   integer);
 
 Var 
@@ -397,19 +508,24 @@ Begin
 {Se declara la partida}
   desarrollo := sigue;
 
-{Se renderiza el mapa inicial}
-  relleno(terreno, nave, planeta, fil, col);
+{Relleno el Mapa}
+  relleno(terreno, data, nave, planeta, fil, col);
+
 
 {Se lee el mapa inicial}
   leerMapa(terreno, nave, fil, col, 0);
 
 {Bucle donde se desarollan los movimientos}
+
   Repeat
-    terreno[nave[1], nave[2]] := CELDA;
-    ch := upcase(readkey);
-    leerMapa(terreno, nave, fil, col, ord(ch));
-    If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
-      desarrollo := gano;
+    Begin
+      terreno[nave[1], nave[2]] := CELDA;
+      ch := upcase(readkey);
+      leerMapa(terreno, nave, fil, col, ord(ch));
+      If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+        desarrollo := gano;
+    End;
+
   Until ((ord(ch) = ESC) Or (desarrollo = gano));
 
 
@@ -422,7 +538,8 @@ End;
 // MENU JUGAR::
 
 // Menu opcion jugar
-Procedure menuJugar(terreno: mapa; nave, planeta: vector; Var opc: integer;
+Procedure menuJugar(terreno: mapa; Var data: dataMapa; nave, planeta: vector;
+                    Var opc: integer;
                     Var volver, salir: boolean;
                     Var fil, col:
                     integer);
@@ -449,7 +566,7 @@ Begin
            Delay(300);
            fil := validarDim(fil, 'filas');
            col := validarDim(col, 'columnas');
-           Partida(terreno, nave, planeta, fil, col, 0);
+           Partida(terreno, data, nave, planeta, fil, col, 0);
          End;
       2: writeln('Mapa al azar');
       3: volver := true;
@@ -463,15 +580,15 @@ Begin
   Until (salir) Or (volver);
 End;
 
-// Muestra
-
+// Menu
 Procedure Menu(Var data: dataMapa; Var opc: integer; Var volver, salir: boolean)
 ;
 
 Var 
+  fil, col: integer;
+  // Juego
   terreno: mapa;
   nave, planeta: vector;
-  fil, col: integer;
 
 Begin
   // Asigno variables
@@ -491,7 +608,7 @@ Begin
     readln(opc);
     writeLn;
     Case opc Of 
-      1: menuJugar(terreno, nave, planeta, opc, volver, salir, fil, col);
+      1: menuJugar(terreno, data, nave, planeta, opc, volver, salir, fil, col);
       2: menuTutorial(opc, volver, salir);
       3: salir := true;
       Else
