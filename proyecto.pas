@@ -12,7 +12,7 @@ Const
   PERSONAJEPOS = 'A';
   BANDERA = '~';
   BOMBA = 'O';
-  ESTRELLA = '*';
+  STAR = 'Y';
   // Letras
   ENTER = 13;
   ESC = 27;
@@ -28,6 +28,7 @@ Const
 Type 
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
+  matriz = array[1..LIMITE_ESTRELLAS, 1..LIMITE_ESTRELLAS] Of Integer;
 
   Victoria = (sigue, gano);
   posiciones = Record
@@ -40,16 +41,17 @@ Type
   elementos = Record
     cantidadEstrellas: Integer;
     coordenadasEstrellas: coordArray;
+    coordAlt: matriz;
     cantidadDestructores: Integer;
     coordenadasDestructores: coordArray;
   End;
 
-Procedure generarElem(Var cant: integer; Var param:
-                      coordArray; fil, col: integer)
+Procedure Generador(Var cant: integer; Var param:
+                    matriz; fil, col: integer)
 ;
 
 Var 
-  i: integer;
+  i, j: integer;
 
 Begin
   randomize;
@@ -57,13 +59,12 @@ Begin
 
   For i := 1 To cant Do
     Begin
-      param[i].posicionX := random(fil)+1;
-      param[i].posicionY := random(col)+1;
+      param[i, 1] := random(fil)+1;
+      param[i, 2] := random(col)+1;
 
-      writeln('Coordenada X: ', param[i].posicionX,
-              ' Coordenada Y: ', param[i].posicionY);
+      writeln('Coordenada X: ', param[i, 1],
+              ' Coordenada Y: ', param[i, 2]);
     End;
-
 
 End;
 
@@ -119,7 +120,10 @@ Procedure relleno(Var terreno: mapa; Var data: elementos; Var nave, planeta:
                   integer);
 
 Var 
-  i, j: integer;
+  i, j, m, n: integer;
+  dani: integer;
+  matDest: matriz;
+
 Begin
 
   randomize;
@@ -136,304 +140,292 @@ Begin
 
 {Genero las posiciones de los destructores y estrellas}
 
-  writeln('Estrellas: ');
-  generarElem(data.cantidadEstrellas, data.coordenadasEstrellas, fil, col);
-  writeln;
   writeln('Destructores: ');
-  generarElem(data.cantidadDestructores, data.coordenadasDestructores, fil, col)
+  Generador(data.cantidadDestructores, data.coordAlt, fil, col)
   ;
 
-  readkey;
+  matDest := data.coordAlt;
 
+  readkey;
 
   For i := 1 To fil Do
     Begin
       j := 1;
       For j:= 1 To col Do
         Begin
-        {Posiciono la nave o el planeta en el terreno}
-          If ((nave[1] = i) And (nave[2] = j) Or ((planeta[1] = i) And (
-             planeta[
-             2] = j))) Then
-            Begin
+          terreno[i, j] := CELDA;
+      {Posiciono la nave, el planeta, la estrella o el destructor en el terreno}
+
             {Nave}
-              If ((nave[1] = i) And (nave[2] = j)) Then
-                terreno[i, j] := PERSONAJEPOS;
+          If ((nave[1] = i) And (nave[2] = j)) Then
+            terreno[i, j] := PERSONAJEPOS;
              {Planeta}
-              If ((planeta[1] = i) And (planeta[2] = j)) Then
-                terreno[i, j] :=  BANDERA;
-            End
-          Else
-            terreno[i, j] := CELDA;
+          If ((planeta[1] = i) And (planeta[2] = j)) Then
+            terreno[i, j] :=  BANDERA;
+            {Destructor}
         End;
     End;
-End;
-
-// Funciones
-
-Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
-
-Begin
 
 
 
+  // Funciones
 
+  Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
-
-
-
+  Begin
 
 
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
-  // Normales
+    // Normales
 
-  If ((tecla = W) And (nave[1] > 1)) Then
-    nave[1] := nave[1] - 1;
-
-  If ((tecla = S) And (nave[1] < fil)) Then
-    nave[1] := nave[1] + 1;
-
-  If ((tecla = A) And (nave[2] > 1)) Then
-    nave[2] := nave[2] - 1;
-
-  If ((tecla = D) And (nave[2] < col)) Then
-    nave[2] := nave[2] + 1;
-
-
-  // Diagonales
-
-  If ((tecla = Q) And (nave[1] > 1) And (nave[2] > 1)) Then
-    Begin
+    If ((tecla = W) And (nave[1] > 1)) Then
       nave[1] := nave[1] - 1;
-      nave[2] := nave[2] - 1;
-    End;
 
-  If ((tecla = E) And (nave[1] > 1) And (nave[2] < col)) Then
-    Begin
-      nave[1] := nave[1] - 1;
-      nave[2] := nave[2] + 1;
-    End;
-
-  If ((tecla = Z) And (nave[1] < fil) And (nave[2] > 1)) Then
-    Begin
+    If ((tecla = S) And (nave[1] < fil)) Then
       nave[1] := nave[1] + 1;
+
+    If ((tecla = A) And (nave[2] > 1)) Then
       nave[2] := nave[2] - 1;
-    End;
 
-  If ((tecla = X) And (nave[1] < fil) And (nave[2] < col)) Then
-    Begin
-      nave[1] := nave[1] + 1;
+    If ((tecla = D) And (nave[2] < col)) Then
       nave[2] := nave[2] + 1;
-    End;
 
 
-End;
+    // Diagonales
 
-// ANIMACIONES 
-//
-// 
+    If ((tecla = Q) And (nave[1] > 1) And (nave[2] > 1)) Then
+      Begin
+        nave[1] := nave[1] - 1;
+        nave[2] := nave[2] - 1;
+      End;
 
-Procedure AnimacionGanar(desarrollo: Victoria);
-Begin
+    If ((tecla = E) And (nave[1] > 1) And (nave[2] < col)) Then
+      Begin
+        nave[1] := nave[1] - 1;
+        nave[2] := nave[2] + 1;
+      End;
+
+    If ((tecla = Z) And (nave[1] < fil) And (nave[2] > 1)) Then
+      Begin
+        nave[1] := nave[1] + 1;
+        nave[2] := nave[2] - 1;
+      End;
+
+    If ((tecla = X) And (nave[1] < fil) And (nave[2] < col)) Then
+      Begin
+        nave[1] := nave[1] + 1;
+        nave[2] := nave[2] + 1;
+      End;
+
+
+  End;
+
+  // ANIMACIONES 
+  //
+  // 
+
+  Procedure AnimacionGanar(desarrollo: Victoria);
+  Begin
 
   {Si el personaje llego a el planeta}
-  If (desarrollo = gano) Then
-    Begin
-      clrscr;
+    If (desarrollo = gano) Then
+      Begin
+        clrscr;
 
-      textcolor(red);
-      writeln('!Ganaste!, Felicitaciones');
+        textcolor(red);
+        writeln('!Ganaste!, Felicitaciones');
 
-      writeln;
-      writeln;
+        writeln;
+        writeln;
 
-      readkey;
+        readkey;
 
-    End;
+      End;
 
-End;
+  End;
 
-// LEER EL MAPA FINAL PROCEDIMIENTO
-//
-//
+  // LEER EL MAPA FINAL PROCEDIMIENTO
+  //
+  //
 
-Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla
-                   :
-                   integer)
-;
+  Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla
+                     :
+                     integer)
+  ;
 
-Var 
-  i, j: integer;
-Begin
-  clrscr;
+  Var 
+    i, j: integer;
+  Begin
+    clrscr;
 
-  writeln('!!Intenta encontrar el Planeta!!');
-  writeln;
+    writeln('!!Intenta encontrar el Planeta!!');
+    writeln;
 
   {Procedo a mover el personaje}
-  If (tecla > 0) Then
-    Begin
-      Personaje(nave, fil, col, tecla);
-      terreno[nave[1], nave[2]] := PERSONAJEPOS;
-    End;
+    If (tecla > 0) Then
+      Begin
+        Personaje(nave, fil, col, tecla);
+        terreno[nave[1], nave[2]] := PERSONAJEPOS;
+      End;
 
   {Coloco las celdas}
-  For i := 1 To fil Do
-    Begin
-      j := 0;
-      For j := 1 To col Do
-        Begin
-          If ((j = 1) And (i < 10)) Then
-            write(i, '  ', PARED, ' ');
-          If ((j = 1) And (i >= 10)) Then
-            write(i, ' ', PARED, ' ');
-          write(terreno[i, j], ' ');
-        End;
-      writeln;
+    For i := 1 To fil Do
+      Begin
+        j := 0;
+        For j := 1 To col Do
+          Begin
+            If ((j = 1) And (i < 10)) Then
+              write(i, '  ', PARED, ' ');
+            If ((j = 1) And (i >= 10)) Then
+              write(i, ' ', PARED, ' ');
+            write(terreno[i, j], ' ');
+          End;
+        writeln;
 
-    End;
+      End;
 
-  writeln;
-  writeln('Presiona la letra para moverte: ');
-  writeln;
-  writeln('    ^       ^         ^');
-  writeln('     \Q     W       E/');
-  writeln('   <- A             D ->');
-  writeln('       /Z         X\');
-  writeln('      v      S      v');
-  writeln('             v');
+    writeln;
+    writeln('Presiona la letra para moverte: ');
+    writeln;
+    writeln('    ^       ^         ^');
+    writeln('     \Q     W       E/');
+    writeln('   <- A             D ->');
+    writeln('       /Z         X\');
+    writeln('      v      S      v');
+    writeln('             v');
 
-  writeln;
-  writeln('Presiona ESC para salir');
-End;
+    writeln;
+    writeln('Presiona ESC para salir');
+  End;
 
 {Aqui se desarrolla el bucle principal del juego}
-//
-//
+  //
+  //
 
-Procedure Partida(Var terreno: mapa; Var data: elementos; nave, planeta: vector;
-                  fil, col, tecla:
-                  integer);
+  Procedure Partida(Var terreno: mapa; Var data: elementos; nave, planeta:
+                    vector;
+                    fil, col, tecla:
+                    integer);
 
-Var 
-  ch: char;
-  desarrollo: Victoria;
+  Var 
+    ch: char;
+    desarrollo: Victoria;
 
-Begin
-  clrscr;
+  Begin
+    clrscr;
 
 {Se declara la partida}
-  desarrollo := sigue;
+    desarrollo := sigue;
 
 {Relleno el Mapa}
-  relleno(terreno, data, nave, planeta, fil, col);
+    relleno(terreno, data, nave, planeta, fil, col);
 
 {Se renderiza el mapa inicial}
-  leerMapa(terreno, nave, fil, col, 0);
+    leerMapa(terreno, nave, fil, col, 0);
 
 {Bucle donde se desarollan los movimientos}
 
 
 
-  Repeat
-    Begin
-      terreno[nave[1], nave[2]] := CELDA;
-      ch := upcase(readkey);
-      leerMapa(terreno, nave, fil, col, ord(ch));
-      If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
-        desarrollo := gano;
-    End;
+    Repeat
+      Begin
+        terreno[nave[1], nave[2]] := CELDA;
+        ch := upcase(readkey);
+        leerMapa(terreno, nave, fil, col, ord(ch));
+        If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+          desarrollo := gano;
+      End;
 
-  Until ((ord(ch) = ESC) Or (desarrollo = gano));
+    Until ((ord(ch) = ESC) Or (desarrollo = gano));
 
 
   {Victoria}
-  If (desarrollo = gano) Then
-    AnimacionGanar(desarrollo);
+    If (desarrollo = gano) Then
+      AnimacionGanar(desarrollo);
 
-End;
+  End;
 
-// MENU JUGAR::
+  // MENU JUGAR::
 
-// Menu opcion jugar
-Procedure menuJugar(terreno: mapa; Var data: elementos; nave, planeta: vector;
-                    Var opc: integer;
-                    Var volver, salir: boolean;
-                    Var fil, col:
-                    integer);
+  // Menu opcion jugar
+  Procedure menuJugar(terreno: mapa; Var data: elementos; nave, planeta: vector;
+                      Var opc: integer;
+                      Var volver, salir: boolean;
+                      Var fil, col:
+                      integer);
 
 
-Begin
+  Begin
 
-  salir := false;
-  volver := false;
-  Repeat
+    salir := false;
+    volver := false;
+    Repeat
+      clrscr;
+      Delay(300);
+      writeLn('---LE NAVE---');
+      writeLn('Selecciona una de las siguientes modalidades de juego: ');
+      writeln('1. Mapa personalizado');
+      writeln('2. Mapa al azar');
+      writeln('3. Volver');
+      writeln('4. Salir');
+      Readln(opc);
+      Case opc Of 
+        1:
+           Begin
+             Clrscr;
+             Delay(300);
+             fil := validarDim(fil, 'filas');
+             col := validarDim(col, 'columnas');
+             Partida(terreno, data, nave, planeta, fil, col, 0);
+           End;
+        2: writeln('Mapa al azar');
+        3: volver := true;
+        4: salir := true;
+        Else
+          Begin
+            writeLn('Error, la opcion', opc, ' no existe');
+            readLn;
+          End;
+      End;
+    Until (salir) Or (volver);
+  End;
+
+  // Muestra
+
+  Var 
+    // filas y columnas
+    fil, col: integer;
+    // Data completa
+    data: elementos;
+    // Juego
+    terreno: mapa;
+    nave, planeta: vector;
+    opc: Integer;
+    // Menu
+    salir, volver: Boolean;
+
+  Begin
     clrscr;
-    Delay(300);
-    writeLn('---LE NAVE---');
-    writeLn('Selecciona una de las siguientes modalidades de juego: ');
-    writeln('1. Mapa personalizado');
-    writeln('2. Mapa al azar');
-    writeln('3. Volver');
-    writeln('4. Salir');
-    Readln(opc);
-    Case opc Of 
-      1:
-         Begin
-           Clrscr;
-           Delay(300);
-           fil := validarDim(fil, 'filas');
-           col := validarDim(col, 'columnas');
-           Partida(terreno, data, nave, planeta, fil, col, 0);
-         End;
-      2: writeln('Mapa al azar');
-      3: volver := true;
-      4: salir := true;
-      Else
-        Begin
-          writeLn('Error, la opcion', opc, ' no existe');
-          readLn;
-        End;
-    End;
-  Until (salir) Or (volver);
-End;
 
-// Muestra
-
-Var 
-  // filas y columnas
-  fil, col: integer;
-  // Data completa
-  data: elementos;
-  // Juego
-  terreno: mapa;
-  nave, planeta: vector;
-  opc: Integer;
-  // Menu
-  salir, volver: Boolean;
-
-Begin
-  clrscr;
-
-  // Inicializando estados de salir y volver
-  salir := false;
-  volver := false;
+    // Inicializando estados de salir y volver
+    salir := false;
+    volver := false;
 
 {Inicializar las variables de la nave}
-  nave[1] := 1;
-  nave[2] := 2;
+    nave[1] := 1;
+    nave[2] := 2;
 
 {Inicializar variables del planeta}
-  planeta[1] := 1;
-  planeta[2] := 2;
+    planeta[1] := 1;
+    planeta[2] := 2;
 
 {FILA Y COLUMNA PROVISIONAL}
-  fil := 9;
-  col := 9;
+    fil := 9;
+    col := 9;
 
 {Inicio de PARTIDA}
-  Partida(terreno, data, nave, planeta, fil, col, 0);
+    Partida(terreno, data, nave, planeta, fil, col, 0);
 
 
-End.
+  End.
