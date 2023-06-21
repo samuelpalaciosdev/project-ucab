@@ -28,7 +28,152 @@ Type
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
   Victoria = (sigue, gano);
 
-  // Funci�n que valida tanto filas como columnas
+  // Tipo de dato usado en varias keys del objeto
+  coordenada = Record
+    posicionX: Integer;
+    posicionY: Integer;
+  End;
+  // Objeto donde se almacena toda la info del archivo
+  dataMapa = Record
+    dimensiones: Record
+      fil: Integer;
+      col: Integer;
+    End;
+    nave: vector;
+    planeta: vector;
+    estrellas: Record
+      cantidad: Integer;
+      coordenadas: Array[1..limiteEstrellas] Of coordenada;
+    End;
+    destructores: Record
+      cantidad: Integer;
+      coordenadas: Array[1..limiteEstrellas] Of coordenada;
+    End;
+  End;
+
+  // ARCHIVOS
+  //
+  //
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
+Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
+                                   coordenadas: Array Of coordenada);
+
+Var 
+  i, cant_1, cant_2: Integer;
+Begin
+
+
+
+
+
+
+
+
+
+
+
+// Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
+  // Nro < a 10 (0 n) (ej. 0 7) = 7
+  Read(archivo, cant_1);
+  If (cant_1 = 0) Then
+    Begin
+      Read(archivo, cantidad);
+    End
+
+
+
+
+
+
+
+
+
+
+// Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
+  Else
+    Begin
+      Read(archivo, cant_2);
+      cantidad := cant_1 * 10 + cant_2;
+    End;
+
+
+
+
+
+
+{ ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
+	       obj de coordenadas dentro de un array}
+  For i := 1 To cantidad Do
+    Begin
+      Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
+    End;
+End;
+
+// Leer Archivo Principal
+Procedure leerArchivo(Var archivo: text; Var datosMapa: dataMapa);
+
+Var 
+  i, j: Integer;
+Begin
+  // Abrir archivo
+  reset(archivo);
+  // Guardar fila y columna en el objeto
+  Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
+  // Guardar posicion nave     (X,Y)
+  Read(archivo, datosMapa.nave[1], datosMapa.nave[2]);
+  // Guardar posicion planetaT (X,Y)
+  Read(archivo, datosMapa.planeta[1], datosMapa.planeta[2]);
+
+  // Guarda cantidad y coordenadas de estrellas
+  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.
+                           estrellas.coordenadas);
+  // Guardar cantidad y coordenadas de destructores
+  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.
+                           destructores.coordenadas);
+
+  Close(archivo);
+End;
+
+// Procesar datos del Archivo
+// 
+
+Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa);
+Begin
+  Assign(archivo, 'est.dat');
+  leerArchivo(archivo, datosMapa);
+  writeLn('El valor de filas es ', datosMapa.dimensiones.fil, ' y de columnas ',
+          datosMapa.dimensiones.col);
+  writeLn('Las coordenadas de la nave son: ', datosMapa.nave.posicionX, ' y ',
+          datosMapa.nave.posicionY);
+  writeLn('Las coordenadas de el planeta T son: ', datosMapa.planetaT.posicionX,
+          ' y ', datosMapa.planetaT.posicionY);
+  MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.
+                              coordenadas, 'estrellas');
+  MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.
+                              destructores.coordenadas, 'destructores');
+End;
+
+
+
+// Funci�n que valida tanto filas como columnas
 Function validarDim(n: Integer; mensaje: String): Integer;
 Begin
   Repeat
@@ -123,6 +268,8 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
 
 
 
@@ -337,6 +484,10 @@ End;
 // Muestra
 
 Var 
+  // Archivo
+  archivo: text;
+  datosMapa: dataMapa;
+  // Fil y Col
   fil, col: integer;
   // Juego
   terreno: mapa;
@@ -364,6 +515,13 @@ Begin
 {Inicializar variables del planeta}
   planeta[1] := 1;
   planeta[2] := 2;
+
+
+  // Mapa
+
+  archivo := 'est.dat';
+
+  procesarArchivo(archivo, datosMapa);
 
 
   Repeat
