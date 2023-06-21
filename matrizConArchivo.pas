@@ -98,29 +98,22 @@ end;
 
 procedure LlenarMatriz(var m: matriz; datosMapa: dataMapa);
 var
-  fil, col, i: Integer;
+  i,j: Integer;
 begin
   // Inicializar la matriz con espacios en blanco
-  for fil := 1 to limite do
-    for col := 1 to limite do
-      m[fil, col] := 'o';
+  for i := 1 to limite do
+    for j := 1 to limite do
+      m[i, j] := 'o';
 
   // Asignar las coordenadas de las estrellas en la matriz
   for i := 1 to datosMapa.estrellas.cantidad do
-  begin
-    fil := datosMapa.estrellas.coordenadas[i].posicionX;
-    col := datosMapa.estrellas.coordenadas[i].posicionY;
-    m[fil, col] := '*';
-  end;
+    m[datosMapa.estrellas.coordenadas[i].posicionX, datosMapa.estrellas.coordenadas[i].posicionY] := '*';
 
   // Asignar las coordenadas de los destructores en la matriz
   for i := 1 to datosMapa.destructores.cantidad do
-  begin
-    fil := datosMapa.destructores.coordenadas[i].posicionX;
-    col := datosMapa.destructores.coordenadas[i].posicionY;
-    m[fil, col] := 'D';
-  end;
+    m[datosMapa.destructores.coordenadas[i].posicionX, datosMapa.destructores.coordenadas[i].posicionY] := 'D';
 end;
+
 
 Procedure imprimirMatriz(m:matriz; datosMapa: dataMapa);
 Var
