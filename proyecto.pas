@@ -90,12 +90,6 @@ End;
 
 
 
-
-
-
-
-
-
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
                                    coordenadas: Array Of coordenada);
@@ -103,14 +97,6 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
 Var 
   i, cant_1, cant_2: Integer;
 Begin
-
-
-
-
-
-
-
-
 
 
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
@@ -122,32 +108,12 @@ Begin
     End
 
 
-
-
-
-
-
-
-
-
-
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
       Read(archivo, cant_2);
       cantidad := cant_1 * 10 + cant_2;
     End;
-
-
-
-
-
-
-
-
-
-
-
 
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
 	       obj de coordenadas dentro de un array}
@@ -156,14 +122,6 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
-
-
-
-
-
-
-
-
 
 
 
@@ -337,10 +295,6 @@ Begin
   // Destructores
   For i:= 1 To data.destructores.cantidad Do
     terreno[coordDest[i].posicionX, coordDest[i].posicionY] := BOMBA;
-
-
-
-
 End;
 
 // Funciones
@@ -348,21 +302,6 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
