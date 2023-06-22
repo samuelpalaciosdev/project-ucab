@@ -261,13 +261,13 @@ Begin
 
 { PASAR AL GENERADOR!!!!!!!!!!!!!
 {Randomizo la nave}
-  nave[1] := random(fil)+1;
-  nave[2] := random(col)+1;
+  nave[1] := random(fil)+1; // X
+  nave[2] := random(col)+1; // Y
 
 {Randomizo el planeta}
   Repeat
-    planeta[1] := random(fil)+1;
-    planeta[2] := random(col)+1;
+    planeta[1] := random(fil)+1; // X
+    planeta[2] := random(col)+1; // Y
   Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
 }
 {Genero las posiciones de los destructores y estrellas}
@@ -410,7 +410,7 @@ Begin
   {Procedo a mover el personaje}
   If (tecla > 0) Then
     Begin
-      Personaje(nave, fil, col, tecla);
+      Personaje(nave, fil, col, tecla); // Muevo el personaje
       terreno[nave[1], nave[2]] := PERSONAJEPOS;
     End;
 
@@ -468,10 +468,10 @@ Begin
 
 
 {Se lee el mapa inicial}
-  leerMapa(terreno, nave, fil, col, 0);
+  leerMapa(terreno, nave, fil, col, 0); // El cero es para que no se mueva el personaje 
 
 {Bucle donde se desarollan los movimientos}
-
+// Regenera el mapa con cada movimiento
   Repeat
     Begin
       terreno[nave[1], nave[2]] := CELDA;
