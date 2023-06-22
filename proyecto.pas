@@ -5,7 +5,7 @@ Uses crt;
 
 Const 
   LIMITE = 30;
-  LIMITE_ESTRELLAS = 10;
+  LIMITE_ESTRELLAS = 15;
   CELDA = '#';
   PARED = '|';
   PISO = '_';
@@ -59,6 +59,12 @@ Type
     End;
   End;
 
+  dataJuego = Record
+    dataArchivo: dataMapa;
+    dataRandom: dataMapa;
+    dataPersonalizada: dataMapa;
+  End;
+
   // Generador
 
 Procedure Generador(Var cant: integer; Var param:
@@ -71,6 +77,10 @@ Var
 Begin
   randomize;
   cant := random(10)+1;
+
+  // Cono si es dificil vale = 4
+  // Cono si es medio vale = 6
+  // Cono si es facil vale = 8
 
   For i := 1 To cant Do
     Begin
@@ -89,27 +99,14 @@ End;
 //
 
 
-
-
-
-
-
-
-
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
-Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
+Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
+                                   Var
                                    coordenadas: Array Of coordenada);
 
 Var 
   i, cant_1, cant_2: Integer;
 Begin
-
-
-
-
-
-
-
 
 
 
@@ -123,26 +120,12 @@ Begin
 
 
 
-
-
-
-
-
-
-
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
       Read(archivo, cant_2);
       cantidad := cant_1 * 10 + cant_2;
     End;
-
-
-
-
-
-
-
 
 
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
@@ -154,17 +137,9 @@ Begin
 End;
 
 
-
-
-
-
-
-
-
-
-
 // Mostrar cantidad y coordenadas Procedure reutilizable para (ESTRELLAS Y DESTRUCTORES)
-Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas: Array Of
+Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas: Array
+                                      Of
                                       coordenada; mensaje: String);
 
 Var 
@@ -196,7 +171,8 @@ Begin
   leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.
                            estrellas.coordenadas);
   // Guardar cantidad y coordenadas de destructores
-  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.
+  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad,
+                           datosMapa.
                            destructores.coordenadas);
 
   Close(archivo);
@@ -210,13 +186,15 @@ Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa;
 Begin
   Assign(archivo, baseArchivo);
   leerArchivo(archivo, datosMapa);
-  writeLn('El valor de filas es ', datosMapa.dimensiones.fil, ' y de columnas ',
+  writeLn('El valor de filas es ', datosMapa.dimensiones.fil,
+          ' y de columnas ',
           datosMapa.dimensiones.col);
   writeLn('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ',
           datosMapa.naveT[2]);
   writeLn('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],
           ' y ', datosMapa.planetaT[2]);
-  MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.
+  MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.
+                              estrellas.
                               coordenadas, 'estrellas');
   MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.
                               destructores.coordenadas, 'destructores');
@@ -301,7 +279,8 @@ Begin
   Generador(data.estrellas.cantidad, data.estrellas.coordenadas, fil, col);
   writeln;
   writeln('Destructores: ');
-  Generador(data.destructores.cantidad, data.destructores.coordenadas, fil, col)
+  Generador(data.destructores.cantidad, data.destructores.coordenadas, fil,
+            col)
   ;
 
   coordEst := data.estrellas.coordenadas;
@@ -312,7 +291,8 @@ Begin
   For i := 1 To fil Do
     For j:= 1 To col Do
       Begin
-        If ((nave[1] = i) And (nave[2] = j) Or (planeta[1] = i) And (planeta[2]
+        If ((nave[1] = i) And (nave[2] = j) Or (planeta[1] = i) And (planeta
+           [2]
            = j)) Then
           Begin
             If ((nave[1] = i) And (nave[2] = j)) Then
@@ -340,13 +320,6 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
-
-
-
-
-
-
-
 
 
 
@@ -523,12 +496,9 @@ End;
 // MENU JUGAR::
 
 // Menu opcion jugar
-Procedure menuJugar(terreno: mapa; Var data: dataMapa; nave, planeta: vector;
+Procedure menuJugar(Var data: dataJuego;
                     Var opc: integer;
-                    Var volver, salir: boolean;
-                    Var fil, col:
-                    integer);
-
+                    Var volver, salir: boolean);
 
 Begin
 
@@ -539,23 +509,36 @@ Begin
     Delay(300);
     writeLn('---LE NAVE---');
     writeLn('Selecciona una de las siguientes modalidades de juego: ');
-    writeln('1. Mapa personalizado');
-    writeln('2. Mapa al azar');
-    writeln('3. Volver');
-    writeln('4. Salir');
+    writeLn('1. Generar mapa con archivo');
+    writeln('2. Mapa personalizado');
+    writeln('3. Mapa al azar');
+    writeln('4. Volver');
+    writeln('5. Salir');
     Readln(opc);
     Case opc Of 
-      1:
+      // 1: CREAR MAPA CON ARCHIVO FUNCTIONALITY ACA
+      2:
          Begin
            Clrscr;
            Delay(300);
-           fil := validarDim(fil, 'filas');
-           col := validarDim(col, 'columnas');
-           Partida(terreno, data, nave, planeta, fil, col, 0);
+
+           data.dataPersonalizada.dimensiones.fil := validarDim(data.
+                                                     dataPersonalizada.
+                                                     dimensiones.fil, 'filas');
+
+           data.dataPersonalizada.dimensiones.col := validarDim(data.
+                                                     dataPersonalizada.
+                                                     dimensiones.col, 'columnas'
+                                                     );
+
+           Partida(data.dataPersonalizada.plano, data.dataPersonalizada, data.
+                   dataPersonalizada.naveT, data.dataPersonalizada.planetaT,
+                   data.dataPersonalizada.dimensiones.fil,
+                   data.dataPersonalizada.dimensiones.col, 0);
          End;
-      2: writeln('Mapa al azar');
-      3: volver := true;
-      4: salir := true;
+      3: writeln('Mapa al azar');
+      4: volver := true;
+      5: salir := true;
       Else
         Begin
           writeLn('Error, la opcion', opc, ' no existe');
@@ -566,22 +549,11 @@ Begin
 End;
 
 // Menu
-Procedure Menu(Var data: dataMapa; Var opc: integer; Var volver, salir: boolean)
+Procedure Menu(Var data: dataJuego; Var opc: integer; Var volver, salir:
+               boolean)
 ;
 
-Var 
-  fil, col: integer;
-  // Juego
-  terreno: mapa;
-  nave, planeta: vector;
-
 Begin
-  // Asigno variables
-  terreno := data.plano;
-  nave := data.naveT;
-  planeta := data.planetaT;
-  fil := data.dimensiones.fil;
-  col := data.dimensiones.col;
 
 
   Repeat
@@ -593,7 +565,7 @@ Begin
     readln(opc);
     writeLn;
     Case opc Of 
-      1: menuJugar(terreno, data, nave, planeta, opc, volver, salir, fil, col);
+      1: menuJugar(data, opc, volver, salir);
       2: menuTutorial(opc, volver, salir);
       3: salir := true;
       Else
@@ -610,14 +582,9 @@ Var
   // Archivo
   archivo: text;
   baseArchivo: string;
-  datosMapa: dataMapa;
-  // Fil y Col
-  fil, col: integer;
-  // Juego
-  terreno: mapa;
-  // MAPA SAMUEL
-  ch: char;
-  nave, planeta: vector;
+  // Data Principal
+  dataPrincipal: dataJuego;
+  // Menu Opcion
   opc: Integer;
   // Menu
   salir, volver: Boolean;
@@ -632,16 +599,6 @@ Begin
   salir := false;
   volver := false;
 
-{Inicializar las variables de la nave}
-  nave[1] := 1;
-  nave[2] := 2;
-
-{Inicializar variables del planeta}
-  planeta[1] := 1;
-  planeta[2] := 2;
-
-  procesarArchivo(archivo, datosMapa, baseArchivo);
-  Menu(datosMapa, opc, volver, salir);
-
+  Menu(dataPrincipal, opc, volver, salir);
 
 End.
