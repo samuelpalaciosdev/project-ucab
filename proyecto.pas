@@ -5,7 +5,7 @@ Uses crt;
 
 Const 
   LIMITE = 30;
-  LIMITE_ESTRELLAS = 15;
+  LIMITE_ESTRDEST = 15; // Limite estrellas y destructores 
   CELDA = '#';
   PARED = '|';
   PISO = '_';
@@ -28,7 +28,7 @@ Const
 Type 
   vector = array[1..LIMITE] Of integer;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
-  matriz = array[1..LIMITE_ESTRELLAS, 1..LIMITE_ESTRELLAS] Of Integer;
+  matriz = array[1..LIMITE_ESTRDEST, 1..LIMITE_ESTRDEST] Of Integer;
 
   Victoria = (sigue, gano);
 
@@ -38,7 +38,7 @@ Type
     posicionY: Integer;
   End;
 
-  ArrayDinamico = Array[1..LIMITE_ESTRELLAS] Of coordenada;
+  ArrayDinamico = Array[1..LIMITE_ESTRDEST] Of coordenada;
 
   // Objeto donde se almacena toda la info del archivo
   dataMapa = Record
@@ -65,12 +65,11 @@ Type
     dataPersonalizada: dataMapa;
   End;
 
-  // Generador
+// Generador random de estrellas y destructores
 
 Procedure Generador(Var cant: integer; Var param:
                     ArrayDinamico; fil, col: integer)
 ;
-
 Var 
   i, j: integer;
 
@@ -174,13 +173,10 @@ Begin
   leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad,
                            datosMapa.
                            destructores.coordenadas);
-
   Close(archivo);
 End;
 
 // Procesar datos del Archivo
-// 
-
 Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa;
                           baseArchivo: String);
 Begin
@@ -263,6 +259,7 @@ Begin
 
   randomize;
 
+{ PASAR AL GENERADOR!!!!!!!!!!!!!
 {Randomizo la nave}
   nave[1] := random(fil)+1;
   nave[2] := random(col)+1;
@@ -272,7 +269,7 @@ Begin
     planeta[1] := random(fil)+1;
     planeta[2] := random(col)+1;
   Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
-
+}
 {Genero las posiciones de los destructores y estrellas}
 
   writeln('Estrellas: ');
