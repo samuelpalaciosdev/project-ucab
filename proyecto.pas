@@ -31,6 +31,7 @@ Type
   matriz = array[1..LIMITE_ESTRELLAS, 1..LIMITE_ESTRELLAS] Of Integer;
 
   Victoria = (sigue, gano);
+  Estado = (archivoPrinc, randomPrinc, personalizadoPrinc);
 
   // Tipo de dato usado en varias keys del objeto
   coordenada = Record
@@ -57,6 +58,7 @@ Type
       cantidad: Integer;
       coordenadas: ArrayDinamico;
     End;
+    estadoJuego: Estado;
   End;
 
   dataJuego = Record
@@ -67,7 +69,8 @@ Type
 
   // Generador
 
-Procedure Generador(Var cant: integer; Var param:
+Procedure Generador(Var estaDOCAMBIAELNOMBREDESTAMIERDAXDD: Estado; Var
+                    cant: integer; Var param:
                     ArrayDinamico; fil, col: integer)
 ;
 
@@ -99,6 +102,16 @@ End;
 //
 
 
+
+
+
+
+
+
+
+
+
+
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
                                    Var
@@ -107,6 +120,16 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -120,12 +143,32 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
       Read(archivo, cant_2);
       cantidad := cant_1 * 10 + cant_2;
     End;
+
+
+
+
+
+
+
+
+
+
 
 
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
@@ -135,6 +178,16 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
+
+
+
+
+
+
+
+
+
+
 
 
 // Mostrar cantidad y coordenadas Procedure reutilizable para (ESTRELLAS Y DESTRUCTORES)
@@ -276,10 +329,12 @@ Begin
 {Genero las posiciones de los destructores y estrellas}
 
   writeln('Estrellas: ');
-  Generador(data.estrellas.cantidad, data.estrellas.coordenadas, fil, col);
+  Generador(data.estadoJuego, data.estrellas.cantidad, data.estrellas.
+            coordenadas, fil, col);
   writeln;
   writeln('Destructores: ');
-  Generador(data.destructores.cantidad, data.destructores.coordenadas, fil,
+  Generador(data.estadoJuego, data.destructores.cantidad, data.destructores.
+            coordenadas, fil,
             col)
   ;
 
@@ -320,6 +375,16 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
+
+
+
+
+
+
+
+
 
 
 
