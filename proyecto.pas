@@ -68,23 +68,32 @@ Type
 
 // Generador random de estrellas y destructores
 
-Procedure Generador(Var tipoMapa: TipoGeneracionMapa; Var cant: integer; Var param: ArrayDinamico; fil, col: integer)
+Procedure Generador(Var data: dataMapa;Var cant: integer; Var param: ArrayDinamico; fil, col: integer)
 ;
 Var
   i, j: integer;
+	tipoMapa: TipoGeneracionMapa;
 
 Begin
+
+  tipoMapa:= data.tipoMapa;
+
+  randomize;
 
   case tipoMapa Of
 	// Si el mapa se genera usando un archivo
 	  TipoArchivo:
 		Begin
 		  writeLn('Se utilizo la generacion por archivo');
+			procesarArchivo(archivo, data; rutaArchivo);
+			
+			
 		End;
   // Si el mapa se genera aleatoriamente
 		 TipoAleatorio:
 	  Begin
       writeln('Se utilizo la generacion aleatoria');
+	
 		End;
 	// Si el mapa se genera usando de manera personalizada
     TipoPersonalizado:
@@ -161,7 +170,7 @@ Begin
     End;
 End;
 
-// Leer Archivo Principal
+// Leer Archivo Principal (guardar sus valores en el objeto de tipo dataMapa)
 Procedure leerArchivo(Var archivo: text; Var datosMapa: dataMapa);
 
 Begin
@@ -251,36 +260,32 @@ End;
 //
 //
 
-Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta:
-                  vector; fil, col:
-                  integer);
+Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta:vector; fil, col: integer);
 
 Var
   i, j: integer;
   coordEst, coordDest: ArrayDinamico;
-
 Begin
-
+	{  VA EN EL GENERADOR DE RANDOM...
   randomize;
+	
+	// Randomizar posición X,Y de la nave
+	nave[1]:= random(fil)+1; // X
+	nave[2]:= random(col)+1; // Y
 
-{ PASAR AL GENERADOR!!!!!!!!!!!!!
-{Randomizo la nave}
-  nave[1] := random(fil)+1; // X
-  nave[2] := random(col)+1; // Y
-
-{Randomizo el planeta}
+  //Randomizar posición X,Y del planeta
   Repeat
     planeta[1] := random(fil)+1; // X
     planeta[2] := random(col)+1; // Y
-  Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
-
+  Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2])); // Planeta y nave no pueden estar en la misma casilla
+	}
 {Genero las posiciones de los destructores y estrellas}
 
   writeln('Estrellas: ');
-  Generador(data.tipoMapa, data.estrellas.cantidad, data.estrellas.coordenadas, fil, col);
+  Generador(data,data.tipoMapa, data.estrellas.cantidad, data.estrellas.coordenadas, fil, col);
   writeln;
   writeln('Destructores: ');
-  Generador(data.tipoMapa, data.destructores.cantidad, data.destructores.coordenadas, fil,col);
+  Generador(data,data.tipoMapa, data.destructores.cantidad, data.destructores.coordenadas, fil,col);
 
   coordEst := data.estrellas.coordenadas;
   coordDest := data.destructores.coordenadas;
@@ -454,17 +459,12 @@ End;
 
 {Aqui se desarrolla el bucle principal del juego}
 //
-//
+// A partida se le pasa el tipo de dataJuego que se va a usar (en el menu)
 
-Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta:
-                  vector;
-                  fil, col, tecla:
-                  integer);
-
+Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta:vector; fil, col, tecla:integer);
 Var
   ch: char;
   desarrollo: Victoria;
-
 Begin
   clrscr;
 
@@ -473,7 +473,6 @@ Begin
 
 {Relleno el Mapa}
   relleno(terreno, data, nave, planeta, fil, col);
-
 
 {Se lee el mapa inicial}
   leerMapa(terreno, nave, fil, col, 0); // El cero es para que no se mueva el personaje
@@ -520,8 +519,17 @@ Begin
     writeln('4. Volver');
     writeln('5. Salir');
     Readln(opc);
+		{ Dependiendo de la opcion seleccionado, se elige de dataJuego un objeto especifico de juego
+		  (dataArchivo)}
     Case opc Of
-      // 1: CREAR MAPA CON ARCHIVO FUNCTIONALITY ACA
+      1: Begin
+			     Clrscr;
+           Delay(300);
+				   Partida(data.dataArchivo.plano, data.dataArchivo, data.
+           dataArchivo.naveT, data.dataArchivo.planetaT,
+           data.dataArchivo.dimensiones.fil,
+           data.dataArchivo.dimensiones.col, 0);
+			   End;
       2:
          Begin
            Clrscr;
