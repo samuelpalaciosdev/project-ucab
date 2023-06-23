@@ -126,7 +126,7 @@ End;
 
 Begin
 
-  rutaArchivo:= 'E:\Default Folders\Samuel\Desktop\UCAB 2do semestre\project-ucab\EST.DAT';
+  rutaArchivo:= 'est.dat';
 	procesarArchivo(archivo, dataPrincipal.dataArchivo, rutaArchivo);
 
 Readln;
