@@ -143,6 +143,14 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
   // Nro < a 10 (0 n) (ej. 0 7) = 7
   Read(archivo, cant_1);
@@ -150,6 +158,14 @@ Begin
     Begin
       Read(archivo, cantidad);
     End
+
+
+
+
+
+
+
+
 
 
 
@@ -162,6 +178,14 @@ Begin
     End;
 
 
+
+
+
+
+
+
+
+
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
 	       obj de coordenadas dentro de un array}
   For i := 1 To cantidad Do
@@ -169,6 +193,12 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
+
+
+
+
+
+
 
 
 
@@ -331,6 +361,12 @@ Begin
 
 
 
+
+
+
+
+
+
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
@@ -452,6 +488,9 @@ Begin
   writeln('             v');
 
   writeln;
+  writeln('No dejes presionado ninguna tecla...');
+
+  writeln;
   writeln('Presiona ESC para salir');
 End;
 
@@ -540,7 +579,7 @@ Begin
   clrscr;
 
   // Inicializo variables
-  activo := 0;
+  activo := 1;
   keyPad := 'Q';
 
   // Booleanos del menu
@@ -605,6 +644,24 @@ Begin
              IZQUIERDA: volver := marchar;
            End;
          End;
+
+      ENTER:
+             Begin
+               If (activo = 1) Then
+                 Begin
+                   clrscr;
+                   writeln('Gud Lock');
+                   readkey;
+                 End;
+               If (activo = 2) Then
+                 Begin
+                   clrscr;
+                   writeln('BUENA SUERTE');
+                   readkey;
+                 End;
+               If (activo = 3) Then
+                 volver := marchar;
+             End;
     End;
 
   Until (salir = marchar) Or (volver = marchar);
@@ -641,7 +698,7 @@ Begin
   clrscr;
 
   // Inicializo
-  activo := 0;
+  activo := 1;
   keyPad := 'Q';
 
   // Declarar booleanos del Menu
@@ -661,7 +718,8 @@ Begin
 
   Repeat
 
-    If ((ord(keyPad) = Q) Or (ord(keyPad) = ESC) Or (ord(keyPad) = DERECHA))
+    If ((ord(keyPad) = Q) Or (ord(keyPad) = ESC) Or (ord(keyPad) = DERECHA) Or (
+       ord(keyPad) = ENTER))
       Then
       Begin
         AnimacionMenu(activo, NUM_SUBMENU, menuVector);
@@ -730,6 +788,43 @@ Begin
            End;
 
          End;
+      ENTER:
+             Begin
+               If (activo = 1) Then
+                 bloqueMenuJugar(data.dataArchivo, data.dataArchivo.
+                                 plano,
+                                 data.dataArchivo.naveT, data.
+                                 dataArchivo.
+                                 planetaT, data.dataArchivo.
+                                 dimensiones
+                                 .
+                                 fil,
+                                 data.dataArchivo.dimensiones.col);
+               If (activo = 2) Then
+                 bloqueMenuJugar(data.dataPersonalizada, data.
+                                 dataPersonalizada.plano,
+                                 data.dataPersonalizada.naveT, data.
+                                 dataPersonalizada.
+                                 planetaT, data.dataPersonalizada.
+                                 dimensiones.fil,
+                                 data.dataPersonalizada.dimensiones.
+                                 col
+                 )
+               ;
+               If (activo = 3) Then
+                 bloqueMenuJugar(data.dataRandom, data.dataRandom.
+                                 plano
+                                 ,
+                                 data.dataRandom.naveT, data.
+                                 dataRandom
+                                 .
+                                 planetaT, data.dataRandom.
+                                 dimensiones.
+                                 fil,
+                                 data.dataRandom.dimensiones.col);
+               If (activo = 4) Then
+                 volver := marchar;
+             End;
     End;
 
   Until (volver = marchar) Or (salir = marchar);
@@ -751,7 +846,8 @@ Begin
   clrscr;
 
   // Activo
-  activo := 0;
+  activo := 1;
+  keyPad := 'Q';
 
   // Declarar booleanos del Menu
   volver := seguir;
@@ -765,11 +861,14 @@ Begin
   textBackground(Green);
   writeln('---Bienvenido a L nave---');
   writeln;
-  writeln('Presiona las flechas para iniciar...');
+  writeln('Presiona cualquier tecla para comenzar...');
+
+  readkey;
 
   Repeat
 
-    If ((ord(keyPad) = IZQUIERDA) Or (ord(keyPad) = DERECHA)) Then
+    If ((ord(keyPad) = IZQUIERDA) Or (ord(keyPad) = DERECHA) Or (ord(keyPad) =
+       ENTER) Or (ord(keyPad) = Q)) Then
       Begin
         AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
         keyPad := 'a';
@@ -808,6 +907,16 @@ Begin
            End;
 
          End;
+
+      ENTER:
+             Begin
+               If (activo = 1) Then
+                 menuJugar(data, opc, volver, salir);
+               If (activo = 2) Then
+                 menuTutorial(opc, volver, salir);
+               If (activo = 3) Then
+                 salir := marchar;
+             End;
 
     End;
 
