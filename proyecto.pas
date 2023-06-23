@@ -31,6 +31,7 @@ Type
 
   Victoria = (sigue, gano);
   TipoGeneracionMapa = (TipoArchivo, TipoAleatorio, TipoPersonalizado);
+  menuBoolean = (seguir, marchar);
 
   // Tipo de dato usado en varias keys del objeto
   coordenada = Record
@@ -66,66 +67,14 @@ Type
     dataPersonalizada: dataMapa;
   End;
 
-// Generador random de estrellas y destructores
-
-Procedure Generador(Var data: dataMapa;Var cant: integer; Var param: ArrayDinamico; fil, col: integer)
-;
-Var
-  i, j: integer;
-	tipoMapa: TipoGeneracionMapa;
-
-Begin
-
-  tipoMapa:= data.tipoMapa;
-
-  randomize;
-
-  case tipoMapa Of
-	// Si el mapa se genera usando un archivo
-	  TipoArchivo:
-		Begin
-		  writeLn('Se utilizo la generacion por archivo');
-			procesarArchivo(archivo, data; rutaArchivo);
-			
-			
-		End;
-  // Si el mapa se genera aleatoriamente
-		 TipoAleatorio:
-	  Begin
-      writeln('Se utilizo la generacion aleatoria');
+Var // VARIABLES ARCHIVOS
+  // Archivo
+  archivo: Text;
+  rutaArchivo: string;
 	
-		End;
-	// Si el mapa se genera usando de manera personalizada
-    TipoPersonalizado:
-		Begin
-      writeln('Se utilizo la generacion personalizada');
-		End;
-	End;
-		
-
-// Version actual
-{
-  randomize;
-  cant := random(10)+1;
-
-  // Cono si es dificil vale = 4
-  // Cono si es medio vale = 6
-  // Cono si es facil vale = 8
-
-  For i := 1 To cant Do
-    Begin
-      param[i].posicionX := random(fil)+1;
-      param[i].posicionY := random(col)+1;
-
-      writeln('Coordenada X: ', param[i].posicionX,
-              ' Coordenada Y: ', param[i].posicionY);
-    End;
-	}
-End;
-
-
-// -------------- ARCHIVOS --------------
-
+// ARCHIVOS
+//
+//
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var coordenadas: Array Of coordenada);
 Var
@@ -139,8 +88,7 @@ Begin
     Begin
       Read(archivo, cantidad);
     End
-
-// Nro > a 10 (1 n ? 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
+  // Nro > a 10 (1 n ? 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
       Read(archivo, cant_2);
@@ -148,7 +96,7 @@ Begin
     End;
 
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
-	     obj de coordenadas dentro de un array}
+	       obj de coordenadas dentro de un array}
   For i := 1 To cantidad Do
     Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
@@ -170,9 +118,8 @@ Begin
     End;
 End;
 
-// Leer Archivo Principal (guardar sus valores en el objeto de tipo dataMapa)
+// Leer Archivo Principal
 Procedure leerArchivo(Var archivo: text; Var datosMapa: dataMapa);
-
 Begin
   // Abrir archivo
   reset(archivo);
@@ -184,7 +131,8 @@ Begin
   Read(archivo, datosMapa.planetaT[1], datosMapa.planetaT[2]);
 
   // Guarda cantidad y coordenadas de estrellas
-  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas);
+  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.
+                           estrellas.coordenadas);
   // Guardar cantidad y coordenadas de destructores
   leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas);
   Close(archivo);
@@ -202,15 +150,64 @@ Begin
           datosMapa.naveT[2]);
   writeLn('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],
           ' y ', datosMapa.planetaT[2]);
-  MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.
-                              estrellas.
-                              coordenadas, 'estrellas');
-  MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.
-                              destructores.coordenadas, 'destructores');
+  MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas, 'estrellas');
+  MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas, 'destructores');
+End;
+
+// Generador random de estrellas y destructores
+Procedure Generador(Var data: dataMapa;Var cant: integer; Var param: ArrayDinamico; fil, col: integer);
+Var
+  i, j: integer;
+  tipoMapa: TipoGeneracionMapa;
+Begin
+
+  randomize;
+
+  tipoMapa := data.tipoMapa;
+
+  case tipoMapa Of
+	// Si el mapa se genera usando un archivo
+	  TipoArchivo:
+		Begin
+		  writeLn('Se utilizo la generacion por archivo');
+			procesarArchivo(archivo, data, rutaArchivo);
+			
+			
+		End;
+  // Si el mapa se genera aleatoriamente
+		 TipoAleatorio:
+	  Begin
+      writeln('Se utilizo la generacion aleatoria');
+	
+		End;
+	// Si el mapa se genera usando de manera personalizada
+    TipoPersonalizado:
+		Begin
+      writeln('Se utilizo la generacion personalizada');
+		End;
+	End;
+
+{ ACTUALMENTE EST√Å AS√ç, RANDOMIZADO 
+  randomize;
+  cant := random(10)+1;
+
+  // Cono si es dificil vale = 4
+  // Cono si es medio vale = 6
+  // Cono si es facil vale = 8
+
+  For i := 1 To cant Do
+    Begin
+      param[i].posicionX := random(fil)+1;
+      param[i].posicionY := random(col)+1;
+
+      writeln('Coordenada X: ', param[i].posicionX,
+              ' Coordenada Y: ', param[i].posicionY);
+    End;
+}
 End;
 
 
-// Funci?n que valida tanto filas como columnas
+// Funcion que valida tanto filas como columnas
 Function validarDim(n: Integer; mensaje: String): Integer;
 Begin
   Repeat
@@ -225,11 +222,9 @@ Begin
 End;
 
 // Menu tutorial
-Procedure menuTutorial(Var opc: integer; Var volver, salir: boolean);
+Procedure menuTutorial(Var opc: integer; Var volver, salir: menuBoolean);
 Begin
 
-  salir := false;
-  volver := false;
   Repeat
     clrscr;
     Delay(300);
@@ -245,47 +240,48 @@ Begin
       1: writeLn('Los controles son...');
       2: writeLn('Como tu quieras');
       3: writeLn('No hay truquitos');
-      4: volver := True;
-      5: salir := True;
+      4: volver := marchar;
+      5: salir := marchar;
       Else
         Begin
           writeLn('La opcion ', opc, ' no existe');
           readLn;
         End;
     End;
-  Until (salir) Or (volver);
+  Until (salir = marchar) Or (volver = marchar);
 End;
 
 // POR HACER RELLENO ESTATICO
 //
 //
 
-Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta:vector; fil, col: integer);
-
+Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta: vector; fil, col: integer);
 Var
   i, j: integer;
   coordEst, coordDest: ArrayDinamico;
-Begin
-	{  VA EN EL GENERADOR DE RANDOM...
-  randomize;
-	
-	// Randomizar posiciÛn X,Y de la nave
-	nave[1]:= random(fil)+1; // X
-	nave[2]:= random(col)+1; // Y
 
-  //Randomizar posiciÛn X,Y del planeta
+Begin
+
+  randomize;
+
+{ PASAR AL GENERADOR!!!!!!!!!!!!!
+{Randomizo la nave}
+  nave[1] := random(fil)+1; // X
+  nave[2] := random(col)+1; // Y
+
+{Randomizo el planeta}
   Repeat
     planeta[1] := random(fil)+1; // X
     planeta[2] := random(col)+1; // Y
-  Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2])); // Planeta y nave no pueden estar en la misma casilla
-	}
+  Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
+
 {Genero las posiciones de los destructores y estrellas}
 
   writeln('Estrellas: ');
-  Generador(data,data.tipoMapa, data.estrellas.cantidad, data.estrellas.coordenadas, fil, col);
+  Generador(data, data.estrellas.cantidad, data.estrellas.coordenadas, fil, col);
   writeln;
   writeln('Destructores: ');
-  Generador(data,data.tipoMapa, data.destructores.cantidad, data.destructores.coordenadas, fil,col);
+  Generador(data, data.destructores.cantidad, data.destructores.coordenadas, fil,col);
 
   coordEst := data.estrellas.coordenadas;
   coordDest := data.destructores.coordenadas;
@@ -324,17 +320,6 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
-
-
-
-
-
-
-
-
-
-
-
 
 
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
@@ -407,11 +392,15 @@ Begin
 
 End;
 
-// --------- LEER EL MAPA FINAL PROCEDIMIENTO
+// LEER EL MAPA FINAL PROCEDIMIENTO
 //
 //
 
-Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla:integer);
+Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla
+                   :
+                   integer)
+;
+
 Var
   i, j: integer;
 Begin
@@ -459,12 +448,17 @@ End;
 
 {Aqui se desarrolla el bucle principal del juego}
 //
-// A partida se le pasa el tipo de dataJuego que se va a usar (en el menu)
+//
 
-Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta:vector; fil, col, tecla:integer);
+Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta:
+                  vector;
+                  fil, col, tecla:
+                  integer);
+
 Var
   ch: char;
   desarrollo: Victoria;
+
 Begin
   clrscr;
 
@@ -473,6 +467,7 @@ Begin
 
 {Relleno el Mapa}
   relleno(terreno, data, nave, planeta, fil, col);
+
 
 {Se lee el mapa inicial}
   leerMapa(terreno, nave, fil, col, 0); // El cero es para que no se mueva el personaje
@@ -499,15 +494,25 @@ End;
 
 // MENU JUGAR::
 
+Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave, planeta
+                          : vector; Var fil, col: integer);
+Begin
+  clrscr;
+  Delay(300);
+
+  fil := validarDim(fil, 'filas');
+  col := validarDim(col, 'columnas');
+
+  Partida(plano, data, nave, planeta, fil, col, 0);
+End;
+
 // Menu opcion jugar
 Procedure menuJugar(Var data: dataJuego;
                     Var opc: integer;
-                    Var volver, salir: boolean);
+                    Var volver, salir: menuBoolean);
 
 Begin
 
-  salir := false;
-  volver := false;
   Repeat
     clrscr;
     Delay(300);
@@ -519,54 +524,52 @@ Begin
     writeln('4. Volver');
     writeln('5. Salir');
     Readln(opc);
-		{ Dependiendo de la opcion seleccionado, se elige de dataJuego un objeto especifico de juego
-		  (dataArchivo)}
     Case opc Of
-      1: Begin
-			     Clrscr;
-           Delay(300);
-				   Partida(data.dataArchivo.plano, data.dataArchivo, data.
-           dataArchivo.naveT, data.dataArchivo.planetaT,
-           data.dataArchivo.dimensiones.fil,
-           data.dataArchivo.dimensiones.col, 0);
-			   End;
+      // 1: CREAR MAPA CON ARCHIVO FUNCTIONALITY ACA
+      1:
+         Begin
+           bloqueMenuJugar(data.dataArchivo, data.dataArchivo.plano,
+                           data.dataArchivo.naveT, data.dataArchivo.
+                           planetaT, data.dataArchivo.dimensiones.fil,
+                           data.dataArchivo.dimensiones.col);
+         End;
+      //  Personalizada
       2:
          Begin
-           Clrscr;
-           Delay(300);
-
-           data.dataPersonalizada.dimensiones.fil := validarDim(data.
-                                                     dataPersonalizada.
-                                                     dimensiones.fil, 'filas');
-
-           data.dataPersonalizada.dimensiones.col := validarDim(data.
-                                                     dataPersonalizada.
-                                                     dimensiones.col, 'columnas'
-                                                     );
-
-           Partida(data.dataPersonalizada.plano, data.dataPersonalizada, data.
-                   dataPersonalizada.naveT, data.dataPersonalizada.planetaT,
-                   data.dataPersonalizada.dimensiones.fil,
-                   data.dataPersonalizada.dimensiones.col, 0);
+           bloqueMenuJugar(data.dataPersonalizada, data.dataPersonalizada.plano,
+                           data.dataPersonalizada.naveT, data.dataPersonalizada.
+                           planetaT, data.dataPersonalizada.dimensiones.fil,
+                           data.dataPersonalizada.dimensiones.col);
          End;
-      3: writeln('Mapa al azar');
-      4: volver := true;
-      5: salir := true;
+      // Random
+      3:
+         Begin
+           bloqueMenuJugar(data.dataRandom, data.dataRandom.plano,
+                           data.dataRandom.naveT, data.dataRandom.
+                           planetaT, data.dataRandom.dimensiones.fil,
+                           data.dataRandom.dimensiones.col);
+         End;
+      4: volver := marchar;
+      5: salir := marchar;
       Else
         Begin
           writeLn('Error, la opcion', opc, ' no existe');
           readLn;
         End;
     End;
-  Until (salir) Or (volver);
+  Until (volver = marchar) Or (salir = marchar);
 End;
 
 // Menu
 Procedure Menu(Var data: dataJuego; Var opc: integer; Var volver, salir:
-               boolean)
+               menuBoolean)
 ;
 
 Begin
+
+  // Declarar booleanos del Menu
+  volver := seguir;
+  salir := seguir;
 
 
   Repeat
@@ -580,27 +583,24 @@ Begin
     Case opc Of
       1: menuJugar(data, opc, volver, salir);
       2: menuTutorial(opc, volver, salir);
-      3: salir := true;
+      3: salir := marchar;
       Else
         Begin
           writeLn('Error, la opcion ', opc, ' no existe');
           Readln;
         End;
     End;
-  Until (salir);
+  Until (salir = marchar);
 
 End;
 
 Var
-  // Archivo
-  archivo: text;
-  rutaArchivo: string;
   // Data Principal
   dataPrincipal: dataJuego;
   // Menu Opcion
   opc: Integer;
   // Menu
-  salir, volver: Boolean;
+  salir, volver: menuBoolean;
 
 Begin
   clrscr;
@@ -608,10 +608,7 @@ Begin
   // base archivo estatico
   rutaArchivo := 'est.dat';
 
-  // Inicializando estados de salir y volver
-  salir := false;
-  volver := false;
-
+  // Paortida Completa
   Menu(dataPrincipal, opc, volver, salir);
 
 End.
