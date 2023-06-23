@@ -13,9 +13,14 @@ Const
   BANDERA = '~';
   BOMBA = 'D';
   STAR = 'E';
-  // Letras
+  // Caracteres Especiales
+  ARRIBA = 72;
+  ABAJO = 80;
+  IZQUIERDA = 75;
+  DERECHA = 77;
   ENTER = 13;
   ESC = 27;
+  // Letras
   Q = 81;
   W = 87;
   E = 69;
@@ -68,6 +73,12 @@ Type
     dataPersonalizada: dataMapa;
   End;
 
+Var 
+  archivo: text;
+  // Archivo
+  baseArchivo: string;
+
+
   // Generador
 
 Procedure Generador(Var estaDOCAMBIAELNOMBREDESTAMIERDAXDD: Estado; Var
@@ -107,6 +118,25 @@ End;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
                                    Var
@@ -115,6 +145,25 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -134,12 +183,50 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
       Read(archivo, cant_2);
       cantidad := cant_1 * 10 + cant_2;
     End;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -154,6 +241,25 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -345,6 +451,25 @@ Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 Begin
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
@@ -534,13 +659,18 @@ Procedure menuJugar(Var data: dataJuego;
                     Var opc: integer;
                     Var volver, salir: menuBoolean);
 
+Var 
+  keyPad: char;
+
 Begin
 
   Repeat
     clrscr;
     Delay(300);
     writeLn('---LE NAVE---');
+    writeln;
     writeLn('Selecciona una de las siguientes modalidades de juego: ');
+    writeln;
     writeLn('1. Generar mapa con archivo');
     writeln('2. Mapa personalizado');
     writeln('3. Mapa al azar');
@@ -574,6 +704,13 @@ Begin
          End;
       4: volver := marchar;
       5: salir := marchar;
+      6:
+         Begin
+           Repeat
+             keyPad := readkey;
+             writeln('Numero de tecla: ', ord(keyPad));
+           Until (ord(keyPad) = ENTER);
+         End;
       Else
         Begin
           writeLn('Error, la opcion', opc, ' no existe');
@@ -588,6 +725,9 @@ Procedure Menu(Var data: dataJuego; Var opc: integer; Var volver, salir:
                menuBoolean)
 ;
 
+Var 
+  keyPad: char;
+
 Begin
 
   // Declarar booleanos del Menu
@@ -598,11 +738,13 @@ Begin
   Repeat
     clrscr;
     writeln('---Bienvenido a L nave---');
+    writeln;
     writeln('1. Jugar');
     writeln('2. Tutorial');
     writeln('3. Salir');
     readln(opc);
     writeLn;
+
     Case opc Of 
       1: menuJugar(data, opc, volver, salir);
       2: menuTutorial(opc, volver, salir);
@@ -613,14 +755,13 @@ Begin
           Readln;
         End;
     End;
+
+
   Until (salir = marchar);
 
 End;
 
 Var 
-  // Archivo
-  archivo: text;
-  baseArchivo: string;
   // Data Principal
   dataPrincipal: dataJuego;
   // Menu Opcion
