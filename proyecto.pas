@@ -4,6 +4,12 @@ Program proyectoProgram;
 Uses crt;
 
 Const 
+  // Prueba
+  NUM_MENUPRINCIPAL = 3;
+  NUM_SUBMENU = 4;
+
+  // MAIN
+
   LIMITE = 30;
   LIMITE_ESTRELLAS = 15;
   CELDA = '#';
@@ -32,6 +38,7 @@ Const
 
 Type 
   vector = array[1..LIMITE] Of integer;
+  vectorString = array[1..LIMITE] Of string;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
   matriz = array[1..LIMITE_ESTRELLAS, 1..LIMITE_ESTRELLAS] Of Integer;
 
@@ -116,27 +123,6 @@ End;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
                                    Var
@@ -145,28 +131,6 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
 Var 
   i, cant_1, cant_2: Integer;
 Begin
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -181,56 +145,12 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
       Read(archivo, cant_2);
       cantidad := cant_1 * 10 + cant_2;
     End;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -241,28 +161,6 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -455,21 +353,6 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
@@ -654,6 +537,33 @@ Begin
   Partida(plano, data, nave, planeta, fil, col, 0);
 End;
 
+// Animacion de los colores en los menus...
+
+Procedure AnimacionMenu(activo, max: integer; Var menuVector: vectorString);
+
+Var 
+  i: integer;
+
+Begin
+  clrscr;
+
+  writeln('---Bienvenido a L nave---');
+  writeln;
+
+  For i := 1 To max Do
+    Begin
+      textBackground(green);
+      textcolor(red);
+      If (i = activo) Then
+        Begin
+          textBackground(green);
+          textColor(white);
+        End;
+      writeln(menuVector[i]);
+    End;
+
+End;
+
 // Menu opcion jugar
 Procedure menuJugar(Var data: dataJuego;
                     Var opc: integer;
@@ -661,101 +571,162 @@ Procedure menuJugar(Var data: dataJuego;
 
 Var 
   keyPad: char;
+  menuVector: vectorString;
+  activo: integer;
 
 Begin
 
-  Repeat
-    clrscr;
-    Delay(300);
-    writeLn('---LE NAVE---');
-    writeln;
-    writeLn('Selecciona una de las siguientes modalidades de juego: ');
-    writeln;
-    writeLn('1. Generar mapa con archivo');
-    writeln('2. Mapa personalizado');
-    writeln('3. Mapa al azar');
-    writeln('4. Volver');
-    writeln('5. Salir');
-    Readln(opc);
-    Case opc Of 
-      // 1: CREAR MAPA CON ARCHIVO FUNCTIONALITY ACA
-      1:
-         Begin
-           bloqueMenuJugar(data.dataArchivo, data.dataArchivo.plano,
-                           data.dataArchivo.naveT, data.dataArchivo.
-                           planetaT, data.dataArchivo.dimensiones.fil,
-                           data.dataArchivo.dimensiones.col);
-         End;
-      //  Personalizada
-      2:
-         Begin
-           bloqueMenuJugar(data.dataPersonalizada, data.dataPersonalizada.plano,
-                           data.dataPersonalizada.naveT, data.dataPersonalizada.
-                           planetaT, data.dataPersonalizada.dimensiones.fil,
-                           data.dataPersonalizada.dimensiones.col);
-         End;
-      // Random
-      3:
-         Begin
-           bloqueMenuJugar(data.dataRandom, data.dataRandom.plano,
-                           data.dataRandom.naveT, data.dataRandom.
-                           planetaT, data.dataRandom.dimensiones.fil,
-                           data.dataRandom.dimensiones.col);
-         End;
-      4: volver := marchar;
-      5: salir := marchar;
-      6:
-         Begin
-           Repeat
-             keyPad := readkey;
-             writeln('Numero de tecla: ', ord(keyPad));
-           Until (ord(keyPad) = ENTER);
-         End;
-      Else
-        Begin
-          writeLn('Error, la opcion', opc, ' no existe');
-          readLn;
-        End;
-    End;
-  Until (volver = marchar) Or (salir = marchar);
-End;
+  clrscr;
 
-// Menu
-Procedure Menu(Var data: dataJuego; Var opc: integer; Var volver, salir:
-               menuBoolean)
-;
+  activo := 0;
 
-Var 
-  keyPad: char;
-
-Begin
+  // Inicializo
+  activo := 0;
 
   // Declarar booleanos del Menu
   volver := seguir;
   salir := seguir;
 
+  // Declarar las opciones:
+
+  menuVector[1] := 'Generar Mapa con Archivo';
+  menuVector[2] := 'Mapa Personalizado';
+  menuVector[3] := 'Mapa al Azar';
+  menuVector[4] := 'Volver';
+
+  textBackground(Green);
+  writeln('---L nave---');
+  writeln;
 
   Repeat
-    clrscr;
-    writeln('---Bienvenido a L nave---');
-    writeln;
-    writeln('1. Jugar');
-    writeln('2. Tutorial');
-    writeln('3. Salir');
-    readln(opc);
-    writeLn;
+    keyPad := readkey;
 
-    Case opc Of 
-      1: menuJugar(data, opc, volver, salir);
-      2: menuTutorial(opc, volver, salir);
-      3: salir := marchar;
-      Else
-        Begin
-          writeLn('Error, la opcion ', opc, ' no existe');
-          Readln;
-        End;
+    Case ord(keyPad) Of 
+      0:
+         Begin
+           keyPad := readkey;
+           Case ord(keyPad) Of 
+             72:
+                 Begin
+                   If (activo > 1) Then
+                     activo := activo -1;
+                   AnimacionMenu(activo, NUM_SUBMENU, menuVector);
+                 End;
+             80:
+                 Begin
+                   If (activo < 4) Then
+                     activo := activo + 1;
+                   AnimacionMenu(activo, NUM_SUBMENU, menuVector);
+                 End;
+
+             77:
+                 Begin
+                   If (activo = 1) Then
+                     bloqueMenuJugar(data.dataArchivo, data.dataArchivo.plano,
+                                     data.dataArchivo.naveT, data.dataArchivo.
+                                     planetaT, data.dataArchivo.dimensiones.fil,
+                                     data.dataArchivo.dimensiones.col);
+                   If (activo = 2) Then
+                     bloqueMenuJugar(data.dataPersonalizada, data.
+                                     dataPersonalizada.plano,
+                                     data.dataPersonalizada.naveT, data.
+                                     dataPersonalizada.
+                                     planetaT, data.dataPersonalizada.
+                                     dimensiones.fil,
+                                     data.dataPersonalizada.dimensiones.col);
+                   If (activo = 3) Then
+                     bloqueMenuJugar(data.dataRandom, data.dataRandom.plano,
+                                     data.dataRandom.naveT, data.dataRandom.
+                                     planetaT, data.dataRandom.dimensiones.fil,
+                                     data.dataRandom.dimensiones.col);
+                   If (activo = 4) Then
+                     volver := marchar;
+                 End;
+
+             75: volver := marchar;
+           End;
+
+         End;
     End;
 
+  Until (volver = marchar) Or (salir = marchar);
+End;
+
+// Menu
+Procedure Menu(Var data: dataJuego; Var opc: integer; Var volver, salir
+               :
+               menuBoolean)
+;
+
+Var 
+  keyPad: char;
+  menuVector: vectorString;
+  activo: integer;
+
+Begin
+
+  clrscr;
+
+  // Activo
+  activo := 0;
+
+  // Declarar booleanos del Menu
+  volver := seguir;
+  salir := seguir;
+
+  // opciones del Menu
+  menuVector[1] := 'Jugar';
+  menuVector[2] := 'Tutorial';
+  menuVector[3] := 'Salir';
+
+  textBackground(Green);
+  writeln('---Bienvenido a L nave---');
+  writeln;
+  writeln('Presiona las flechas para iniciar...');
+
+  Repeat
+
+    If (ord(keyPad) = 77) Then
+      Begin
+        AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
+        keyPad := 'a';
+
+      End
+    Else
+      keyPad := upcase(readkey);
+
+    Case ord(keyPad) Of 
+
+      0:
+         Begin
+           keyPad := readkey;
+           Case ord(keyPad) Of 
+             72:
+                 Begin
+                   If (activo > 1) Then
+                     activo := activo -1;
+                   AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
+                 End;
+             80:
+                 Begin
+                   If (activo < 3) Then
+                     activo := activo + 1;
+                   AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
+                 End;
+             77:
+                 Begin
+                   If (activo = 1) Then
+                     menuJugar(data, opc, volver, salir);
+                   If (activo = 2) Then
+                     menuTutorial(opc, volver, salir);
+                   If (activo = 3) Then
+                     salir := marchar;
+                 End;
+           End;
+
+         End;
+
+    End;
 
   Until (salir = marchar);
 
