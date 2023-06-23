@@ -46,6 +46,7 @@ Var
   // Archivo
   archivo: Text;
   rutaArchivo: String;
+	dataPrincipal: dataJuego;
 
 // ARCHIVOS
 //
@@ -122,3 +123,11 @@ Begin
   MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas, 'estrellas');
   MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas, 'destructores');
 End;
+
+Begin
+
+  rutaArchivo:= 'E:\Default Folders\Samuel\Desktop\UCAB 2do semestre\project-ucab\EST.DAT';
+	procesarArchivo(archivo, dataPrincipal.dataArchivo, rutaArchivo);
+
+Readln;
+End.
