@@ -112,6 +112,12 @@ End;
 
 
 
+
+
+
+
+
+
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
                                    Var
@@ -120,6 +126,12 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
+
+
+
+
+
 
 
 
@@ -153,12 +165,24 @@ Begin
 
 
 
+
+
+
+
+
+
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
       Read(archivo, cant_2);
       cantidad := cant_1 * 10 + cant_2;
     End;
+
+
+
+
+
+
 
 
 
@@ -178,6 +202,12 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
+
+
+
+
+
+
 
 
 
@@ -388,6 +418,12 @@ Begin
 
 
 
+
+
+
+
+
+
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
@@ -560,6 +596,18 @@ End;
 
 // MENU JUGAR::
 
+Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave, planeta
+                          : vector; Var fil, col: integer);
+Begin
+  clrscr;
+  Delay(300);
+
+  fil := validarDim(fil, 'filas');
+  col := validarDim(col, 'columnas');
+
+  Partida(plano, data, nave, planeta, fil, col, 0);
+End;
+
 // Menu opcion jugar
 Procedure menuJugar(Var data: dataJuego;
                     Var opc: integer;
@@ -582,26 +630,29 @@ Begin
     Readln(opc);
     Case opc Of 
       // 1: CREAR MAPA CON ARCHIVO FUNCTIONALITY ACA
+      1:
+         Begin
+           bloqueMenuJugar(data.dataArchivo, data.dataArchivo.plano,
+                           data.dataArchivo.naveT, data.dataArchivo.
+                           planetaT, data.dataArchivo.dimensiones.fil,
+                           data.dataArchivo.dimensiones.col);
+         End;
+      //  Personalizada
       2:
          Begin
-           Clrscr;
-           Delay(300);
-
-           data.dataPersonalizada.dimensiones.fil := validarDim(data.
-                                                     dataPersonalizada.
-                                                     dimensiones.fil, 'filas');
-
-           data.dataPersonalizada.dimensiones.col := validarDim(data.
-                                                     dataPersonalizada.
-                                                     dimensiones.col, 'columnas'
-                                                     );
-
-           Partida(data.dataPersonalizada.plano, data.dataPersonalizada, data.
-                   dataPersonalizada.naveT, data.dataPersonalizada.planetaT,
-                   data.dataPersonalizada.dimensiones.fil,
-                   data.dataPersonalizada.dimensiones.col, 0);
+           bloqueMenuJugar(data.dataPersonalizada, data.dataPersonalizada.plano,
+                           data.dataPersonalizada.naveT, data.dataPersonalizada.
+                           planetaT, data.dataPersonalizada.dimensiones.fil,
+                           data.dataPersonalizada.dimensiones.col);
          End;
-      3: writeln('Mapa al azar');
+      // Random
+      3:
+         Begin
+           bloqueMenuJugar(data.dataRandom, data.dataRandom.plano,
+                           data.dataRandom.naveT, data.dataRandom.
+                           planetaT, data.dataRandom.dimensiones.fil,
+                           data.dataRandom.dimensiones.col);
+         End;
       4: volver := true;
       5: salir := true;
       Else
