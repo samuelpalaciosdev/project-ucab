@@ -46,7 +46,7 @@ Var
   // Archivo
   archivo: Text;
   rutaArchivo: String;
-	dataPrincipal: dataJuego;
+ dataPrincipal: dataJuego;
 
 // ARCHIVOS
 //
@@ -66,10 +66,10 @@ Begin
   Else
     Begin
       Read(archivo, cant_2); // Obtener el segundo nro de la linea
-      cantidad := cant_1 * 10 + cant_2; // Combinar el primer número con el segundo
+      cantidad := cant_1 * 10 + cant_2; // Combinar el primer n£mero con el segundo
     End;
-	{Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
-	como un objeto de coordenadas dentro de un array}
+ {Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
+ como un objeto de coordenadas dentro de un array}
   For i := 1 To cantidad Do
     Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
@@ -114,9 +114,9 @@ Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa; rutaArchiv
 Begin
   // Asignar la variable archivo al archivo en la ruta (rutaArchivo)
   Assign(archivo, rutaArchivo);
-	// Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
+ // Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
   leerArchivo(archivo, datosMapa);
-	// Mostrar info del archivo
+ // Mostrar info del archivo
   writeLn('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas ',datosMapa.dimensiones.col);
   writeLn('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ', datosMapa.naveT[2]);
   writeLn('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],' y ', datosMapa.planetaT[2]);
@@ -127,7 +127,7 @@ End;
 Begin
 
   rutaArchivo:= 'est.dat';
-	procesarArchivo(archivo, dataPrincipal.dataArchivo, rutaArchivo);
+ procesarArchivo(archivo, dataPrincipal.dataArchivo, rutaArchivo);
   writeLn('Coord nave X ', dataPrincipal.dataArchivo.naveT[1],' y de columnas ',dataPrincipal.dataArchivo.dimensiones.col);
 Readln;
 End.
