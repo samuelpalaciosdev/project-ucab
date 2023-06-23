@@ -1,4 +1,3 @@
-
 Program proyectoProgram;
 
 Uses crt;
@@ -31,7 +30,7 @@ Type
   matriz = array[1..LIMITE_ESTRDEST, 1..LIMITE_ESTRDEST] Of Integer;
 
   Victoria = (sigue, gano);
-  Estado = (archivoPrinc, randomPrinc, personalizadoPrinc);
+  TipoGeneracionMapa = (TipoArchivo, TipoAleatorio, TipoPersonalizado);
 
   // Tipo de dato usado en varias keys del objeto
   coordenada = Record
@@ -58,7 +57,7 @@ Type
       cantidad: Integer;
       coordenadas: ArrayDinamico;
     End;
-    estadoJuego: Estado;
+    tipoMapa: TipoGeneracionMapa;
   End;
 
   dataJuego = Record
@@ -69,14 +68,34 @@ Type
 
 // Generador random de estrellas y destructores
 
-Procedure Generador(Var estaDOCAMBIAELNOMBREDESTAMIERDAXDD: Estado; Var
-                    cant: integer; Var param:
-                    ArrayDinamico; fil, col: integer)
+Procedure Generador(Var tipoMapa: TipoGeneracionMapa; Var cant: integer; Var param: ArrayDinamico; fil, col: integer)
 ;
 Var
   i, j: integer;
 
 Begin
+
+  case tipoMapa Of
+	// Si el mapa se genera usando un archivo
+	  TipoArchivo:
+		Begin
+		  writeLn('Se utilizo la generacion por archivo');
+		End;
+  // Si el mapa se genera aleatoriamente
+		 TipoAleatorio:
+	  Begin
+      writeln('Se utilizo la generacion aleatoria');
+		End;
+	// Si el mapa se genera usando de manera personalizada
+    TipoPersonalizado:
+		Begin
+      writeln('Se utilizo la generacion personalizada');
+		End;
+	End;
+		
+
+// Version actual
+{
   randomize;
   cant := random(10)+1;
 
@@ -92,45 +111,17 @@ Begin
       writeln('Coordenada X: ', param[i].posicionX,
               ' Coordenada Y: ', param[i].posicionY);
     End;
-
+	}
 End;
 
 
-// ARCHIVOS
-//
-//
-
-
-
-
-
-
-
-
-
-
-
+// -------------- ARCHIVOS --------------
 
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
-Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
-                                   Var
-                                   coordenadas: Array Of coordenada);
-
+Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var coordenadas: Array Of coordenada);
 Var
   i, cant_1, cant_2: Integer;
 Begin
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
   // Nro < a 10 (0 n) (ej. 0 7) = 7
@@ -140,18 +131,6 @@ Begin
       Read(archivo, cantidad);
     End
 
-
-
-
-
-
-
-
-
-
-
-
-
 // Nro > a 10 (1 n ? 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
@@ -159,19 +138,8 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
     End;
 
-
-
-
-
-
-
-
-
-
-
-
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
-	       obj de coordenadas dentro de un array}
+	     obj de coordenadas dentro de un array}
   For i := 1 To cantidad Do
     Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
@@ -179,21 +147,8 @@ Begin
 End;
 
 
-
-
-
-
-
-
-
-
-
-
 // Mostrar cantidad y coordenadas Procedure reutilizable para (ESTRELLAS Y DESTRUCTORES)
-Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas: Array
-                                      Of
-                                      coordenada; mensaje: String);
-
+Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas: Array Of coordenada; mensaje: String);
 Var
   i: Integer;
 Begin
@@ -220,20 +175,16 @@ Begin
   Read(archivo, datosMapa.planetaT[1], datosMapa.planetaT[2]);
 
   // Guarda cantidad y coordenadas de estrellas
-  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.
-                           estrellas.coordenadas);
+  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas);
   // Guardar cantidad y coordenadas de destructores
-  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad,
-                           datosMapa.
-                           destructores.coordenadas);
+  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas);
   Close(archivo);
 End;
 
 // Procesar datos del Archivo
-Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa;
-                          baseArchivo: String);
+Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa; rutaArchivo: String);
 Begin
-  Assign(archivo, baseArchivo);
+  Assign(archivo, rutaArchivo);
   leerArchivo(archivo, datosMapa);
   writeLn('El valor de filas es ', datosMapa.dimensiones.fil,
           ' y de columnas ',
@@ -322,18 +273,14 @@ Begin
     planeta[1] := random(fil)+1; // X
     planeta[2] := random(col)+1; // Y
   Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
-}
+
 {Genero las posiciones de los destructores y estrellas}
 
   writeln('Estrellas: ');
-  Generador(data.estadoJuego, data.estrellas.cantidad, data.estrellas.
-            coordenadas, fil, col);
+  Generador(data.tipoMapa, data.estrellas.cantidad, data.estrellas.coordenadas, fil, col);
   writeln;
   writeln('Destructores: ');
-  Generador(data.estadoJuego, data.destructores.cantidad, data.destructores.
-            coordenadas, fil,
-            col)
-  ;
+  Generador(data.tipoMapa, data.destructores.cantidad, data.destructores.coordenadas, fil,col);
 
   coordEst := data.estrellas.coordenadas;
   coordDest := data.destructores.coordenadas;
@@ -455,15 +402,11 @@ Begin
 
 End;
 
-// LEER EL MAPA FINAL PROCEDIMIENTO
+// --------- LEER EL MAPA FINAL PROCEDIMIENTO
 //
 //
 
-Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla
-                   :
-                   integer)
-;
-
+Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla:integer);
 Var
   i, j: integer;
 Begin
@@ -643,7 +586,7 @@ End;
 Var
   // Archivo
   archivo: text;
-  baseArchivo: string;
+  rutaArchivo: string;
   // Data Principal
   dataPrincipal: dataJuego;
   // Menu Opcion
@@ -655,7 +598,7 @@ Begin
   clrscr;
 
   // base archivo estatico
-  baseArchivo := 'est.dat';
+  rutaArchivo := 'est.dat';
 
   // Inicializando estados de salir y volver
   salir := false;
