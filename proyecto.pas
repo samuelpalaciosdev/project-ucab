@@ -142,6 +142,8 @@ Begin
   Assign(archivo, rutaArchivo);
 	// Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
   leerArchivo(archivo, datosMapa);
+	// Asignar el tipo de mapa a archivo en el objeto "datosMapa"
+	datosMapa.tipoMapa:= TipoArchivo;
 	// Mostrar info del archivo
   writeLn('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas ',datosMapa.dimensiones.col);
   writeLn('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ', datosMapa.naveT[2]);
@@ -149,56 +151,6 @@ Begin
   MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas, 'estrellas');
   MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas, 'destructores');
 End;
-
-// Generador random de estrellas y destructores
-{Procedure Generador(Var data: dataMapa;Var cant: integer; Var param: ArrayDinamico; fil, col: integer);
-Var
-  i, j: integer;
-  tipoMapa: TipoGeneracionMapa;
-Begin
-
-  randomize;
-
-  tipoMapa := data.tipoMapa;
-
-  case tipoMapa Of
-	// Si el mapa se genera usando un archivo
-	  TipoArchivo:
-		Begin
-			procesarArchivo(archivo, data, rutaArchivo);
-		End;
-  // Si el mapa se genera aleatoriamente
-		 TipoAleatorio:
-	  Begin
-      writeln('Se utilizo la generacion aleatoria');
-	
-		End;
-	// Si el mapa se genera usando de manera personalizada
-    TipoPersonalizado:
-		Begin
-      writeln('Se utilizo la generacion personalizada');
-		End;
-	End;
-
- ACTUALMENTE ESTÁ ASÍ, RANDOMIZADO 
-  randomize;
-  cant := random(10)+1;
-
-  // Cono si es dificil vale = 4
-  // Cono si es medio vale = 6
-  // Cono si es facil vale = 8
-
-  For i := 1 To cant Do
-    Begin
-      param[i].posicionX := random(fil)+1;
-      param[i].posicionY := random(col)+1;
-
-      writeln('Coordenada X: ', param[i].posicionX,
-              ' Coordenada Y: ', param[i].posicionY);
-    End;
-
-End;}
-
 
 // Funcion que valida tanto filas como columnas
 Function validarDim(n: Integer; mensaje: String): Integer;
@@ -314,7 +266,6 @@ Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
 
-
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
@@ -389,10 +340,7 @@ End;
 //
 //
 
-Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla
-                   :
-                   integer)
-;
+Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla:integer);
 
 Var 
   i, j: integer;
@@ -443,10 +391,7 @@ End;
 //
 //
 
-Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta:
-                  vector;
-                  fil, col, tecla:
-                  integer);
+Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta: vector; fil, col, tecla:integer);
 
 Var
   ch: char;
@@ -487,8 +432,7 @@ End;
 
 // MENU JUGAR::
 
-Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave, planeta
-                          : vector; Var fil, col: integer);
+Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave, planeta: vector; Var fil, col: integer);
 Begin
   clrscr;
   Delay(300);
@@ -553,6 +497,23 @@ Begin
   Until (volver = marchar) Or (salir = marchar);
 End;
 
+function TipoGeneracionMapaToStr(data: dataMapa): string;
+Var
+  tipoMapa: TipoGeneracionMapa;
+Begin
+  tipoMapa:= data.tipoMapa;
+  case tipoMapa of
+    TipoArchivo: TipoGeneracionMapaToStr := 'Tipo generacion de mapa: archivo';
+    TipoAleatorio: TipoGeneracionMapaToStr := 'Tipo generacion de mapa: aleatorio';
+		TipoPersonalizado: TipoGeneracionMapaToStr := 'Tipo generacion de mapa: personalizado'
+		Else
+		Begin
+	   TipoGeneracionMapaToStr:= 'Ninguno de los anteriores'
+		End;
+  end;
+End;
+
+
 // Menu
 Procedure Menu(Var data: dataJuego; Var opc: integer; Var volver, salir:
                menuBoolean)
@@ -600,11 +561,13 @@ Begin
 
   // ruta archivo estatico
   rutaArchivo := 'est.dat';
-	// writeLn('La cantidad de estrellas en el objeto dataPrincipal.dataArchivo es: ', dataPrincipal.dataArchivo.estrellas.cantidad); 0
-	//procesarArchivo(archivo, dataPrincipal.dataArchivo, rutaArchivo);
+	writeLn(TipoGeneracionMapaToStr(dataPrincipal.dataArchivo));
+	writeLn('La cantidad de estrellas en el objeto dataPrincipal.dataArchivo es: ', dataPrincipal.dataArchivo.estrellas.cantidad);
+	procesarArchivo(archivo, dataPrincipal.dataArchivo, rutaArchivo);
 
-	 //writeLn('La cantidad de estrellas en el objeto dataPrincipal.dataArchivo es: ', dataPrincipal.dataArchivo.estrellas.cantidad); 5
+	 writeLn('La cantidad de estrellas en el objeto dataPrincipal.dataArchivo es: ', dataPrincipal.dataArchivo.estrellas.cantidad);
+	 writeLn(TipoGeneracionMapaToStr(dataPrincipal.dataArchivo));
   // Partida Completa
-  Menu(dataPrincipal, opc, volver, salir);
+  //Menu(dataPrincipal, opc, volver, salir);
 
 End.
