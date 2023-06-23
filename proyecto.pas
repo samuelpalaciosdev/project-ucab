@@ -169,10 +169,7 @@ Begin
 	// Si el mapa se genera usando un archivo
 	  TipoArchivo:
 		Begin
-		  writeLn('Se utilizo la generacion por archivo');
 			procesarArchivo(archivo, data, rutaArchivo);
-			
-			
 		End;
   // Si el mapa se genera aleatoriamente
 		 TipoAleatorio:
@@ -265,16 +262,16 @@ Begin
   randomize;
 
 { PASAR AL GENERADOR!!!!!!!!!!!!!
-{Randomizo la nave}
+//Randomizo la posición de la nave
   nave[1] := random(fil)+1; // X
   nave[2] := random(col)+1; // Y
 
-{Randomizo el planeta}
+// Randomizo la posición de la  planeta
   Repeat
     planeta[1] := random(fil)+1; // X
     planeta[2] := random(col)+1; // Y
   Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
-
+}
 {Genero las posiciones de los destructores y estrellas}
 
   writeln('Estrellas: ');
@@ -499,10 +496,10 @@ Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave, planeta
 Begin
   clrscr;
   Delay(300);
-
+	{ SOLO SI LA PARTIDA ES DE MODO PERSONALIZADA
   fil := validarDim(fil, 'filas');
   col := validarDim(col, 'columnas');
-
+ }
   Partida(plano, data, nave, planeta, fil, col, 0);
 End;
 
