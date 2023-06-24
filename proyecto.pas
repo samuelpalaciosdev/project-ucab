@@ -150,10 +150,13 @@ Begin
 
 
 
+<<<<<<< HEAD
 
 
 
 
+=======
+>>>>>>> main
 // Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere las coordenadas de destructores y estrellas sin problema
 
       If (tipo = TipoAleatorio) Then
@@ -181,6 +184,12 @@ End;
 //
 
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> main
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
                                    Var
@@ -189,6 +198,8 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
+
 
 
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
@@ -200,12 +211,20 @@ Begin
     End
 
 
+<<<<<<< HEAD
+=======
+
+
+
+>>>>>>> main
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
       Read(archivo, cant_2);
       cantidad := cant_1 * 10 + cant_2;
     End;
+
+
 
 
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
@@ -215,6 +234,8 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
+
+
 
 
 
@@ -379,12 +400,15 @@ Begin
 
 
 
+<<<<<<< HEAD
 
 
 
 
 
 
+=======
+>>>>>>> main
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
 
   // Normales
