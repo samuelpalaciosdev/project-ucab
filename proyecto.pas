@@ -162,7 +162,7 @@ End;
 // ARCHIVOS
 //
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
-Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var coordenadas: Array Of coordenada);
+Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var coordenadas: ArrayDinamico);
 Var
   i, cant_1, cant_2: Integer;
 Begin
@@ -188,7 +188,7 @@ Begin
 End;
 
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
-Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas: Array Of coordenada; mensaje: String);
+Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:ArrayDinamico; mensaje: String);
 Var
   i: Integer;
 Begin
@@ -203,24 +203,33 @@ End;
 // Leer Archivo Principal (Guardar su data en el objeto de tipo dataMapa)
 Procedure leerArchivo(Var archivo: text; Var datosMapa: dataMapa);
 Begin
+ // HACER WHILE NOT EOF
   // Abrir archivo
   reset(archivo);
   // Guardar fila y columna en el objeto
-  Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
-  // Guardar posicion nave     (X,Y)
-  Read(archivo, datosMapa.naveT[1], datosMapa.naveT[2]);
-  // Guardar posicion planetaT (X,Y)
-  Read(archivo, datosMapa.planetaT[1], datosMapa.planetaT[2]);
 
-  // Guarda cantidad y coordenadas de estrellas
-  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas);
-  // Guardar cantidad y coordenadas de destructores
-  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas);
+  while not(eof(archivo)) Do
+  Begin
+    Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
+    // Guardar posicion nave     (X,Y)
+    Read(archivo, datosMapa.naveT[1], datosMapa.naveT[2]);
+    // Guardar posicion planetaT (X,Y)
+    Read(archivo, datosMapa.planetaT[1], datosMapa.planetaT[2]);
+
+    // Guarda cantidad y coordenadas de estrellas
+    leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas);
+    // Guardar cantidad y coordenadas de destructores
+
+    leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas);
+  End;
   Close(archivo);
+  
 End;
 
 // Procesar datos del Archivo
 Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa; rutaArchivo: String);
+Var
+  i: Integer;
 Begin
   // Asignar la variable archivo al archivo en la ruta (rutaArchivo)
   Assign(archivo, rutaArchivo);
@@ -232,7 +241,14 @@ Begin
   writeLn('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],' y ', datosMapa.planetaT[2]);
   MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas, 'estrellas');
   MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas, 'destructores');
-	
+  writeLn('Canti: ');
+	For i := 1 To datosMapa.destructores.cantidad Do
+  Begin
+      writeln(i, ': X=', datosMapa.destructores.coordenadas[i].posicionX, ', Y=', datosMapa.destructores.coordenadas[i].posicionY); // Mostrar las coordenadas de cada elemento
+      readkey;
+  End;
+ // writeln('Canti: ', datosMapa.estrellas.coordenadas);
+
 	Delay(300);
   writeln;
   writeln('Presiona para jugar si estas listo...');
