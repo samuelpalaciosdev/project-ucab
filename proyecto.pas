@@ -50,7 +50,7 @@ Type
   matriz = array[1..LIMITE_ESTRELLAS, 1..LIMITE_ESTRELLAS] Of Integer;
 
   Victoria = (sigue, gano);
-  Estado = (archivoPrinc, randomPrinc, personalizadoPrinc);
+  TipoGeneracionMapa = (TipoArchivo, TipoAleatorio, TipoPersonalizado);
   menuBoolean = (seguir, marchar);
 
   // Tipo de dato usado en varias keys del objeto
@@ -78,7 +78,7 @@ Type
       cantidad: Integer;
       coordenadas: ArrayDinamico;
     End;
-    estadoJuego: Estado;
+    tipoMapa: TipoGeneracionMapa;
   End;
 
   dataJuego = Record
@@ -95,7 +95,8 @@ Var
 
   // Generador
 
-Procedure Generador(Var estaDOCAMBIAELNOMBREDESTAMIERDAXDD: Estado; Var
+Procedure Generador(Var estaDOCAMBIAELNOMBREDESTAMIERDAXDD: TipoGeneracionMapa;
+                    Var
                     cant: integer; Var param:
                     ArrayDinamico; fil, col: integer)
 ;
@@ -106,10 +107,6 @@ Var
 Begin
   randomize;
   cant := random(10)+1;
-
-  // Cono si es dificil vale = 4
-  // Cono si es medio vale = 6
-  // Cono si es facil vale = 8
 
   For i := 1 To cant Do
     Begin
@@ -126,15 +123,6 @@ End;
 // ARCHIVOS
 //
 //
-
-
-
-
-
-
-
-
-
 
 
 
@@ -162,6 +150,25 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
   // Nro < a 10 (0 n) (ej. 0 7) = 7
   Read(archivo, cant_1);
@@ -169,11 +176,6 @@ Begin
     Begin
       Read(archivo, cantidad);
     End
-
-
-
-
-
 
 
 
@@ -194,13 +196,6 @@ Begin
 
 
 
-
-
-
-
-
-
-
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
 	       obj de coordenadas dentro de un array}
   For i := 1 To cantidad Do
@@ -208,17 +203,6 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -333,11 +317,11 @@ Begin
 {Genero las posiciones de los destructores y estrellas}
 
   writeln('Estrellas: ');
-  Generador(data.estadoJuego, data.estrellas.cantidad, data.estrellas.
+  Generador(data.tipoMapa, data.estrellas.cantidad, data.estrellas.
             coordenadas, fil, col);
   writeln;
   writeln('Destructores: ');
-  Generador(data.estadoJuego, data.destructores.cantidad, data.destructores.
+  Generador(data.tipoMapa, data.destructores.cantidad, data.destructores.
             coordenadas, fil,
             col)
   ;
@@ -379,6 +363,25 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -712,13 +715,17 @@ End;
 
 Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave,
                           planeta
-                          : vector; Var fil, col: integer);
+                          : vector; Var fil, col: integer; tipo:
+                          TipoGeneracionMapa);
 Begin
   clrscr;
   Delay(300);
 
-  fil := validarDim(fil, 'filas');
-  col := validarDim(col, 'columnas');
+  If (tipo = TipoPersonalizado) Then
+    Begin
+      fil := validarDim(fil, 'filas');
+      col := validarDim(col, 'columnas');
+    End;
 
   Partida(plano, data, nave, planeta, fil, col, 0);
 End;
@@ -789,37 +796,52 @@ Begin
              DERECHA:
                       Begin
                         If (activo = 1) Then
-                          bloqueMenuJugar(data.dataArchivo, data.dataArchivo.
-                                          plano,
-                                          data.dataArchivo.naveT, data.
-                                          dataArchivo.
-                                          planetaT, data.dataArchivo.
-                                          dimensiones
-                                          .
-                                          fil,
-                                          data.dataArchivo.dimensiones.col);
+                          Begin
+                            data.dataArchivo.tipoMapa := TipoArchivo;
+                            bloqueMenuJugar(data.dataArchivo, data.dataArchivo.
+                                            plano,
+                                            data.dataArchivo.naveT, data.
+                                            dataArchivo.
+                                            planetaT, data.dataArchivo.
+                                            dimensiones
+                                            .
+                                            fil,
+                                            data.dataArchivo.dimensiones.col,
+                                            data.dataArchivo.tipoMapa);
+                          End;
+
                         If (activo = 2) Then
-                          bloqueMenuJugar(data.dataPersonalizada, data.
-                                          dataPersonalizada.plano,
-                                          data.dataPersonalizada.naveT, data.
-                                          dataPersonalizada.
-                                          planetaT, data.dataPersonalizada.
-                                          dimensiones.fil,
-                                          data.dataPersonalizada.dimensiones.
-                                          col
-                          )
-                        ;
+                          Begin
+                            data.dataPersonalizada.tipoMapa := TipoPersonalizado
+                            ;
+                            bloqueMenuJugar(data.dataPersonalizada, data.
+                                            dataPersonalizada.plano,
+                                            data.dataPersonalizada.naveT, data.
+                                            dataPersonalizada.
+                                            planetaT, data.dataPersonalizada.
+                                            dimensiones.fil,
+                                            data.dataPersonalizada.dimensiones.
+                                            col, data.dataPersonalizada.tipoMapa
+                            )
+                            ;
+                          End;
+
                         If (activo = 3) Then
-                          bloqueMenuJugar(data.dataRandom, data.dataRandom.
-                                          plano
-                                          ,
-                                          data.dataRandom.naveT, data.
-                                          dataRandom
-                                          .
-                                          planetaT, data.dataRandom.
-                                          dimensiones.
-                                          fil,
-                                          data.dataRandom.dimensiones.col);
+                          Begin
+                            data.dataRandom.tipoMapa := TipoAleatorio;
+                            bloqueMenuJugar(data.dataRandom, data.dataRandom.
+                                            plano
+                                            ,
+                                            data.dataRandom.naveT, data.
+                                            dataRandom
+                                            .
+                                            planetaT, data.dataRandom.
+                                            dimensiones.
+                                            fil,
+                                            data.dataRandom.dimensiones.col,
+                                            data.dataRandom.tipoMapa);
+                          End;
+
                         If (activo = 4) Then
                           volver := marchar;
                       End;
@@ -849,37 +871,52 @@ Begin
       ENTER, D:
                 Begin
                   If (activo = 1) Then
-                    bloqueMenuJugar(data.dataArchivo, data.dataArchivo.
-                                    plano,
-                                    data.dataArchivo.naveT, data.
-                                    dataArchivo.
-                                    planetaT, data.dataArchivo.
-                                    dimensiones
-                                    .
-                                    fil,
-                                    data.dataArchivo.dimensiones.col);
+                    Begin
+                      data.dataArchivo.tipoMapa := TipoArchivo;
+                      bloqueMenuJugar(data.dataArchivo, data.dataArchivo.
+                                      plano,
+                                      data.dataArchivo.naveT, data.
+                                      dataArchivo.
+                                      planetaT, data.dataArchivo.
+                                      dimensiones
+                                      .
+                                      fil,
+                                      data.dataArchivo.dimensiones.col,
+                                      data.dataArchivo.tipoMapa);
+                    End;
+
                   If (activo = 2) Then
-                    bloqueMenuJugar(data.dataPersonalizada, data.
-                                    dataPersonalizada.plano,
-                                    data.dataPersonalizada.naveT, data.
-                                    dataPersonalizada.
-                                    planetaT, data.dataPersonalizada.
-                                    dimensiones.fil,
-                                    data.dataPersonalizada.dimensiones.
-                                    col
-                    )
-                  ;
+                    Begin
+                      data.dataPersonalizada.tipoMapa := TipoPersonalizado
+                      ;
+                      bloqueMenuJugar(data.dataPersonalizada, data.
+                                      dataPersonalizada.plano,
+                                      data.dataPersonalizada.naveT, data.
+                                      dataPersonalizada.
+                                      planetaT, data.dataPersonalizada.
+                                      dimensiones.fil,
+                                      data.dataPersonalizada.dimensiones.
+                                      col, data.dataPersonalizada.tipoMapa
+                      )
+                      ;
+                    End;
+
                   If (activo = 3) Then
-                    bloqueMenuJugar(data.dataRandom, data.dataRandom.
-                                    plano
-                                    ,
-                                    data.dataRandom.naveT, data.
-                                    dataRandom
-                                    .
-                                    planetaT, data.dataRandom.
-                                    dimensiones.
-                                    fil,
-                                    data.dataRandom.dimensiones.col);
+                    Begin
+                      data.dataRandom.tipoMapa := TipoAleatorio;
+                      bloqueMenuJugar(data.dataRandom, data.dataRandom.
+                                      plano
+                                      ,
+                                      data.dataRandom.naveT, data.
+                                      dataRandom
+                                      .
+                                      planetaT, data.dataRandom.
+                                      dimensiones.
+                                      fil,
+                                      data.dataRandom.dimensiones.col,
+                                      data.dataRandom.tipoMapa);
+                    End;
+
                   If (activo = 4) Then
                     volver := marchar;
                 End;
@@ -1012,5 +1049,4 @@ Begin
 
   // Paortida Completa
   Menu(dataPrincipal, opc, volver, salir);
-
 End.
