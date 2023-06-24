@@ -75,6 +75,21 @@ Var // VARIABLES
   dataPrincipal: dataJuego;
 
 
+function TipoGeneracionMapaToStr(data: dataMapa): string;
+Var
+  tipoMapa: TipoGeneracionMapa;
+Begin
+  tipoMapa:= data.tipoMapa;
+  case tipoMapa of
+    TipoArchivo: TipoGeneracionMapaToStr := 'Tipo generacion de mapa: archivo';
+    TipoAleatorio: TipoGeneracionMapaToStr := 'Tipo generacion de mapa: aleatorio';
+		TipoPersonalizado: TipoGeneracionMapaToStr := 'Tipo generacion de mapa: personalizado'
+		Else
+		Begin
+	   TipoGeneracionMapaToStr:= 'Ninguno de los anteriores'
+		End;
+  end;
+End;
 // ARCHIVOS
 //
 //
@@ -201,10 +216,15 @@ End;
 //
 //
 
-Procedure Generador(Var data: dataMapa);
+Procedure Generador(Var data: dataMapa; fil, col:Integer);
 Var
   tipoMapa: tipoGeneracionMapa;
+	cant_estrellas, cant_destructores, i: Integer;
 Begin
+
+  randomize;
+	cant_estrellas:= Random(9)+1;
+	cant_destructores:= Random(8)+1;
 
   tipoMapa:= data.tipoMapa;
 
@@ -214,14 +234,36 @@ Begin
 		  writeLn('El objeto dataArchivo tiene como fila ', dataPrincipal.dataArchivo.dimensiones.fil);
 	    procesarArchivo(archivo, data, rutaArchivo);
 		End;
-		{TipoAleatorio:
+		TipoAleatorio:
 		Begin
+		  // Randomizar posicion X, Y nave
+      data.naveT[1] := random(fil)+1; // X
+      data.naveT[2] := random(col)+1; // Y
+			// Randomizar cantidad estrellas y destructores
+		  data.estrellas.cantidad:= cant_estrellas;
+			data.destructores.cantidad:= cant_destructores;
+			// Randomizo el planeta
+      Repeat
+        data.planetaT[1] := random(fil)+1;
+        data.planetaT[2] := random(col)+1;
+      Until ((data.planetaT[1] <> data.naveT[1]) Or (data.planetaT[2] <> data.naveT[2]));
+			{
+			For i := 1 To cant Do
+      Begin
+      param[i, 1] := random(fil)+1;
+      param[i, 2] := random(col)+1;
+
+      writeln('Coordenada X: ', param[i, 1],
+              ' Coordenada Y: ', param[i, 2]);
+      End;
+			}
+			
 
 		End;
 		TipoPersonalizado:
     Begin
 
-		End; }
+		End; 
 	End;
 End;
 
@@ -248,7 +290,7 @@ Begin
 }
 {Genero las posiciones de los destructores y estrellas}
 
-  Generador(data);
+  Generador(data, fil, col);
 
 	writeLn('RELLENo luego el objeto dataArchivo tiene como fila ', dataPrincipal.dataArchivo.dimensiones.fil);
 
@@ -430,17 +472,18 @@ Var
 Begin
   clrscr;
 
-{Se declara la partida}
+  // writeLn(TipoGeneracionMapaToStr(data)); ERROR- SIEMPRE DEVUELVE ARCHIVO
+//Se declara la partida
   desarrollo := sigue;
 
-{Relleno el Mapa}
+// Relleno el Mapa
   relleno(terreno, data, nave, planeta, fil, col);
 
 
-{Se lee el mapa inicial}
+// Se lee el mapa inicial
   leerMapa(terreno, nave, fil, col, 0); // El cero es para que no se mueva el personaje
 
-{Bucle donde se desarollan los movimientos}
+// Bucle donde se desarollan los movimientos
 // Regenera el mapa con cada movimiento
   Repeat
     Begin
@@ -454,23 +497,31 @@ Begin
   Until ((ord(ch) = ESC) Or (desarrollo = gano));
 
 
-  {Victoria}
+  // Victoria
   If (desarrollo = gano) Then
     AnimacionGanar(desarrollo);
-
+	
 End;
 
 // MENU JUGAR::
 
 Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave, planeta: vector; Var fil, col: integer);
+Var
+  tipoMapa: tipoGeneracionMapa;
 Begin
   clrscr;
   Delay(300);
-	{ SOLO SI LA PARTIDA ES DE MODO PERSONALIZADA
-  fil := validarDim(fil, 'filas');
-  col := validarDim(col, 'columnas');
- }
-  Partida(plano, data, nave, planeta, fil, col, 0);
+	{ PEDIR VALIDACION DE LAS FILAS Y COLUMNAS SI ES PERSONALIZADO
+	tipoMapa:= data.tipoMapa;
+
+	case tipoMapa Of
+	  TipoPersonalizado:
+		Begin
+		  fil := validarDim(fil, 'filas');
+      col := validarDim(col, 'columnas');
+		End;
+  End;  }
+ Partida(plano, data, nave, planeta, fil, col, 0);
 End;
 
 // Menu opcion jugar
@@ -530,21 +581,6 @@ Begin
   Until (volver = marchar) Or (salir = marchar);
 End;
 
-function TipoGeneracionMapaToStr(data: dataMapa): string;
-Var
-  tipoMapa: TipoGeneracionMapa;
-Begin
-  tipoMapa:= data.tipoMapa;
-  case tipoMapa of
-    TipoArchivo: TipoGeneracionMapaToStr := 'Tipo generacion de mapa: archivo';
-    TipoAleatorio: TipoGeneracionMapaToStr := 'Tipo generacion de mapa: aleatorio';
-		TipoPersonalizado: TipoGeneracionMapaToStr := 'Tipo generacion de mapa: personalizado'
-		Else
-		Begin
-	   TipoGeneracionMapaToStr:= 'Ninguno de los anteriores'
-		End;
-  end;
-End;
 
 
 // Menu
