@@ -31,7 +31,6 @@ Const
   // FLECHAS
   FL_IZQ = 75;
   FL_DER = 77;
-  FL_ARR = 72;
   FL_ABJ = 80;
 
   // Letras
@@ -140,6 +139,7 @@ End;
 
 
 
+
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
                                    Var
@@ -148,6 +148,7 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
 
 
 
@@ -176,12 +177,14 @@ Begin
 
 
 
+
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
       Read(archivo, cant_2);
       cantidad := cant_1 * 10 + cant_2;
     End;
+
 
 
 
@@ -201,6 +204,13 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
+
+
+
+
+
+
+
 
 
 
@@ -364,6 +374,7 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
 
 
 
@@ -907,6 +918,8 @@ Begin
   readkey;
 
   Repeat
+
+    write(ord(keyPad));
 
     If ((ord(keyPad) = IZQUIERDA) Or (ord(keyPad) = DERECHA) Or (ord(keyPad) =
        ENTER) Or (ord(keyPad) = Q) Or (ord(keyPad) = D)) Then
