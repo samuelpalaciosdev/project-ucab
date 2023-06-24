@@ -131,6 +131,14 @@ End;
 
 
 
+
+
+
+
+
+
+
+
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
                                    Var
@@ -139,8 +147,6 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
 Var 
   i, cant_1, cant_2: Integer;
 Begin
-
-
 
 
 
@@ -167,15 +173,13 @@ Begin
 
 
 
-
-
-
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
   Else
     Begin
       Read(archivo, cant_2);
       cantidad := cant_1 * 10 + cant_2;
     End;
+
 
 
 
@@ -193,7 +197,6 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
-
 
 
 
@@ -356,8 +359,6 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
-
-
 
 
 
@@ -598,13 +599,13 @@ Begin
 
   Repeat
 
-    If ((ord(keyPad) = Q) Or (ord(keyPad) = DERECHA)) Then
+    If ((ord(keyPad) = Q) Or (ord(keyPad) = DERECHA) Or (ord(keyPad) = D)) Then
       Begin
         AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
         keyPad := 'a';
       End
     Else
-      keyPad := readkey;
+      keyPad := upcase(readkey);
 
     Case ord(keyPad) Of 
       0:
@@ -645,23 +646,39 @@ Begin
            End;
          End;
 
-      ENTER:
-             Begin
-               If (activo = 1) Then
-                 Begin
-                   clrscr;
-                   writeln('Gud Lock');
-                   readkey;
-                 End;
-               If (activo = 2) Then
-                 Begin
-                   clrscr;
-                   writeln('BUENA SUERTE');
-                   readkey;
-                 End;
-               If (activo = 3) Then
-                 volver := marchar;
-             End;
+      W:
+         Begin
+           If (activo > 1) Then
+             activo := activo - 1;
+           AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
+         End;
+
+      S:
+         Begin
+           If (activo < 3) Then
+             activo := activo + 1;
+           AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
+         End;
+
+      A: volver := marchar;
+
+      ENTER, D:
+                Begin
+                  If (activo = 1) Then
+                    Begin
+                      clrscr;
+                      writeln('Gud Lock');
+                      readkey;
+                    End;
+                  If (activo = 2) Then
+                    Begin
+                      clrscr;
+                      writeln('BUENA SUERTE');
+                      readkey;
+                    End;
+                  If (activo = 3) Then
+                    volver := marchar;
+                End;
     End;
 
   Until (salir = marchar) Or (volver = marchar);
@@ -719,14 +736,14 @@ Begin
   Repeat
 
     If ((ord(keyPad) = Q) Or (ord(keyPad) = ESC) Or (ord(keyPad) = DERECHA) Or (
-       ord(keyPad) = ENTER))
+       ord(keyPad) = ENTER) Or (ord(keyPad) = D))
       Then
       Begin
         AnimacionMenu(activo, NUM_SUBMENU, menuVector);
-        keyPad := 'a';
+        keyPad := '0';
       End
     Else
-      keyPad := readkey;
+      keyPad := upcase(readkey);
 
     Case ord(keyPad) Of 
       0:
@@ -788,43 +805,61 @@ Begin
            End;
 
          End;
-      ENTER:
-             Begin
-               If (activo = 1) Then
-                 bloqueMenuJugar(data.dataArchivo, data.dataArchivo.
-                                 plano,
-                                 data.dataArchivo.naveT, data.
-                                 dataArchivo.
-                                 planetaT, data.dataArchivo.
-                                 dimensiones
-                                 .
-                                 fil,
-                                 data.dataArchivo.dimensiones.col);
-               If (activo = 2) Then
-                 bloqueMenuJugar(data.dataPersonalizada, data.
-                                 dataPersonalizada.plano,
-                                 data.dataPersonalizada.naveT, data.
-                                 dataPersonalizada.
-                                 planetaT, data.dataPersonalizada.
-                                 dimensiones.fil,
-                                 data.dataPersonalizada.dimensiones.
-                                 col
-                 )
-               ;
-               If (activo = 3) Then
-                 bloqueMenuJugar(data.dataRandom, data.dataRandom.
-                                 plano
-                                 ,
-                                 data.dataRandom.naveT, data.
-                                 dataRandom
-                                 .
-                                 planetaT, data.dataRandom.
-                                 dimensiones.
-                                 fil,
-                                 data.dataRandom.dimensiones.col);
-               If (activo = 4) Then
-                 volver := marchar;
-             End;
+
+      W:
+         Begin
+           If (activo > 1) Then
+             activo := activo - 1;
+           AnimacionMenu(activo, NUM_SUBMENU, menuVector);
+         End;
+
+
+      S:
+         Begin
+           If (activo < 4) Then
+             activo := activo + 1;
+           AnimacionMenu(activo, NUM_SUBMENU, menuVector);
+         End;
+
+      A: volver := marchar;
+
+      ENTER, D:
+                Begin
+                  If (activo = 1) Then
+                    bloqueMenuJugar(data.dataArchivo, data.dataArchivo.
+                                    plano,
+                                    data.dataArchivo.naveT, data.
+                                    dataArchivo.
+                                    planetaT, data.dataArchivo.
+                                    dimensiones
+                                    .
+                                    fil,
+                                    data.dataArchivo.dimensiones.col);
+                  If (activo = 2) Then
+                    bloqueMenuJugar(data.dataPersonalizada, data.
+                                    dataPersonalizada.plano,
+                                    data.dataPersonalizada.naveT, data.
+                                    dataPersonalizada.
+                                    planetaT, data.dataPersonalizada.
+                                    dimensiones.fil,
+                                    data.dataPersonalizada.dimensiones.
+                                    col
+                    )
+                  ;
+                  If (activo = 3) Then
+                    bloqueMenuJugar(data.dataRandom, data.dataRandom.
+                                    plano
+                                    ,
+                                    data.dataRandom.naveT, data.
+                                    dataRandom
+                                    .
+                                    planetaT, data.dataRandom.
+                                    dimensiones.
+                                    fil,
+                                    data.dataRandom.dimensiones.col);
+                  If (activo = 4) Then
+                    volver := marchar;
+                End;
     End;
 
   Until (volver = marchar) Or (salir = marchar);
@@ -868,14 +903,14 @@ Begin
   Repeat
 
     If ((ord(keyPad) = IZQUIERDA) Or (ord(keyPad) = DERECHA) Or (ord(keyPad) =
-       ENTER) Or (ord(keyPad) = Q)) Then
+       ENTER) Or (ord(keyPad) = Q) Or (ord(keyPad) = D)) Then
       Begin
         AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
-        keyPad := 'a';
+        keyPad := 'k';
 
       End
     Else
-      keyPad := readkey;
+      keyPad := upcase(readkey);
 
     Case ord(keyPad) Of 
 
@@ -908,15 +943,29 @@ Begin
 
          End;
 
-      ENTER:
-             Begin
-               If (activo = 1) Then
-                 menuJugar(data, opc, volver, salir);
-               If (activo = 2) Then
-                 menuTutorial(opc, volver, salir);
-               If (activo = 3) Then
-                 salir := marchar;
-             End;
+      W:
+         Begin
+           If (activo > 1) Then
+             activo := activo - 1;
+           AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
+         End;
+
+      S:
+         Begin
+           If (activo < 3) Then
+             activo := activo + 1;
+           AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
+         End;
+
+      ENTER, D:
+                Begin
+                  If (activo = 1) Then
+                    menuJugar(data, opc, volver, salir);
+                  If (activo = 2) Then
+                    menuTutorial(opc, volver, salir);
+                  If (activo = 3) Then
+                    salir := marchar;
+                End;
 
     End;
 
