@@ -1,4 +1,3 @@
-
 Program proyectoProgram;
 
 Uses crt;
@@ -203,27 +202,21 @@ End;
 // Leer Archivo Principal (Guardar su data en el objeto de tipo dataMapa)
 Procedure leerArchivo(Var archivo: text; Var datosMapa: dataMapa);
 Begin
- // HACER WHILE NOT EOF
   // Abrir archivo
   reset(archivo);
   // Guardar fila y columna en el objeto
+  Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
+  // Guardar posicion nave     (X,Y)
+  Read(archivo, datosMapa.naveT[1], datosMapa.naveT[2]);
+  // Guardar posicion planetaT (X,Y)
+  Read(archivo, datosMapa.planetaT[1], datosMapa.planetaT[2]);
 
-  while not(eof(archivo)) Do
-  Begin
-    Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
-    // Guardar posicion nave     (X,Y)
-    Read(archivo, datosMapa.naveT[1], datosMapa.naveT[2]);
-    // Guardar posicion planetaT (X,Y)
-    Read(archivo, datosMapa.planetaT[1], datosMapa.planetaT[2]);
+  // Guarda cantidad y coordenadas de estrellas
+  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas);
+  // Guardar cantidad y coordenadas de destructores
 
-    // Guarda cantidad y coordenadas de estrellas
-    leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas);
-    // Guardar cantidad y coordenadas de destructores
-
-    leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas);
-  End;
+  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas);
   Close(archivo);
-  
 End;
 
 // Procesar datos del Archivo
