@@ -149,6 +149,17 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 // Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere las coordenadas de destructores y estrellas sin problema
 
       If (tipo = TipoAleatorio) Then
@@ -167,6 +178,7 @@ Begin
 
   writeln;
   writeln('!Presiona para jugar!');
+  readkey;
 End;
 
 
@@ -184,7 +196,6 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
 Var 
   i, cant_1, cant_2: Integer;
 Begin
-
 
 
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
@@ -276,6 +287,13 @@ Begin
                               coordenadas, 'estrellas');
   MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.
                               destructores.coordenadas, 'destructores');
+
+  Delay(300);
+
+  writeln;
+  writeln('Presiona para jugar si estas listo...');
+  writeln;
+  readkey;
 End;
 
 
@@ -320,8 +338,6 @@ Begin
   coordEst := data.estrellas.coordenadas;
   coordDest := data.destructores.coordenadas;
 
-  readkey;
-
   For i := 1 To fil Do
     For j:= 1 To col Do
       Begin
@@ -354,7 +370,6 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
-
 
 
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
@@ -685,6 +700,9 @@ Begin
   Delay(300);
 
   randomize;
+
+  If (tipo = TipoArchivo) Then
+    procesarArchivo(archivo, data, baseArchivo);
 
   If (tipo = TipoAleatorio) Then
     Begin
