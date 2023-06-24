@@ -12,7 +12,7 @@ Const
   // MAIN
 
   LIMITE = 30;
-  LIMITE_ESTRELLAS = 15;
+  LIMITE_ELEMENTOS = 10;
   CELDA = '#';
   PARED = '|';
   PISO = '_';
@@ -47,7 +47,7 @@ Type
   vector = array[1..LIMITE] Of integer;
   vectorString = array[1..LIMITE] Of string;
   mapa = array[1..LIMITE, 1..LIMITE] Of char;
-  matriz = array[1..LIMITE_ESTRELLAS, 1..LIMITE_ESTRELLAS] Of Integer;
+  matriz = array[1..LIMITE_ELEMENTOS, 1..LIMITE_ELEMENTOS] Of Integer;
 
   Victoria = (sigue, gano);
   TipoGeneracionMapa = (TipoArchivo, TipoAleatorio, TipoPersonalizado);
@@ -59,7 +59,7 @@ Type
     posicionY: Integer;
   End;
 
-  ArrayDinamico = Array[1..LIMITE_ESTRELLAS] Of coordenada;
+  ArrayDinamico = Array[1..LIMITE_ELEMENTOS] Of coordenada;
 
   // Objeto donde se almacena toda la info del archivo
   dataMapa = Record
@@ -93,11 +93,39 @@ Var
   baseArchivo: string;
 
 
-  // Generador
+  // Bloque del generador (No repetir codigo)
 
-Procedure Generador(Var estaDOCAMBIAELNOMBREDESTAMIERDAXDD: TipoGeneracionMapa;
+Procedure bloqueGenerador(Var param:
+                          ArrayDinamico; tipo: TipoGeneracionMapa;
+                          fil, col: integer; Var cant: integer);
+
+Var 
+  i: integer;
+Begin
+
+  randomize;
+
+  If (tipo = TipoAleatorio) Then
+    cant := random(LIMITE_ELEMENTOS)+1;
+
+
+  For i := 1 To cant Do
+    Begin
+      param[i].posicionX := random(fil)+1;
+      param[i].posicionY := random(col)+1;
+    End;
+
+  writeln;
+  writeln('Cargando...');
+  Delay(400);
+End;
+
+// Generador
+
+Procedure Generador(Var data: dataMapa; Var tipo:
+                    TipoGeneracionMapa; Var nave, planeta: vector;
                     Var
-                    cant: integer; Var param:
+                    cant, cant2: integer; Var param1, param2:
                     ArrayDinamico; fil, col: integer)
 ;
 
@@ -106,26 +134,45 @@ Var
 
 Begin
   randomize;
-  cant := random(10)+1;
 
-  For i := 1 To cant Do
+  If ((tipo = TipoPersonalizado) Or (tipo = TipoAleatorio)) Then
     Begin
-      param[i].posicionX := random(fil)+1;
-      param[i].posicionY := random(col)+1;
+      {Randomizo la nave}
+      nave[1] := random(fil)+1;
+      nave[2] := random(col)+1;
 
-      writeln('Coordenada X: ', param[i].posicionX,
-              ' Coordenada Y: ', param[i].posicionY);
+{Randomizo el planeta}
+      Repeat
+        planeta[1] := random(fil)+1;
+        planeta[2] := random(col)+1;
+      Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
+
+
+
+// Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere las coordenadas de destructores y estrellas sin problema
+
+      If (tipo = TipoAleatorio) Then
+        Begin
+          bloqueGenerador(param1, tipo, fil, col, cant);
+          bloqueGenerador(param2, tipo, fil, col, cant2);
+        End;
+
+      If (tipo = TipoPersonalizado) Then
+        Begin
+          bloqueGenerador(param1, tipo, fil, col, cant);
+          bloqueGenerador(param2, tipo, fil, col, cant2);
+        End;
     End;
 
+
+  writeln;
+  writeln('!Presiona para jugar!');
 End;
 
 
 // ARCHIVOS
 //
 //
-
-
-
 
 
 
@@ -140,35 +187,6 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Leer el primer numero de la cantidad de (estrellas o destructores) del archivo y comprobar si es > 10 o < 10
   // Nro < a 10 (0 n) (ej. 0 7) = 7
   Read(archivo, cant_1);
@@ -176,10 +194,6 @@ Begin
     Begin
       Read(archivo, cantidad);
     End
-
-
-
-
 
 
 
@@ -191,11 +205,6 @@ Begin
     End;
 
 
-
-
-
-
-
 { ---- Leer coordenadas de (estrellas o destructores), guarda la posicion de cada elemento como un
 	       obj de coordenadas dentro de un array}
   For i := 1 To cantidad Do
@@ -203,10 +212,6 @@ Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
-
-
-
-
 
 
 
@@ -275,15 +280,15 @@ End;
 
 
 // Funci�n que valida tanto filas como columnas
-Function validarDim(n: Integer; mensaje: String): Integer;
+Function validarDim(n: Integer; mensaje: String; lim: integer): Integer;
 Begin
   Repeat
     Write('Indique la cantidad de ', mensaje, ' a ingresar: ');
     ReadLn(n);
-    If (n < 0) Or (n > LIMITE) Then
+    If (n < 0) Or (n > lim) Then
       writeLn('Error, la cantidad de ', mensaje,
-              ' debe estar comprendido entre 1 y ', LIMITE);
-  Until (n>=1) And (n<=LIMITE);
+              ' debe estar comprendido entre 1 y ', lim);
+  Until (n>=1) And (n<=lim);
 
   validarDim := n;
 End;
@@ -302,29 +307,15 @@ Var
 
 Begin
 
-  randomize;
+{Condicionales para saber que data voy a generar dependiendo del tipo de dato}
 
-{Randomizo la nave}
-  nave[1] := random(fil)+1;
-  nave[2] := random(col)+1;
-
-{Randomizo el planeta}
-  Repeat
-    planeta[1] := random(fil)+1;
-    planeta[2] := random(col)+1;
-  Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
-
-{Genero las posiciones de los destructores y estrellas}
-
-  writeln('Estrellas: ');
-  Generador(data.tipoMapa, data.estrellas.cantidad, data.estrellas.
-            coordenadas, fil, col);
-  writeln;
-  writeln('Destructores: ');
-  Generador(data.tipoMapa, data.destructores.cantidad, data.destructores.
-            coordenadas, fil,
-            col)
-  ;
+  If ((data.tipoMapa = TipoAleatorio) Or (data.tipoMapa = TipoPersonalizado))
+    Then
+    Begin
+      Generador(data, data.tipoMapa, nave, planeta, data.estrellas.cantidad,
+                data.destructores.cantidad, data.estrellas.coordenadas, data.
+                destructores.coordenadas, fil, col);
+    End;
 
   coordEst := data.estrellas.coordenadas;
   coordDest := data.destructores.coordenadas;
@@ -363,34 +354,6 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -721,10 +684,25 @@ Begin
   clrscr;
   Delay(300);
 
+  randomize;
+
+  If (tipo = TipoAleatorio) Then
+    Begin
+      fil := random(LIMITE-15)+1;
+      col := random(LIMITE-15)+1;
+    End;
+
+  // Validar si es personalizado
   If (tipo = TipoPersonalizado) Then
     Begin
-      fil := validarDim(fil, 'filas');
-      col := validarDim(col, 'columnas');
+      // Filas y Columnas
+      fil := validarDim(fil, 'filas', LIMITE);
+      col := validarDim(col, 'columnas', LIMITE);
+      // Cantidad Estrellas y Destructores
+      data.estrellas.cantidad := validarDim(data.estrellas.cantidad, 'estrellas'
+                                 , LIMITE_ELEMENTOS);
+      data.destructores.cantidad := validarDim(data.destructores.cantidad,
+                                    'destructores', LIMITE_ELEMENTOS);
     End;
 
   Partida(plano, data, nave, planeta, fil, col, 0);
@@ -1049,4 +1027,5 @@ Begin
 
   // Paortida Completa
   Menu(dataPrincipal, opc, volver, salir);
+
 End.
