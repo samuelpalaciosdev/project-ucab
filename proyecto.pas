@@ -154,12 +154,6 @@ Begin
 
 
 
-
-
-
-
-
-
 // Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere las coordenadas de destructores y estrellas sin problema
 
       If (tipo = TipoAleatorio) Then
@@ -187,11 +181,10 @@ End;
 //
 
 
-
 // Procedimiento reutilizable para leer info de las (ESTRELLAS Y DESTRUCTORES) del archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
                                    Var
-                                   coordenadas: Array Of coordenada);
+                                   coordenadas: ArrayDinamico);
 
 Var 
   i, cant_1, cant_2: Integer;
@@ -205,7 +198,6 @@ Begin
     Begin
       Read(archivo, cantidad);
     End
-
 
 
 // Nro > a 10 (1 n � 2 n) Agarra el primer nro de la linea y lo une con el sig (ej 1 5) = 15
@@ -227,9 +219,8 @@ End;
 
 
 // Mostrar cantidad y coordenadas Procedure reutilizable para (ESTRELLAS Y DESTRUCTORES)
-Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas: Array
-                                      Of
-                                      coordenada; mensaje: String);
+Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
+                                      ArrayDinamico; mensaje: String);
 
 Var 
   i: Integer;
@@ -358,8 +349,22 @@ Begin
 
   // Estrellas
   For i := 1 To data.estrellas.cantidad Do
-    terreno[coordEst[i].posicionX, coordEst[i].posicionY] := STAR;
+    Begin
+      terreno[coordEst[i].posicionX, coordEst[i].posicionY] := STAR;
 
+
+
+
+
+
+
+{
+      writeln('Coordenadas: ', coordEst[i].posicionX, ' ', coordEst[i].
+              posicionY);
+      readkey;
+
+      }
+    End;
   // Destructores
   For i:= 1 To data.destructores.cantidad Do
     terreno[coordDest[i].posicionX, coordDest[i].posicionY] := BOMBA;
@@ -370,6 +375,14 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: integer);
 
 Begin
+
+
+
+
+
+
+
+
 
 
 {Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII}
