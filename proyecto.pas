@@ -88,12 +88,11 @@ Var
 
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
-  // Bloque del generador (No repetir codigo)
-Procedure bloqueGenerador(Var param:ArrayDinamico; tipo: TipoGeneracionMapa; fil
-                          , col: integer; Var cant: integer);
+Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
+                                      ArrayDinamico; mensaje: String);
 
 Var 
-  i: integer;
+  i: Integer;
 Begin
   Writeln('Cantidad de ', mensaje, ': ', cantidad);
   // Mostrar la cantidad de estrellas o destructores
@@ -120,12 +119,17 @@ Begin
     cant := Random(LIMITE_ELEMENTOS)+1;
   For i := 1 To cant Do
     Begin
-      param[i].posicionX := random(fil)+1;
-      param[i].posicionY := random(col)+1;
+      Repeat
+        param[i].posicionX := Random(fil)+1;
+        param[i].posicionY := Random(col)+1;
+      Until (((param[i].posicionX <> nave[1]) Or (param[i].posicionY <> nave[2])
+            ) And ((param[i].posicionX <> planeta[1]) Or (param[i].posicionY <>
+            planeta[2])));
     End;
-
-  writeln;
-  writeln('Cargando...');
+  MostrarCantidadYCoordenadas(cant, param, 'PENE');
+  Readkey;
+  Writeln;
+  Writeln('Cargando...');
   Delay(400);
 End;
 // Generador
@@ -153,49 +157,20 @@ Begin
       // Planeta y nave no pueden estar en la misma celda
 
 
-
-
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
-		 las coordenadas de destructores y estrellas sin problema}
-
-      If (tipo = TipoAleatorio) Then
+		 las coordenadas de destructores y estrellas sin problema }
+      If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
         Begin
           bloqueGenerador(param1, tipo, nave, planeta, fil, col, cant);
           bloqueGenerador(param2, tipo, nave, planeta, fil, col, cant2);
         End;
-
-      If (tipo = TipoPersonalizado) Then
-        Begin
-          bloqueGenerador(param1, tipo, fil, col, cant);
-          bloqueGenerador(param2, tipo, fil, col, cant2);
-        End;
+      Writeln;
+      Writeln('!Presiona para jugar!');
+      Readkey;
     End;
-
-  writeln;
-  writeln('!Presiona para jugar!');
-  readkey;
 End;
-
-
 // ARCHIVOS
 //
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
@@ -205,23 +180,6 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
 Var 
   i, cant_1, cant_2: Integer;
 Begin
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Leer el primer numero de la cantidad de estrellas o destructores del archivo y comprobar si es > o < que 10
@@ -236,26 +194,10 @@ Begin
   Else
     Begin
       Read(archivo, cant_2);
-      // Obtener el segundo nro de la linea
+      // Obtener el segundo nro de la line
       cantidad := cant_1 * 10 + cant_2;
-      // Combinar el primer n£mero con el segundo   
+      // Combinar el primer n£mero con el segundo
     End;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 {Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
@@ -267,29 +209,7 @@ Begin
 End;
 // Leer Archivo Principal (Guardar su data en el objeto de tipo dataMapa)
 
-
-
-// Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
-Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
-                                      ArrayDinamico; mensaje: String);
-
-Var 
-  i: Integer;
-Begin
-  writeLn('Cantidad de ', mensaje, ': ', cantidad);
-  // Mostrar la cantidad de estrellas o destructores
-  writeln('Coordenadas de ', mensaje, ':');
-  // Mostrar las coordenadas de estrellas o destructores
-  For i := 1 To cantidad Do
-    Begin
-      writeln(i, ': X=', coordenadas[i].posicionX, ', Y=', coordenadas[i].
-              posicionY);
-      // Mostrar las coordenadas de cada elemento
-    End;
-End;
-
-// Leer Archivo Principal (Guardar su data en el objeto de tipo dataMapa)
-Procedure leerArchivo(Var archivo: text; Var datosMapa: dataMapa);
+Procedure leerArchivo(Var archivo: Text; Var datosMapa: dataMapa);
 Begin
   // Abrir archivo
   Reset(archivo);
@@ -303,8 +223,8 @@ Begin
   leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.
                            estrellas.coordenadas);
   // Guardar cantidad y coordenadas de destructores
-
-  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.
+  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa
+                           .
                            destructores.coordenadas);
   Close(archivo);
 End;
@@ -321,19 +241,17 @@ Begin
   // Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
   leerArchivo(archivo, datosMapa);
   // Mostrar info del archivo
-  writeLn('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas ',
+  Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas '
+          ,
           datosMapa.dimensiones.col);
   Writeln('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ',
           datosMapa.naveT[2]);
-  writeLn('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],' y ',
+  Writeln('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],' y ',
           datosMapa.planetaT[2]);
   MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.
                               coordenadas, 'estrellas');
   MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.
                               destructores.coordenadas, 'destructores');
-
-  // writeln('Canti: ', datosMapa.estrellas.coordenadas);
-
   Delay(300);
   Writeln;
   Writeln('Presiona para jugar si estas listo...');
@@ -355,30 +273,6 @@ Begin
       Writeln;
       Readkey;
     End;
-End;
-
-// ANIMACIONES 
-//
-// 
-
-Procedure AnimacionGanar(desarrollo: Victoria);
-Begin
-
-  // Si el personaje llego a el planeta
-  If (desarrollo = gano) Then
-    Begin
-      clrscr;
-
-      textcolor(red);
-      writeln('!Ganaste!, Felicitaciones');
-
-      writeln;
-      writeln;
-
-      readkey;
-
-    End;
-
 End;
 
 // Funcion que valida tanto filas como columnas
@@ -411,7 +305,9 @@ Begin
                 data.destructores.cantidad, data.estrellas.coordenadas, data.
                 destructores.coordenadas, fil, col);
     End;
-
+  MostrarCantidadYCoordenadas(data.estrellas.cantidad, data.estrellas.
+                              coordenadas, 'Estrellas');
+  Readkey;
   coordEst := data.estrellas.coordenadas;
   coordDest := data.destructores.coordenadas;
   For i := 1 To fil Do
@@ -441,10 +337,7 @@ End;
 Procedure Personaje(Var nave: vector; fil, col, tecla: Integer);
 Begin
 
-
-
 // Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
-
   // Normales
   If ((tecla = W) And (nave[1] > 1)) Then
     nave[1] := nave[1] - 1;
@@ -495,219 +388,244 @@ Begin
       difX := Abs(nave[1] - data.estrellas.coordenadas[i].posicionX);
       difY := Abs(nave[2] - data.estrellas.coordenadas[i].posicionY);
 
-      // ANIMACIONES 
-      //
-      // 
+      // Para determinar los numeros negativos
+      difFila := data.estrellas.coordenadas[i].posicionX - nave[1];
+      difCol := data.estrellas.coordenadas[i].posicionY - nave[2];
 
-      Procedure AnimacionGanar(desarrollo: Victoria);
-      Begin
 
-        // Si el personaje llego a el planeta
-        If (desarrollo = gano) Then
-          Begin
-            clrscr;
+// Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal) MISMA FILA O COLUMNA
+      // Si la estrella y nave están en la misma fila o columna
+      If (nave[1] = data.estrellas.coordenadas[i].posicionX) And (nave[2] <>
+         data.estrellas.coordenadas[i].posicionY) Then
+        Begin
+          writeLn('Misma columna');
+          estrellaDisponible := true;
+        End
+      Else If (nave[2] = data.estrellas.coordenadas[i].posicionY) And (nave[1]
+              <> data.estrellas.coordenadas[i].posicionX) Then
+             Begin
+               writeLn('Misma fila');
+               estrellaDisponible := true;
+             End;
 
-            textcolor(red);
-            writeln('!Ganaste!, Felicitaciones');
 
-            writeln;
-            writeln;
-
-            readkey;
-
-          End;
-
-      End;
-
-      // LEER EL MAPA FINAL PROCEDIMIENTO
-      //
-      //
-
-      Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla:
-                         integer)
-      ;
-
-      Var 
-        i, j: integer;
-      Begin
-        Clrscr;
-        Writeln('!!Intenta encontrar el Planeta!!');
-        Writeln;
-        // Procedo a mover el personaje
-        If (tecla > 0) Then
-          Begin
-            Personaje(nave, fil, col, tecla);
-            terreno[nave[1], nave[2]] := PERSONAJEPOS;
-          End;
-        // Coloco las celdas
-        For i := 1 To fil Do
-          Begin
-            j := 0;
-            For j := 1 To col Do
-              Begin
-                If ((j = 1) And (i < 10)) Then
-                  Write(i, '  ', PARED, ' ');
-                If ((j = 1) And (i >= 10)) Then
-                  Write(i, ' ', PARED, ' ');
-                Write(terreno[i, j], ' ');
-              End;
-            Writeln;
-          End;
-        Writeln;
-        Writeln('Presiona la letra para moverte: ');
-        Writeln;
-        Writeln('    ^       ^         ^');
-        Writeln('     \Q     W       E/');
-        Writeln('   <- A             D ->');
-        Writeln('       /Z         X\');
-        Writeln('      v      S      v');
-        Writeln('             v');
-        Writeln;
-        Writeln('No dejes presionado ninguna tecla...');
-        Writeln;
-        Writeln('Presiona ESC para salir');
-      End;
-      // ---------- Aqui se desarrolla el bucle principal del juego
-      //
-      //
-
-      Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta:
-                        vector;
-                        fil, col, tecla:Integer);
-
-      Var 
-        ch: Char;
-        desarrollo: Victoria;
-      Begin
-        Clrscr;
-        // Se declara la partida
-        desarrollo := sigue;
-        // Relleno el Mapa
-        relleno(terreno, data, nave, planeta, fil, col);
-        // Se lee el mapa inicial
-        leerMapa(terreno, nave, fil, col, 0);
-
-        // Bucle donde se desarollan los movimientos
-        Repeat
-          Begin
-            // Limpia la posicion anterior de la nave
-            terreno[nave[1], nave[2]] := CELDA;
-            ch := upcase(readkey);
-            leerMapa(terreno, nave, fil, col, ord(ch));
-            If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
-              desarrollo := gano;
-          End;
-        Until ((Ord(ch) = ESC) Or (desarrollo = gano));
-        // Victoria
-        If (desarrollo = gano) Then
-          AnimacionGanar(desarrollo);
-      End;
-      // Animacion de los colores en los menus...
-      Procedure AnimacionMenu(activo, max: Integer; Var menuVector: vectorString
-      );
-
-      Var 
-        i: Integer;
-      Begin
-        Clrscr;
-        Writeln('---Bienvenido a L nave---');
-        Writeln;
-        For i := 1 To max Do
-          Begin
-            textBackground(green);
-            textcolor(red);
-            If (i = activo) Then
-              Begin
-                textBackground(green);
-                textColor(white);
-              End;
-            Writeln(menuVector[i]);
-          End;
-      End;
-      // Menu tutorial
-
-      Procedure menuTutorial(Var opc: Integer; Var volver, salir: menuBoolean);
-
-      Var 
-        keyPad: Char;
-        menuVector: vectorString;
-        activo: Integer;
-      Begin
-        Clrscr;
-        // Inicializo variables
-        activo := 1;
-        keyPad := 'Q';
-        // Booleanos del menu
-        volver := seguir;
-        salir := seguir;
-        // Declarar las opciones
-        menuVector[1] := 'Controles';
-        menuVector[2] := 'Como funciona?';
-        menuVector[3] := 'Volver';
-        textBackground(Green);
-        Writeln('---L nave---');
-        Writeln;
-        Repeat
-
-          If ((ord(keyPad) = Q) Or (ord(keyPad) = DERECHA) Or (ord(keyPad) = D))
-            Then
+// Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
+      If (Abs(nave[1] - data.estrellas.coordenadas[i].posicionX) = Abs(nave[2] -
+         data.estrellas.coordenadas[i].posicionY)) Then
+        Begin
+          // Diagonal Abajo Derecha
+          If (difFila > 0) And (difCol > 0) And (nave[1] < data.estrellas.
+             coordenadas[i].posicionX) Then
             Begin
-              AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
-              keyPad := 'a';
-            End
-          Else
-            keyPad := Upcase(Readkey);
-          Case Ord(keyPad) Of 
-            0:
-               Begin
-                 keyPad := Readkey;
-                 Case Ord(keyPad) Of 
-                   ARRIBA:
-                           Begin
-                             If (activo > 1) Then
-                               activo := activo -1;
-                             AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
-                           End;
-                   ABAJO:
-                          Begin
-                            If (activo < 3) Then
-                              activo := activo + 1;
-                            AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
-                          End;
-                   DERECHA:
-                            Begin
-                              If (activo = 1) Then
-                                Begin
-                                  Clrscr;
-                                  Writeln('Gud Lock');
-                                  Readkey;
-                                End;
-                              If (activo = 2) Then
-                                Begin
-                                  Clrscr;
-                                  Writeln('BUENA SUERTE');
-                                  Readkey;
-                                End;
-                              If (activo = 3) Then
-                                volver := marchar;
-                            End;
-                   IZQUIERDA: volver := marchar;
-                 End;
-               End;
-            W:
-               Begin
-                 If (activo > 1) Then
-                   activo := activo - 1;
-                 AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
-               End;
-            S:
-               Begin
-                 If (activo < 3) Then
-                   activo := activo + 1;
-                 AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
-               End;
-            A: volver := marchar;
-            ENTER, D:
+              writeln('Diagonal Abajo Derecha: ', data.estrellas.coordenadas[i].
+                      posicionX, ', ', data.estrellas.coordenadas[i].posicionY);
+              estrellaDisponible := true;
+            End;
+
+          // Diagonal Arriba Izquierda
+          If (difFila < 0) And (difCol < 0) And (nave[1] > data.estrellas.
+             coordenadas[i].posicionX) Then
+            Begin
+              writeln('Diagonal Arriba Izquierda: ', data.estrellas.coordenadas[
+                      i].posicionX, ', ', data.estrellas.coordenadas[i].
+                      posicionY);
+              estrellaDisponible := true;
+            End;
+        End;
+
+
+// Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
+      If (Abs(nave[1] - data.estrellas.coordenadas[i].posicionX) = Abs(nave[2] -
+         data.estrellas.coordenadas[i].posicionY)) Then
+        Begin
+          // Diagonal Abajo Izquierda
+          If (difFila > 0) And (difCol < 0) And (nave[1] < data.estrellas.
+             coordenadas[i].posicionX) Then
+            Begin
+              writeln('Diagonal Abajo Izquierda: ', data.estrellas.coordenadas[i
+                      ].posicionX, ', ', data.estrellas.coordenadas[i].posicionY
+              );
+              estrellaDisponible := true;
+            End;
+
+          // Diagonal Arriba Derecha
+          If (difFila < 0) And (difCol > 0) And (nave[1] > data.estrellas.
+             coordenadas[i].posicionX) Then
+            Begin
+              writeln('Diagonal Arriba Derecha: ', data.estrellas.coordenadas[i]
+                      .posicionX, ', ', data.estrellas.coordenadas[i].posicionY)
+              ;
+              estrellaDisponible := true;
+            End;
+        End;
+    End;
+
+  condicionalEstrella := estrellaDisponible;
+End;
+
+
+// LEER EL MAPA FINAL PROCEDIMIENTO
+//
+//
+Procedure leerMapa(Var data: dataMapa; Var terreno: mapa; Var nave, planeta:
+                   vector; fil,col, tecla:Integer);
+
+Var 
+  i, j: Integer;
+  estrellaDisponible: Boolean;
+Begin
+  Clrscr;
+  Writeln('!!Intenta encontrar el Planeta!!');
+  Writeln;
+  // Procedo a mover el personaje
+  If (tecla > 0) Then
+    Begin
+      // Condicional estrella aqui
+      // if Condicional estrella es true, pasa lo de abajo, si no, no se llama
+      //
+      //
+      Personaje(nave, fil, col, tecla);
+      terreno[nave[1], nave[2]] := PERSONAJEPOS;
+      estrellaDisponible := condicionalEstrella(data, nave, planeta);
+    End;
+  // Coloco las celdas
+  For i := 1 To fil Do
+    Begin
+      j := 0;
+      For j := 1 To col Do
+        Begin
+          If ((j = 1) And (i < 10)) Then
+            Write(i, '  ', PARED, ' ');
+          If ((j = 1) And (i >= 10)) Then
+            Write(i, ' ', PARED, ' ');
+          Write(terreno[i, j], ' ');
+        End;
+      Writeln;
+    End;
+  Writeln;
+  Writeln('Presiona la letra para moverte: ');
+  Writeln;
+  Writeln('    ^       ^         ^');
+  Writeln('     \Q     W       E/');
+  Writeln('   <- A             D ->');
+  Writeln('       /Z         X\');
+  Writeln('      v      S      v');
+  Writeln('             v');
+  Writeln;
+  Writeln('No dejes presionado ninguna tecla...');
+  Writeln;
+  Writeln('Presiona ESC para salir');
+End;
+// ---------- Aqui se desarrolla el bucle principal del juego
+//
+//
+
+Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta:vector;
+                  fil, col, tecla:Integer);
+
+Var 
+  ch: Char;
+  desarrollo: Victoria;
+Begin
+  Clrscr;
+  // Se declara la partida
+  desarrollo := sigue;
+  // Relleno el Mapa
+  relleno(terreno, data, nave, planeta, fil, col);
+  // Se lee el mapa inicial
+  leerMapa(data, terreno, nave, planeta, fil, col, 0);
+  // Bucle donde se desarollan los movimientos
+  Repeat
+    Begin
+      // Limpia la posicion anterior de la nave
+      terreno[nave[1], nave[2]] := CELDA;
+
+// Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
+      //
+      //
+      //
+      ch := Upcase(Readkey);
+      leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
+      // si gano la partida, el boolean es true
+      If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+        desarrollo := gano;
+    End;
+  Until ((Ord(ch) = ESC) Or (desarrollo = gano));
+  // Victoria
+  If (desarrollo = gano) Then
+    AnimacionGanar(desarrollo);
+End;
+// Animacion de los colores en los menus...
+Procedure AnimacionMenu(activo, max: Integer; Var menuVector: vectorString);
+
+Var 
+  i: Integer;
+Begin
+  Clrscr;
+  Writeln('---Bienvenido a L nave---');
+  Writeln;
+  For i := 1 To max Do
+    Begin
+      textBackground(green);
+      textcolor(red);
+      If (i = activo) Then
+        Begin
+          textBackground(green);
+          textColor(white);
+        End;
+      Writeln(menuVector[i]);
+    End;
+End;
+// Menu tutorial
+
+Procedure menuTutorial(Var opc: Integer; Var volver, salir: menuBoolean);
+
+Var 
+  keyPad: Char;
+  menuVector: vectorString;
+  activo: Integer;
+Begin
+  Clrscr;
+  // Inicializo variables
+  activo := 1;
+  keyPad := 'Q';
+  // Booleanos del menu
+  volver := seguir;
+  salir := seguir;
+  // Declarar las opciones
+  menuVector[1] := 'Controles';
+  menuVector[2] := 'Como funciona?';
+  menuVector[3] := 'Volver';
+  textBackground(Green);
+  Writeln('---L nave---');
+  Writeln;
+  Repeat
+    If ((Ord(keyPad) = Q) Or (Ord(keyPad) = DERECHA) Or (Ord(keyPad) = D))
+      Then
+      Begin
+        AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
+        keyPad := 'a';
+      End
+    Else
+      keyPad := Upcase(Readkey);
+    Case Ord(keyPad) Of 
+      0:
+         Begin
+           keyPad := Readkey;
+           Case Ord(keyPad) Of 
+             ARRIBA:
+                     Begin
+                       If (activo > 1) Then
+                         activo := activo -1;
+                       AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
+                     End;
+             ABAJO:
+                    Begin
+                      If (activo < 3) Then
+                        activo := activo + 1;
+                      AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
+                    End;
+             DERECHA:
                       Begin
                         If (activo = 1) Then
                           Begin
@@ -724,180 +642,134 @@ Begin
                         If (activo = 3) Then
                           volver := marchar;
                       End;
-          End;
-        Until (salir = marchar) Or (volver = marchar);
-      End;
-      // MENU JUGAR::
+             IZQUIERDA: volver := marchar;
+           End;
+         End;
+      W:
+         Begin
+           If (activo > 1) Then
+             activo := activo - 1;
+           AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
+         End;
+      S:
+         Begin
+           If (activo < 3) Then
+             activo := activo + 1;
+           AnimacionMenu(activo, NUM_TUTORIAL, menuVector);
+         End;
+      A: volver := marchar;
+      ENTER, D:
+                Begin
+                  If (activo = 1) Then
+                    Begin
+                      Clrscr;
+                      Writeln('Gud Lock');
+                      Readkey;
+                    End;
+                  If (activo = 2) Then
+                    Begin
+                      Clrscr;
+                      Writeln('BUENA SUERTE');
+                      Readkey;
+                    End;
+                  If (activo = 3) Then
+                    volver := marchar;
+                End;
+    End;
+  Until (salir = marchar) Or (volver = marchar);
+End;
+// MENU JUGAR::
+Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave,
+                          planeta:
+                          vector;Var fil, col: Integer; tipo:
+                          TipoGeneracionMapa)
+;
+Begin
+  Clrscr;
+  Delay(300);
+  Randomize;
+  If (tipo = TipoArchivo) Then
+    procesarArchivo(archivo, data, rutaArchivo);
+  If (tipo = TipoAleatorio) Then
+    Begin
+      fil := Random(LIMITE-15)+1;
+      col := Random(LIMITE-15)+1;
+    End;
+  // Validar si es personalizado
+  If (tipo = TipoPersonalizado) Then
+    Begin
+      // Filas y Columnas
+      fil := validarDim(fil, 'filas', LIMITE);
+      col := validarDim(col, 'columnas', LIMITE);
+      // Cantidad Estrellas y Destructores
+      data.estrellas.cantidad := validarDim(data.estrellas.cantidad,
+                                 'estrellas'
+                                 , LIMITE_ELEMENTOS);
+      data.destructores.cantidad := validarDim(data.destructores.cantidad,
+                                    'destructores', LIMITE_ELEMENTOS);
+    End;
+  Partida(plano, data, nave, planeta, fil, col, 0);
+End;
+// Menu opcion jugar
 
-      Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave,
-                                planeta:
-                                vector;Var fil, col: integer; tipo:
-                                TipoGeneracionMapa)
-      ;
+Procedure menuJugar(Var data: dataJuego; Var opc: Integer; Var volver, salir:
+                    menuBoolean);
+
+Var 
+  keyPad: Char;
+  menuVector: vectorString;
+  activo: Integer;
+Begin
+  Clrscr;
+  // Inicializo
+  activo := 1;
+  keyPad := 'Q';
+  // Declarar booleanos del Menu
+  volver := seguir;
+  salir := seguir;
+  // Declarar las opciones:
+  menuVector[1] := 'Generar Mapa con Archivo';
+  menuVector[2] := 'Mapa Personalizado';
+  menuVector[3] := 'Mapa al Azar';
+  menuVector[4] := 'Volver';
+  textBackground(Green);
+  Writeln('---L nave---');
+  Writeln;
+  Repeat
+    If ((Ord(keyPad) = Q) Or (Ord(keyPad) = ESC) Or (Ord(keyPad) = DERECHA) Or
+       (
+       Ord(keyPad) = ENTER) Or (Ord(keyPad) = D))
+      Then
       Begin
-        Clrscr;
-        Delay(300);
-        Randomize;
-        If (tipo = TipoArchivo) Then
-          procesarArchivo(archivo, data, rutaArchivo);
-        If (tipo = TipoAleatorio) Then
-          Begin
-            fil := Random(LIMITE-15)+1;
-            col := Random(LIMITE-15)+1;
-          End;
-        // Validar si es personalizado
-        If (tipo = TipoPersonalizado) Then
-          Begin
-            // Filas y Columnas
-            fil := validarDim(fil, 'filas', LIMITE);
-            col := validarDim(col, 'columnas', LIMITE);
-            // Cantidad Estrellas y Destructores
-            data.estrellas.cantidad := validarDim(data.estrellas.cantidad,
-                                       'estrellas'
-                                       , LIMITE_ELEMENTOS);
-            data.destructores.cantidad := validarDim(data.destructores.cantidad,
-                                          'destructores', LIMITE_ELEMENTOS);
-          End;
-        Partida(plano, data, nave, planeta, fil, col, 0);
-      End;
-      // Menu opcion jugar
-
-      Procedure menuJugar(Var data: dataJuego; Var opc: Integer; Var volver,
-                          salir:
-                          menuBoolean);
-
-      Var 
-        keyPad: Char;
-        menuVector: vectorString;
-        activo: Integer;
-      Begin
-        Clrscr;
-        // Inicializo
-        activo := 1;
-        keyPad := 'Q';
-        // Declarar booleanos del Menu
-        volver := seguir;
-        salir := seguir;
-        // Declarar las opciones:
-        menuVector[1] := 'Generar Mapa con Archivo';
-        menuVector[2] := 'Mapa Personalizado';
-        menuVector[3] := 'Mapa al Azar';
-        menuVector[4] := 'Volver';
-        textBackground(Green);
-        Writeln('---L nave---');
-        Writeln;
-        Repeat
-
-          If ((ord(keyPad) = Q) Or (ord(keyPad) = ESC) Or (ord(keyPad) = DERECHA
-             ) Or (
-             ord(keyPad) = ENTER) Or (ord(keyPad) = D))
-            Then
-            Begin
-              AnimacionMenu(activo, NUM_SUBMENU, menuVector);
-              keyPad := '0';
-            End
-          Else
-            keyPad := Upcase(Readkey);
-          Case Ord(keyPad) Of 
-            0:
-               Begin
-                 keyPad := Readkey;
-                 Case Ord(keyPad) Of 
-                   ARRIBA:
-                           Begin
-                             If (activo > 1) Then
-                               activo := activo -1;
-                             AnimacionMenu(activo, NUM_SUBMENU, menuVector);
-                           End;
-                   ABAJO:
-                          Begin
-                            If (activo < 4) Then
-                              activo := activo + 1;
-                            AnimacionMenu(activo, NUM_SUBMENU, menuVector);
-                          End;
-                   DERECHA:
-                            Begin
-                              If (activo = 1) Then
-                                Begin
-                                  data.dataArchivo.tipoMapa := TipoArchivo;
-                                  bloqueMenuJugar(data.dataArchivo, data.
-                                                  dataArchivo
-                                                  .
-                                                  plano,
-                                                  data.dataArchivo.naveT, data.
-                                                  dataArchivo.
-                                                  planetaT, data.dataArchivo.
-                                                  dimensiones
-                                                  .
-                                                  fil,
-                                                  data.dataArchivo.dimensiones.
-                                                  col,
-                                                  data.dataArchivo.tipoMapa);
-                                End;
-                              If (activo = 2) Then
-                                Begin
-                                  data.dataPersonalizada.tipoMapa := 
-                                                               TipoPersonalizado
-                                  ;
-                                  bloqueMenuJugar(data.dataPersonalizada, data.
-                                                  dataPersonalizada.plano,
-                                                  data.dataPersonalizada.naveT,
-                                                  data
-                                                  .
-                                                  dataPersonalizada.
-                                                  planetaT, data.
-                                                  dataPersonalizada.
-                                                  dimensiones.fil,
-                                                  data.dataPersonalizada.
-                                                  dimensiones
-                                                  .
-                                                  col, data.dataPersonalizada.
-                                                  tipoMapa
-                                  )
-                                  ;
-                                End;
-                              If (activo = 3) Then
-                                Begin
-                                  data.dataRandom.tipoMapa := TipoAleatorio;
-                                  bloqueMenuJugar(data.dataRandom, data.
-                                                  dataRandom.
-                                                  plano
-                                                  ,
-                                                  data.dataRandom.naveT, data.
-                                                  dataRandom
-                                                  .
-                                                  planetaT, data.dataRandom.
-                                                  dimensiones.
-                                                  fil,
-                                                  data.dataRandom.dimensiones.
-                                                  col,
-                                                  data.dataRandom.tipoMapa);
-                                End;
-                              If (activo = 4) Then
-                                volver := marchar;
-                            End;
-                   IZQUIERDA: volver := marchar;
-                 End;
-               End;
-            W:
-               Begin
-                 If (activo > 1) Then
-                   activo := activo - 1;
-                 AnimacionMenu(activo, NUM_SUBMENU, menuVector);
-               End;
-            S:
-               Begin
-                 If (activo < 4) Then
-                   activo := activo + 1;
-                 AnimacionMenu(activo, NUM_SUBMENU, menuVector);
-               End;
-            A: volver := marchar;
-            ENTER, D:
+        AnimacionMenu(activo, NUM_SUBMENU, menuVector);
+        keyPad := '0';
+      End
+    Else
+      keyPad := Upcase(Readkey);
+    Case Ord(keyPad) Of 
+      0:
+         Begin
+           keyPad := Readkey;
+           Case Ord(keyPad) Of 
+             ARRIBA:
+                     Begin
+                       If (activo > 1) Then
+                         activo := activo -1;
+                       AnimacionMenu(activo, NUM_SUBMENU, menuVector);
+                     End;
+             ABAJO:
+                    Begin
+                      If (activo < 4) Then
+                        activo := activo + 1;
+                      AnimacionMenu(activo, NUM_SUBMENU, menuVector);
+                    End;
+             DERECHA:
                       Begin
                         If (activo = 1) Then
                           Begin
                             data.dataArchivo.tipoMapa := TipoArchivo;
-                            bloqueMenuJugar(data.dataArchivo, data.dataArchivo.
+                            bloqueMenuJugar(data.dataArchivo, data.dataArchivo
+                                            .
                                             plano,
                                             data.dataArchivo.naveT, data.
                                             dataArchivo.
@@ -910,16 +782,20 @@ Begin
                           End;
                         If (activo = 2) Then
                           Begin
-                            data.dataPersonalizada.tipoMapa := TipoPersonalizado
+                            data.dataPersonalizada.tipoMapa := 
+                                                               TipoPersonalizado
                             ;
                             bloqueMenuJugar(data.dataPersonalizada, data.
                                             dataPersonalizada.plano,
-                                            data.dataPersonalizada.naveT, data.
+                                            data.dataPersonalizada.naveT, data
+                                            .
                                             dataPersonalizada.
                                             planetaT, data.dataPersonalizada.
                                             dimensiones.fil,
-                                            data.dataPersonalizada.dimensiones.
-                                            col, data.dataPersonalizada.tipoMapa
+                                            data.dataPersonalizada.dimensiones
+                                            .
+                                            col, data.dataPersonalizada.
+                                            tipoMapa
                             )
                             ;
                           End;
@@ -941,88 +817,127 @@ Begin
                         If (activo = 4) Then
                           volver := marchar;
                       End;
-          End;
-        Until (volver = marchar) Or (salir = marchar);
-      End;
-      // Menu
+             IZQUIERDA: volver := marchar;
+           End;
+         End;
+      W:
+         Begin
+           If (activo > 1) Then
+             activo := activo - 1;
+           AnimacionMenu(activo, NUM_SUBMENU, menuVector);
+         End;
+      S:
+         Begin
+           If (activo < 4) Then
+             activo := activo + 1;
+           AnimacionMenu(activo, NUM_SUBMENU, menuVector);
+         End;
+      A: volver := marchar;
+      ENTER, D:
+                Begin
+                  If (activo = 1) Then
+                    Begin
+                      data.dataArchivo.tipoMapa := TipoArchivo;
+                      bloqueMenuJugar(data.dataArchivo, data.dataArchivo.
+                                      plano,
+                                      data.dataArchivo.naveT, data.
+                                      dataArchivo.
+                                      planetaT, data.dataArchivo.
+                                      dimensiones
+                                      .
+                                      fil,
+                                      data.dataArchivo.dimensiones.col,
+                                      data.dataArchivo.tipoMapa);
+                    End;
+                  If (activo = 2) Then
+                    Begin
+                      data.dataPersonalizada.tipoMapa := TipoPersonalizado
+                      ;
+                      bloqueMenuJugar(data.dataPersonalizada, data.
+                                      dataPersonalizada.plano,
+                                      data.dataPersonalizada.naveT, data.
+                                      dataPersonalizada.
+                                      planetaT, data.dataPersonalizada.
+                                      dimensiones.fil,
+                                      data.dataPersonalizada.dimensiones.
+                                      col, data.dataPersonalizada.tipoMapa
+                      )
+                      ;
+                    End;
+                  If (activo = 3) Then
+                    Begin
+                      data.dataRandom.tipoMapa := TipoAleatorio;
+                      bloqueMenuJugar(data.dataRandom, data.dataRandom.
+                                      plano
+                                      ,
+                                      data.dataRandom.naveT, data.
+                                      dataRandom
+                                      .
+                                      planetaT, data.dataRandom.
+                                      dimensiones.
+                                      fil,
+                                      data.dataRandom.dimensiones.col,
+                                      data.dataRandom.tipoMapa);
+                    End;
+                  If (activo = 4) Then
+                    volver := marchar;
+                End;
+    End;
+  Until (volver = marchar) Or (salir = marchar);
+End;
+// Menu
 
-      Procedure Menu(Var data: dataJuego; Var opc: Integer; Var volver, salir:
-                     menuBoolean);
+Procedure Menu(Var data: dataJuego; Var opc: Integer; Var volver, salir:
+               menuBoolean);
 
-      Var 
-        keyPad: Char;
-        menuVector: vectorString;
-        activo: Integer;
+Var 
+  keyPad: Char;
+  menuVector: vectorString;
+  activo: Integer;
+Begin
+  Clrscr;
+  // Activo
+  activo := 1;
+  keyPad := 'Q';
+  // Declarar booleanos del Menu
+  volver := seguir;
+  salir := seguir;
+  // opciones del Menu
+  menuVector[1] := 'Jugar';
+  menuVector[2] := 'Tutorial';
+  menuVector[3] := 'Salir';
+  textBackground(Green);
+  Writeln('---Bienvenido a L nave---');
+  Writeln;
+  Writeln('Presiona cualquier tecla para comenzar...');
+  Readkey;
+  Repeat
+    If ((Ord(keyPad) = IZQUIERDA) Or (Ord(keyPad) = DERECHA) Or (Ord(keyPad) =
+       ENTER) Or (Ord(keyPad) = Q) Or (Ord(keyPad) = D)) Then
       Begin
-        Clrscr;
-        // Activo
-        activo := 1;
-        keyPad := 'Q';
-        // Declarar booleanos del Menu
-        volver := seguir;
-        salir := seguir;
-        // opciones del Menu
-        menuVector[1] := 'Jugar';
-        menuVector[2] := 'Tutorial';
-        menuVector[3] := 'Salir';
-        textBackground(Green);
-        Writeln('---Bienvenido a L nave---');
-        Writeln;
-        Writeln('Presiona cualquier tecla para comenzar...');
-        Readkey;
-        Repeat
-          If ((Ord(keyPad) = IZQUIERDA) Or (Ord(keyPad) = DERECHA) Or (Ord(
-             keyPad) =
-             ENTER) Or (Ord(keyPad) = Q) Or (Ord(keyPad) = D)) Then
-            Begin
-              AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
-              keyPad := 'k';
-            End
-          Else
-            keyPad := Upcase(Readkey);
-          Case Ord(keyPad) Of 
-            0:
-               Begin
-                 keyPad := Readkey;
-                 Case Ord(keyPad) Of 
-                   ARRIBA:
-                           Begin
-                             If (activo > 1) Then
-                               activo := activo -1;
-                             AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector
-                             );
-                           End;
-                   ABAJO:
-                          Begin
-                            If (activo < 3) Then
-                              activo := activo + 1;
-                            AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector)
-                            ;
-                          End;
-                   DERECHA:
-                            Begin
-                              If (activo = 1) Then
-                                menuJugar(data, opc, volver, salir);
-                              If (activo = 2) Then
-                                menuTutorial(opc, volver, salir);
-                              If (activo = 3) Then
-                                salir := marchar;
-                            End;
-                 End;
-               End;
-            W:
-               Begin
-                 If (activo > 1) Then
-                   activo := activo - 1;
-                 AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
-               End;
-            S:
-               Begin
-                 If (activo < 3) Then
-                   activo := activo + 1;
-                 AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
-               End;
-            ENTER, D:
+        AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
+        keyPad := 'k';
+      End
+    Else
+      keyPad := Upcase(Readkey);
+    Case Ord(keyPad) Of 
+      0:
+         Begin
+           keyPad := Readkey;
+           Case Ord(keyPad) Of 
+             ARRIBA:
+                     Begin
+                       If (activo > 1) Then
+                         activo := activo -1;
+                       AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
+                     End;
+             ABAJO:
+                    Begin
+                      If (activo < 3) Then
+                        activo := activo + 1;
+                      AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
+                    End;
+             DERECHA:
                       Begin
                         If (activo = 1) Then
                           menuJugar(data, opc, volver, salir);
@@ -1031,21 +946,44 @@ Begin
                         If (activo = 3) Then
                           salir := marchar;
                       End;
-          End;
-        Until (salir = marchar);
-      End;
+           End;
+         End;
+      W:
+         Begin
+           If (activo > 1) Then
+             activo := activo - 1;
+           AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
+         End;
+      S:
+         Begin
+           If (activo < 3) Then
+             activo := activo + 1;
+           AnimacionMenu(activo, NUM_MENUPRINCIPAL, menuVector);
+         End;
+      ENTER, D:
+                Begin
+                  If (activo = 1) Then
+                    menuJugar(data, opc, volver, salir);
+                  If (activo = 2) Then
+                    menuTutorial(opc, volver, salir);
+                  If (activo = 3) Then
+                    salir := marchar;
+                End;
+    End;
+  Until (salir = marchar);
+End;
 
-      Var 
-        // Data Principal
-        dataPrincipal: dataJuego;
-        // Menu Opcion
-        opc: Integer;
-        // Menu
-        salir, volver: menuBoolean;
-      Begin
-        Clrscr;
-        // Ruta archivo estatico
-        rutaArchivo := 'est.dat';
-        // Partida Completa
-        Menu(dataPrincipal, opc, volver, salir);
-      End.
+Var 
+  // Data Principal
+  dataPrincipal: dataJuego;
+  // Menu Opcion
+  opc: Integer;
+  // Menu
+  salir, volver: menuBoolean;
+Begin
+  Clrscr;
+  // Ruta archivo estatico
+  rutaArchivo := 'est.dat';
+  // Partida Completa
+  Menu(dataPrincipal, opc, volver, salir);
+End.
