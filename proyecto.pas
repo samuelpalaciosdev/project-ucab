@@ -151,6 +151,7 @@ Begin
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema}
 
+
       If (tipo = TipoAleatorio) Then
         Begin
           bloqueGenerador(param1, tipo, fil, col, cant);
@@ -177,6 +178,7 @@ End;
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
+
 
 Var 
   i, cant_1, cant_2: Integer;
@@ -214,6 +216,7 @@ End;
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
                                       ArrayDinamico; mensaje: String);
+
 
 Var 
   i: Integer;
