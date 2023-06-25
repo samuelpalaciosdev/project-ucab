@@ -102,6 +102,15 @@ Var
 
 
 
+
+
+
+
+
+
+
+
+
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
                                       ArrayDinamico; mensaje: String);
@@ -188,6 +197,15 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
 
@@ -217,6 +235,15 @@ End;
 
 
 
+
+
+
+
+
+
+
+
+
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
                                    Var
@@ -226,6 +253,15 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
+
+
+
+
+
+
+
+
 
 
 
@@ -251,6 +287,15 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo   
     End;
+
+
+
+
+
+
+
+
+
 
 
 
@@ -431,14 +476,6 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
 // Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
 
   // Normales
@@ -493,21 +530,22 @@ Var
   i, cantidadEstrellas: Integer;
   estrellaDisponible: Boolean;
   difX, difY: Integer;
+  difFila, difCol: Integer;
 Begin
   // Inicializar en False
   estrellaDisponible := False;
-
   cantidadEstrellas := data.estrellas.cantidad;
 
   For i:=1 To cantidadEstrellas Do
     Begin
 
+      // Diferencia con valor absoluto
       difX := Abs(nave[1] - data.estrellas.coordenadas[i].posicionX);
       difY := Abs(nave[2] - data.estrellas.coordenadas[i].posicionY);
 
-
-
-
+      // Para determinar los numeros negativos
+      difFila := data.estrellas.coordenadas[i].posicionX - nave[1];
+      difCol := data.estrellas.coordenadas[i].posicionY - nave[2];
 
 
 
@@ -515,7 +553,6 @@ Begin
 
 
    // Dif normal => x1= x2 or y1=y2 (vertical u horizontal) MISMA FILA O COLUMNA
-
       // Si la estrella y nave están en la misma fila
       If (nave[1] = data.estrellas.coordenadas[i].posicionX) Then
         Begin
@@ -534,16 +571,16 @@ Begin
 
 
 
-
-
-
 // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
 
 
       If (Abs(nave[1] - nave[2]) = Abs(data.estrellas.coordenadas[i].posicionX -
          data.estrellas.coordenadas[i].posicionY)) Then
         Begin
-          If (nave[1] < data.estrellas.coordenadas[i].posicionX) Then
+
+          // Diagonal Abajo Derecha
+          If ((nave[1] < data.estrellas.coordenadas[i].posicionX) And (difFila >
+             0) And (difCol > 0)) Then
             Begin
               writeln('Diagonal Abajo Derecha: ', data.estrellas.coordenadas[i].
                       posicionX, ', ',  data.estrellas.coordenadas[i].posicionY)
@@ -551,7 +588,10 @@ Begin
               estrellaDisponible := true;
             End;
 
-          If (nave[1] > data.estrellas.coordenadas[i].posicionX) Then
+
+          // Diagonal Arriba Izquierda
+          If ((nave[1] > data.estrellas.coordenadas[i].posicionX) And (difFila <
+             0) And (difCol < 0)) Then
             Begin
               writeln('Diagonal Arriba Izquierda: ', data.estrellas.coordenadas[
                       i]
@@ -573,7 +613,10 @@ Begin
       If (Abs(nave[1] - data.estrellas.coordenadas[i].posicionX) = Abs(nave[2] -
          data.estrellas.coordenadas[i].posicionY)) Then
         Begin
-          If (nave[1] < data.estrellas.coordenadas[i].posicionX) Then
+
+          // Diagonal Abajo Izquierda
+          If ((nave[1] < data.estrellas.coordenadas[i].posicionX) And (difFila >
+             0) And (difCol < 0)) Then
             Begin
               writeln('Diagonal Abajo Izquierda: ', data.estrellas.coordenadas[i
                       ].
@@ -581,7 +624,9 @@ Begin
               estrellaDisponible := true;
             End;
 
-          If (nave[1] > data.estrellas.coordenadas[i].posicionX) Then
+          // Diagonal Arriba Derecha
+          If ((nave[1] > data.estrellas.coordenadas[i].posicionX) And (difFila <
+             0) And (difCol > 0)) Then
             Begin
               writeln('Diagonal Arriba Derecha: ', data.estrellas.coordenadas[i]
                       .
@@ -695,6 +740,15 @@ Begin
     Begin
       // Limpia la posicion anterior de la nave
       terreno[nave[1], nave[2]] := CELDA;
+
+
+
+
+
+
+
+
+
 
 
 
@@ -989,15 +1043,6 @@ Begin
                         If (activo = 2) Then
                           Begin
                             data.dataPersonalizada.tipoMapa := 
-
-
-
-
-
-
-
-
-
 
 
                                                                TipoPersonalizado
