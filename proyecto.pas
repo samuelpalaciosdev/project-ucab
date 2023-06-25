@@ -104,6 +104,78 @@ Var
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
                                       ArrayDinamico; mensaje: String);
@@ -188,6 +260,78 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
 
@@ -213,6 +357,78 @@ End;
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
                                    Var
@@ -222,6 +438,78 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -244,6 +532,78 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo   
     End;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -324,6 +684,30 @@ Begin
   readkey;
 End;
 
+// ANIMACIONES 
+//
+// 
+
+Procedure AnimacionGanar(desarrollo: Victoria);
+Begin
+
+  // Si el personaje llego a el planeta
+  If (desarrollo = gano) Then
+    Begin
+      clrscr;
+
+      textcolor(red);
+      writeln('!Ganaste!, Felicitaciones');
+
+      writeln;
+      writeln;
+
+      readkey;
+
+    End;
+
+End;
+
 // Funcion que valida tanto filas como columnas
 Function validarDim(n: Integer; mensaje: String; lim: integer): Integer;
 Begin
@@ -401,6 +785,26 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
 
   // Normales
@@ -447,40 +851,117 @@ Begin
 
 End;
 
-// ANIMACIONES 
-//
-// 
+// Condicional Estrella
 
-Procedure AnimacionGanar(desarrollo: Victoria);
+Function condicionalEstrella(data: dataMapa; nave, planeta:vector): Boolean;
+
+Var 
+  i, cantidadEstrellas: Integer;
+  estrellaDisponible: Boolean;
+  difX, difY: Integer;
 Begin
+  // Inicializar en False
+  estrellaDisponible := False;
 
-  // Si el personaje llego a el planeta
-  If (desarrollo = gano) Then
+  cantidadEstrellas := data.estrellas.cantidad;
+
+  For i:=1 To cantidadEstrellas Do
     Begin
-      clrscr;
 
-      textcolor(red);
-      writeln('!Ganaste!, Felicitaciones');
+      difX := Abs(nave[1] - data.estrellas.coordenadas[i].posicionX);
+      difY := Abs(nave[2] - data.estrellas.coordenadas[i].posicionY);
 
-      writeln;
-      writeln;
 
-      readkey;
+
+
+
+
+
+
+   // Dif normal => x1= x2 or y1=y2 (vertical u horizontal) MISMA FILA O COLUMNA
+
+      // Si la estrella y nave están en la misma fila
+      If (nave[1] = data.estrellas.coordenadas[i].posicionX) Then
+        Begin
+          writeLn('Misma columna');
+          estrellaDisponible := true;
+        End;
+      If (nave[2] = data.estrellas.coordenadas[i].posicionY) Then
+        Begin
+          writeLn('Misma fila');
+          estrellaDisponible := true;
+        End;
+
+
+
+
+
+
+
+// Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
+
+
+      If (Abs(nave[1] - nave[2]) = Abs(data.estrellas.coordenadas[i].posicionX -
+         data.estrellas.coordenadas[i].posicionY)) Then
+        Begin
+          If (nave[1] < data.estrellas.coordenadas[i].posicionX) Then
+            Begin
+              writeln('Diagonal Abajo Derecha');
+              estrellaDisponible := true;
+            End;
+
+          If (nave[1] > data.estrellas.coordenadas[i].posicionX) Then
+            Begin
+              writeln('Diagonal Arriba Izquierda');
+              estrellaDisponible := true;
+            End;
+
+        End;
+
+
+
+
+
+
+// Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
+
+      If (Abs(nave[1] - data.estrellas.coordenadas[i].posicionX) = Abs(nave[2] -
+         data.estrellas.coordenadas[i].posicionY)) Then
+        Begin
+          If (nave[1] < data.estrellas.coordenadas[i].posicionX) Then
+            Begin
+              writeln('Diagonal Abajo Izquierda');
+              estrellaDisponible := true;
+            End;
+
+          If (nave[1] > data.estrellas.coordenadas[i].posicionX) Then
+            Begin
+              writeln('Diagonal Arriba Derecha');
+              estrellaDisponible := true;
+            End;
+        End;
 
     End;
 
+
+  condicionalEstrella := estrellaDisponible;
 End;
+
 
 // LEER EL MAPA FINAL PROCEDIMIENTO
 //
 //
 
-Procedure leerMapa(Var terreno: mapa; Var nave: vector; fil, col, tecla:
+Procedure leerMapa(Var data: dataMapa; Var terreno: mapa; Var nave, planeta:
+                   vector; fil,
+                   col, tecla
+                   :
                    integer)
 ;
 
 Var 
   i, j: integer;
+  estrellaDisponible: boolean;
 Begin
   clrscr;
 
@@ -490,8 +971,16 @@ Begin
   // Procedo a mover el personaje
   If (tecla > 0) Then
     Begin
+      // Condicional estrella aqui 
+
+
+      // if Condicional estrella es true, pasa lo de abajo, si no, no se llama
+      // 
+      // 
       Personaje(nave, fil, col, tecla);
       terreno[nave[1], nave[2]] := PERSONAJEPOS;
+      estrellaDisponible := condicionalEstrella(data, nave, planeta);
+
     End;
 
   // Coloco las celdas
@@ -548,15 +1037,58 @@ Begin
 
 
   // Se lee el mapa inicial
-  leerMapa(terreno, nave, fil, col, 0);
+  leerMapa(data, terreno, nave, planeta, fil, col, 0);
 
   // Bucle donde se desarollan los movimientos
 
   Repeat
     Begin
+      // Limpia la posicion anterior de la nave
       terreno[nave[1], nave[2]] := CELDA;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
+      // 
+      // 
+      // 
       ch := upcase(readkey);
-      leerMapa(terreno, nave, fil, col, ord(ch));
+      leerMapa(data, terreno, nave, planeta, fil, col, ord(ch));
+      // si gano la partida, el boolean es true
       If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
         desarrollo := gano;
     End;
@@ -834,6 +1366,12 @@ Begin
                         If (activo = 2) Then
                           Begin
                             data.dataPersonalizada.tipoMapa := 
+
+
+
+
+
+
 
 
 
