@@ -1,4 +1,3 @@
-
 Program proyectoProgram;
 Uses crt;
 Const
@@ -75,15 +74,15 @@ Type
     dataRandom: dataMapa;
     dataPersonalizada: dataMapa;
   End;
-  // VARIABLES ARCHIVO
+	
+// VARIABLES ARCHIVO
 Var
   archivo: Text;
   rutaArchivo: String;
 
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
-Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
-                                      ArrayDinamico; mensaje: String);
+Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:ArrayDinamico; mensaje: String);
 Var
   i: Integer;
 Begin
@@ -98,8 +97,8 @@ Begin
       // Mostrar las coordenadas de cada elemento
     End;
 End;
-// Bloque del generador (No repetir codigo)
 
+// Bloque del generador (No repetir codigo)
 Procedure bloqueGenerador(Var param: ArrayDinamico; tipo: TipoGeneracionMapa;
                           nave, planeta: vector; fil
                           , col: Integer; Var cant: Integer);
@@ -125,8 +124,7 @@ Begin
   Delay(400);
 End;
 // Generador
-Procedure Generador(Var data: dataMapa; Var tipo:TipoGeneracionMapa; Var nave,
-                    planeta: vector;
+Procedure Generador(Var data: dataMapa; Var tipo:TipoGeneracionMapa; Var nave, planeta: vector;
                     Var cant, cant2: Integer; Var param1, param2:ArrayDinamico;
                     fil, col: Integer);
 Var
@@ -163,10 +161,7 @@ End;
 //
 
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
-
-Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer;
-                                   Var
-                                   coordenadas: ArrayDinamico);
+Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var coordenadas: ArrayDinamico);
 Var
   i, cant_1, cant_2: Integer;
 Begin
@@ -216,10 +211,9 @@ Begin
                            destructores.coordenadas);
   Close(archivo);
 End;
-// Procesar datos del Archivo
 
-Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa;
-                          rutaArchivo: String);
+// Procesar datos del Archivo
+Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa; rutaArchivo: String);
 Var
   i: Integer;
 Begin
@@ -233,15 +227,9 @@ Begin
           datosMapa.dimensiones.col);
   Writeln('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ',
           datosMapa.naveT[2]);
-  Writeln('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],' y '
-          ,
-          datosMapa.planetaT[2]);
-  MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.
-                              estrellas.
-                              coordenadas, 'estrellas');
-  MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.
-                              destructores.coordenadas, 'destructores');
-  // writeln('Canti: ', datosMapa.estrellas.coordenadas);
+  Writeln('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],' y ', datosMapa.planetaT[2]);
+  MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas, 'estrellas');
+  MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas, 'destructores');
   Delay(300);
   Writeln;
   Writeln('Presiona para jugar si estas listo...');
@@ -264,25 +252,22 @@ Begin
       Readkey;
     End;
 End;
-// Funcion que valida tanto filas como columnas
 
+// Funcion que valida tanto filas como columnas
 Function validarDim(n: Integer; mensaje: String; lim: Integer): Integer;
 Begin
   Repeat
     Write('Indique la cantidad de ', mensaje, ' a ingresar: ');
     Readln(n);
     If (n < 0) Or (n > lim) Then
-      Writeln('Error, la cantidad de ', mensaje,
-              ' debe estar comprendido entre 1 y ', lim);
+      Writeln('Error, la cantidad de ', mensaje,' debe estar comprendido entre 1 y ', lim);
   Until (n>=1) And (n<=lim);
   validarDim := n;
 End;
 // POR HACER RELLENO ESTATICO
 //
 //
-Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta:
-                  vector; fil, col:
-                  Integer);
+Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta:vector; fil, col:Integer);
 Var
   i, j: Integer;
   coordEst, coordDest: ArrayDinamico;
@@ -322,6 +307,7 @@ Begin
   For i:= 1 To data.destructores.cantidad Do
     terreno[coordDest[i].posicionX, coordDest[i].posicionY] := BOMBA;
 End;
+
 // Funciones
 Procedure Personaje(Var nave: vector; fil, col, tecla: Integer);
 Begin
@@ -433,22 +419,10 @@ Begin
 End;
 
 
-
-
-
-
-
-
-
 // LEER EL MAPA FINAL PROCEDIMIENTO
 //
 //
-Procedure leerMapa(Var data: dataMapa; Var terreno: mapa; Var nave, planeta:
-                   vector; fil,
-                   col, tecla
-                   :
-                   Integer)
-;
+Procedure leerMapa(Var data: dataMapa; Var terreno: mapa; Var nave, planeta:vector; fil,col, tecla:Integer);
 Var
   i, j: Integer;
   estrellaDisponible: Boolean;
@@ -954,8 +928,8 @@ Var
   salir, volver: menuBoolean;
 Begin
   Clrscr;
-  // base archivo estatico
+  // Ruta archivo estatico
   rutaArchivo := 'est.dat';
-  // Paortida Completa
+  // Partida Completa
   Menu(dataPrincipal, opc, volver, salir);
 End.
