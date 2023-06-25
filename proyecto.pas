@@ -92,6 +92,22 @@ Var
   archivo: text;
   rutaArchivo: string;
 
+{Function condicionalEstrella(data: dataMapa; nave, planeta:vector):Boolean;
+Var
+  i, cantidadEstrellas: Integer;
+	difX, difY: Integer;
+Begin
+  condicionalEstrella:= False; // Inicializar retorno de funcion en False
+
+	cantidadEstrellas:= data.estrellas.cantidad
+																										 
+	// Verificar si las coordenadas (X, Y) de la nave coinciden con alguna estrella
+	// Coords Estrellas
+  For i := 1 To cantidadEstrellas  Do
+  Begin
+	    if (data.estrellas.coordenadas[i].posicionX = nave[1]) and (data.estrellas.coordenadas[i].posicionY = nave[2]) then
+  End;   
+End;  }
 
 // Bloque del generador (No repetir codigo)
 Procedure bloqueGenerador(Var param:ArrayDinamico; tipo: TipoGeneracionMapa; fil, col: integer; Var cant: integer);
@@ -966,10 +982,9 @@ Var
 Begin
   clrscr;
 	
-  // base archivo estatico
-  rutaArchivo := 'est.dat';
+  // ruta archivo estatico
+   rutaArchivo := 'est.dat';
 
-  // Paortida Completa
-  Menu(dataPrincipal, opc, volver, salir);
-
+  // Partida Completa
+   Menu(dataPrincipal, opc, volver, salir);
 End.
