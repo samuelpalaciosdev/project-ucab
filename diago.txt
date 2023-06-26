@@ -1,0 +1,103 @@
+Function condicionalEstrella(data: dataMapa; nave, planeta:vector): Boolean;
+
+Var 
+  i, cantidadEstrellas: Integer;
+  estrellaDisponible: Boolean;
+  difX, difY: Integer;
+Begin
+  // Inicializar en False
+  estrellaDisponible := False;
+
+  cantidadEstrellas := data.estrellas.cantidad;
+
+
+// Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
+
+
+// Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
+
+  // Dif normal => x1= x2 or y1=y2 (vertical u horizontal) MISMA FILA O COLUMNA
+
+  For i:=1 To cantidadEstrellas Do
+    Begin
+      difX := Abs(nave[1] - data.estrellas.coordenadas[i].posicionX);
+      difY := Abs(nave[2] - data.estrellas.coordenadas[i].posicionY);
+
+
+      // ABAJO IZQ LA LEE COMO ARR DER
+
+
+
+
+
+
+
+// Si la estrella y la nave estan en la misma fila o columna (sin contar destructores)
+      // Misma columna
+      If (nave[1] = data.estrellas.coordenadas[i].posicionX) Then
+        Begin
+          writeLn('Misma columna');
+          estrellaDisponible := True;
+        End;
+      // Misma fila
+      If ((nave[2] = data.estrellas.coordenadas[i].posicionY)) Then
+        Begin
+          writeLn('Misma fila');
+          estrellaDisponible := True;
+        End;
+
+
+
+
+// Si la estrella y la nave están diagonal abajo der o arriba izq => Dif celdas
+
+
+
+      If (Abs(nave[1] - nave[2]) = Abs(data.estrellas.coordenadas[i].
+         posicionX
+         - data.estrellas.coordenadas[i].posicionY)) Then
+        Begin
+          // Arriba Izquierda
+          If (nave[1] <= data.estrellas.coordenadas[i].posicionX) Then
+            Begin
+              writeln('Diagonal arriba Izquierda');
+              estrellaDisponible := true;
+
+            End;
+
+          // Abajo derecha
+
+          If (nave[1] >= data.estrellas.coordenadas[i].posicionX) Then
+            Begin
+              writeln('Diagonal abajo derecha');
+              estrellaDisponible := true;
+            End;
+
+        End;
+
+
+
+      // Si la estrella esta  [Arriba Derecha y Abajo Izquierda] => Dif igual
+
+      If (Abs(nave[1] - data.estrellas.coordenadas[i].posicionX) = Abs(
+         nave[2] -
+         data.estrellas.coordenadas[i].posicionY)) Then
+        Begin
+          If (nave[1] <= data.estrellas.coordenadas[i].posicionX) Then
+            Begin
+              writeln('Diagonal Arriba derecha');
+              estrellaDisponible := true;
+            End;
+
+          If (nave[1] >= data.estrellas.coordenadas[i].posicionY) Then
+            Begin
+              writeln('Diagonal Abajo Izquierda');
+              estrellaDisponible := true;
+            End;
+        End;
+
+    End;
+
+  condicionalEstrella := estrellaDisponible;
+
+End;
