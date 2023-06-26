@@ -11,6 +11,7 @@ Const
   // MAIN
   LIMITE = 30;
   LIMITE_ELEMENTOS = 10;
+  MOVIMIENTOS_MAXIMO = 8;
   CELDA = '#';
   PARED = '|';
   PISO = '_';
@@ -90,6 +91,8 @@ Var
   rutaArchivo: String;
 
 
+
+
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
@@ -161,6 +164,9 @@ Begin
       // Planeta y nave no pueden estar en la misma celda
 
 
+
+
+
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
@@ -177,6 +183,8 @@ End;
 //
 
 
+
+
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
@@ -184,6 +192,8 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
+
 
 
 // Leer el primer numero de la cantidad de estrellas o destructores del archivo y comprobar si es > o < que 10
@@ -339,17 +349,112 @@ Begin
     terreno[coordDest[i].posicionX, coordDest[i].posicionY] := BOMBA;
 End;
 
-// Condicional de la estrella:
-
-Procedure condicionalEstrella(Var terrenoModificado: mapa; movimientos:
-                              ArrayMovimientos;
-                              param:
-                              ArrayDinamico
-                              ; cant: integer; nave, planeta:
-                              vector);
+// Personaje 
+// Funciones del Personaje
+Procedure Personaje(listaMovimientos: ArrayMovimientos; Var contMovimientos:
+                    Integer; Var nave, planeta:
+                    vector; fil, col, tecla:
+                    Integer);
 
 Var 
-  i, cantidadEstrellas: Integer;
+  bucle: boolean;
+  i: integer;
+
+Begin
+
+  // Inicializo: 
+
+  i := 0;
+  bucle := false;
+
+
+
+
+
+
+
+// Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
+
+  Repeat
+    Begin
+
+      writeln('Movimiento: ', listaMovimientos[i+1]);
+
+      // Normales
+      If ((tecla = W) And (nave[1] > 1) And (listaMovimientos[i+1] = 'Arriba'))
+        Then
+        Begin
+          nave[1] := nave[1] - 1;
+          bucle := true;
+        End;
+      If ((tecla = S) And (nave[1] < fil)  And (listaMovimientos[i+1] = 'Abajo')
+         ) Then
+        nave[1] := nave[1] + 1;
+      If ((tecla = A) And (nave[2] > 1)  And (listaMovimientos[i+1] =
+         'Izquierda'))
+        Then
+        Begin
+          nave[2] := nave[2] - 1;
+          bucle := true;
+        End;
+      If ((tecla = D) And (nave[2] < col) And (listaMovimientos[i+1] = 'Derecha'
+         ))
+        Then
+        Begin
+          nave[2] := nave[2] + 1;
+          bucle := true;
+        End;
+      // Diagonales
+      If ((tecla = Q) And (nave[1] > 1) And (nave[2] > 1)  And (listaMovimientos
+         [i+1] = 'arrIzquierda')) Then
+        Begin
+          nave[1] := nave[1] - 1;
+          nave[2] := nave[2] - 1;
+          bucle := true;
+        End;
+      If ((tecla = E) And (nave[1] > 1) And (nave[2] < col)  And (
+         listaMovimientos[i+1] = 'arrDerecha')) Then
+        Begin
+          nave[1] := nave[1] - 1;
+          nave[2] := nave[2] + 1;
+          bucle := true;
+        End;
+      If ((tecla = Z) And (nave[1] < fil) And (nave[2] > 1)  And (
+         listaMovimientos[i+1] = 'abjIzquierda')) Then
+        Begin
+          nave[1] := nave[1] + 1;
+          nave[2] := nave[2] - 1;
+          bucle := true;
+        End;
+      If ((tecla = X) And (nave[1] < fil) And (nave[2] < col)  And (
+         listaMovimientos[i+1] = 'abjDerecha')) Then
+        Begin
+          nave[1] := nave[1] + 1;
+          nave[2] := nave[2] + 1;
+          bucle := true;
+        End;
+
+      i := i + 1;
+    End;
+  Until ((bucle = true) Or (i = contMovimientos));
+
+  If (bucle = true) Then
+    writeln('Falso movimiento');
+
+End;
+
+// Condicional de la estrella:
+
+Procedure condicionalEstrella(Var listaMovimientos: ArrayMovimientos; Var
+                              contMovimientos: Integer; Var
+                              terrenoModificado: mapa;
+                              param:
+                              ArrayDinamico
+                              ; cant: integer; Var nave: vector; planeta:
+                              vector; tecla: integer);
+
+Var 
+  i, j, cantidadEstrellas: Integer;
   estrellaDisponible: Boolean;
   difX, difY: Integer;
   difFila, difCol: Integer;
@@ -357,6 +462,10 @@ Begin
   // Inicializar en False
   estrellaDisponible := False;
   cantidadEstrellas := cant;
+
+  // Inicializo contador movimientos
+  contMovimientos := 1;
+
 
   For i:=1 To cantidadEstrellas Do
     Begin
@@ -370,6 +479,13 @@ Begin
 
 
 
+
+
+
+
+
+
+
 // Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal) MISMA FILA O COLUMNA
       // Si la estrella y nave están en la misma fila o columna
       If (nave[1] = param[i].posicionX) And (nave[2] <>
@@ -379,22 +495,48 @@ Begin
           // Misma columna hacia la derecha
           If (nave[2] < param[i].posicionY) Then
             Begin
-              writeLn('Misma columna hacia la Derecha');
-              estrellaDisponible := true;
+
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'Derecha';
+
+
+
+
+
+
+
+
+
+
+{
               // Condicional para no sobreescribir la estrella
               If (Abs(nave[2] - param[i].posicionY) > 1) Then
                 // Animacion de la interrogacion
                 terrenoModificado[nave[1], nave[2]+1] := POSMOV;
+}
             End;
+
+          // Misma columna hacia la izquierda
 
           If (nave[2] > param[i].posicionY) Then
             Begin
-              writeln('Misma columna hacia la izquierda');
-              estrellaDisponible := true;
+
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'Izquierda';
+
+
+
+
+
+{
               // Condicional para no sobreescribir la estrella 
               If (Abs(nave[2] - param[i].posicionY) > 1) Then
                 // Animacion de la interrogacion
                 terrenoModificado[nave[1], nave[2]-1] := POSMOV;
+
+                }
             End;
 
         End
@@ -406,26 +548,52 @@ Begin
 
                If (nave[1] < param[i].posicionX) Then
                  Begin
-                   writeLn('Misma fila hacia abajo');
-                   estrellaDisponible := true;
+
+
+                   // Voy a meter el movimiento dentro de la variable
+                   contMovimientos := contMovimientos + 1;
+                   listaMovimientos[contMovimientos] := 'Abajo';
+
+
+
+
+
+{
                    //  Condicional para no sobreescribir la estrella
                    If (Abs(nave[1] - param[i].posicionX) > 1) Then
                      //  Animacion de la interrogacion
                      terrenoModificado[nave[1]+1, nave[2]] := POSMOV;
+
+                     }
                  End;
 
                // Misma fila hacia arriba
 
                If (nave[1] > param[i].posicionX) Then
                  Begin
-                   writeln('Misma fila hacia arriba');
-                   estrellaDisponible := true;
+
+
+                   // Voy a meter el movimiento dentro de la variable
+                   contMovimientos := contMovimientos + 1;
+                   listaMovimientos[contMovimientos] := 'Arriba';
+
+
+
+
+
+
+{
                    //  Condicional para no sobreescribir la estrella
                    If (Abs(nave[1] - param[i].posicionX) > 1) Then
                      //  Animacion de la interrogacion
                      terrenoModificado[nave[1]-1, nave[2]] := POSMOV;
+
+                     }
                  End;
              End;
+
+
+
 
 
 // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
@@ -436,30 +604,46 @@ Begin
           If (difFila > 0) And (difCol > 0) And (nave[1] < param[i].posicionX)
             Then
             Begin
-              writeln('Diagonal Abajo Derecha: ', param[i].
-                      posicionX, ', ', param[i].posicionY);
-              estrellaDisponible := true;
+
+
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'abjDerecha';
+
+
+
+
+{
               // Animacion para no sobreescribir la estrella
               If (Abs(nave[1] - param[i].posicionX) > 1) Then
                 // Animacion de la interrogacion
                 terrenoModificado[nave[1]+1, nave[2]+1] := POSMOV;
+
+                }
             End;
 
           // Diagonal Arriba Izquierda
           If (difFila < 0) And (difCol < 0) And (nave[1] > param[i].posicionX)
             Then
             Begin
-              writeln('Diagonal Arriba Izquierda: ', param[
-                      i].posicionX, ', ', param[i].
-                      posicionY);
-              estrellaDisponible := true;
+
+
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'arrIzquierda';
+
+
+
+
+{
               // Animacion para no sobreescrbir la estrella
               If (Abs(nave[1] - param[i].posicionX) > 1) Then
                 // Animacion para la interrrogacion
                 terrenoModificado[(nave[1])-1, nave[2]-1] := POSMOV;
+
+                }
             End;
         End;
-
 
 
 // Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
@@ -470,91 +654,64 @@ Begin
           If (difFila > 0) And (difCol < 0) And (nave[1] < param[i].posicionX)
             Then
             Begin
-              writeln('Diagonal Abajo Izquierda: ', param[i
-                      ].posicionX, ', ', param[i].posicionY
-              );
-              estrellaDisponible := true;
+
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'abjIzquierda';
+
+
+
+
+
+{
               // Condicional para no sobreescrbir la estrella
               If (Abs(nave[1] - param[i].posicionX) > 1) Then
                 // Animacion para la interrogacion
                 terrenoModificado[nave[1]+1, nave[2]-1] := POSMOV;
+
+                }
             End;
 
           // Diagonal Arriba Derecha
           If (difFila < 0) And (difCol > 0) And (nave[1] > param[i].posicionX)
             Then
             Begin
-              writeln('Diagonal Arriba Derecha: ', param[i]
-                      .posicionX, ', ', param[i].posicionY)
-              ;
-              estrellaDisponible := true;
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'arrDerecha';
+
+
+
+
+
+{
               // Condicional para no sobreescribir la estrella
               If (Abs(nave[1] - param[i].posicionX) > 1) Then
                 // Animacion para la interrogacion
                 terrenoModificado[nave[1]-1, nave[2]+1] := POSMOV;
+
+                }
             End;
         End;
     End;
 
-  // condicionalEstrella := estrellaDisponible;
+  writeln('Cantidad de movimientos: ', contMovimientos-1);
 End;
 
-// Funciones del Personaje
-Procedure Personaje(data: dataMapa; Var nave, planeta: vector; fil, col, tecla:
-                    Integer);
-
-Var 
-  movimientos: ArrayMovimientos;
-
-Begin
-
-
-
-// Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
-  // Normales
-  If ((tecla = W) And (nave[1] > 1)) Then
-    nave[1] := nave[1] - 1;
-  If ((tecla = S) And (nave[1] < fil)) Then
-    nave[1] := nave[1] + 1;
-  If ((tecla = A) And (nave[2] > 1)) Then
-    nave[2] := nave[2] - 1;
-  If ((tecla = D) And (nave[2] < col)) Then
-    nave[2] := nave[2] + 1;
-  // Diagonales
-  If ((tecla = Q) And (nave[1] > 1) And (nave[2] > 1)) Then
-    Begin
-      nave[1] := nave[1] - 1;
-      nave[2] := nave[2] - 1;
-    End;
-  If ((tecla = E) And (nave[1] > 1) And (nave[2] < col)) Then
-    Begin
-      nave[1] := nave[1] - 1;
-      nave[2] := nave[2] + 1;
-    End;
-  If ((tecla = Z) And (nave[1] < fil) And (nave[2] > 1)) Then
-    Begin
-      nave[1] := nave[1] + 1;
-      nave[2] := nave[2] - 1;
-    End;
-  If ((tecla = X) And (nave[1] < fil) And (nave[2] < col)) Then
-    Begin
-      nave[1] := nave[1] + 1;
-      nave[2] := nave[2] + 1;
-    End;
-
-End;
 
 
 // LEER EL MAPA FINAL PROCEDIMIENTO
 //
 //
-Procedure leerMapa(Var data: dataMapa; Var terreno: mapa; Var nave, planeta:
+Procedure leerMapa(Var data: dataMapa; Var terreno: mapa; Var nave,
+                   planeta:
                    vector; fil, col, tecla:Integer);
 
 Var 
   i, j: Integer;
   estrellaDisponible: Boolean;
-  mov: ArrayMovimientos;
+  listaMovimientos: ArrayMovimientos;
+  contMovimientos: integer;
   terrenoModificado: mapa;
 Begin
   Clrscr;
@@ -569,15 +726,21 @@ Begin
       // Condicional estrella aqui
       // if Condicional estrella es true, pasa lo de abajo, si no, no se llama
       //
-      //
-      Personaje(data, nave, planeta, fil, col, tecla);
+      condicionalEstrella(listaMovimientos, contMovimientos, terrenoModificado,
+                          data.estrellas.
+                          coordenadas, data.
+                          estrellas.
+                          cantidad, nave, planeta, tecla);
+      Personaje(listaMovimientos, contMovimientos, nave, planeta, fil, col,
+                tecla);
       terrenoModificado[nave[1], nave[2]] := PERSONAJEPOS;
-    End;
-
-  condicionalEstrella(terrenoModificado, mov, data.estrellas.
-                      coordenadas, data.
-                      estrellas.
-                      cantidad, nave, planeta);
+    End
+  Else
+    condicionalEstrella(listaMovimientos, contMovimientos, terrenoModificado,
+                        data.estrellas.
+                        coordenadas, data.
+                        estrellas.
+                        cantidad, nave, planeta,0);
 
   // Coloco las celdas
   For i := 1 To fil Do
@@ -618,6 +781,7 @@ Procedure Partida(Var terreno: mapa; Var data: dataMapa; nave, planeta:vector;
 Var 
   ch: Char;
   desarrollo: Victoria;
+
 Begin
   Clrscr;
   // Se declara la partida
@@ -625,12 +789,23 @@ Begin
   // Relleno el Mapa
   relleno(terreno, data, nave, planeta, fil, col);
   // Se lee el mapa inicial
-  leerMapa(data, terreno, nave, planeta, fil, col, 0);
+  leerMapa(data, terreno, nave,
+           planeta, fil, col, 0);
   // Bucle donde se desarollan los movimientos
   Repeat
     Begin
       // Limpia la posicion anterior de la nave
       terreno[nave[1], nave[2]] := CELDA;
+
+
+
+
+
+
+
+
+
+
 
 
 
