@@ -92,6 +92,7 @@ Var
 
 
 
+
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
@@ -166,6 +167,7 @@ Begin
 
 
 
+
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
@@ -185,6 +187,7 @@ End;
 
 
 
+
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
@@ -192,6 +195,7 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
 
 
 
@@ -215,6 +219,7 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo
     End;
+
 
 
 
@@ -372,6 +377,7 @@ Begin
   bucle := false;
 
 
+
 // Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
 
   Repeat
@@ -478,10 +484,6 @@ Begin
 
 
 
-
-
-
-
 // Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal) MISMA FILA O COLUMNA
       // Si la estrella y nave están en la misma fila o columna
       If (nave[1] = param[i].posicionX) And (nave[2] <>
@@ -567,6 +569,7 @@ Begin
 
 
 
+
 // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -608,6 +611,7 @@ Begin
 
             End;
         End;
+
 
 
 
@@ -680,6 +684,7 @@ Begin
   If (tecla > 0) Then
     Begin
       // Condicional estrella aqui
+
 
 
 
@@ -764,6 +769,7 @@ Begin
     Begin
       // Limpia la posicion anterior de la nave
       terreno[nave[1], nave[2]] := CELDA;
+
 
 
 
