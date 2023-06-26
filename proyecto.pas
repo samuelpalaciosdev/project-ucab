@@ -79,6 +79,8 @@ Type
 Var
   archivo: Text;
   rutaArchivo: String;
+	coordenadasBuenasEstrellas: Boolean;
+	coordenadasBuenasDestructores: Boolean;
 
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
@@ -160,55 +162,94 @@ End;
 // ARCHIVOS
 //
 
+Function validarElemento(elemento: Integer; mensaje: String):Boolean;
+Var
+  elementoValido: Boolean;
+Begin
+
+  elementoValido:= True;
+	
+  if (elemento < 1) or (elemento > LIMITE) Then
+	Begin
+	  writeLn('Error, el valor de ', mensaje, ' debe estar comprendida entre 1 y ', LIMITE);
+		elementoValido:= False;
+	End;
+
+	validarElemento:= elementoValido;
+End;
+
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
-Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var coordenadas: ArrayDinamico);
+Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var coordenadas: ArrayDinamico; var coordenadasBuenas: Boolean);
 Var
   i, cant_1, cant_2: Integer;
 Begin
 
-// Leer el primer numero de la cantidad de estrellas o destructores del archivo y comprobar si es > o < que 10
+  coordenadasBuenas:= true; // Inicializar en true
+
+	// Leer el primer numero de la cantidad de estrellas o destructores del archivo y comprobar si es > o < que 10
   // Nro < que 10 (ej. 0 7) = 7
   Read(archivo, cant_1);
   If (cant_1 = 0) Then
-    Begin
-      Read(archivo, cantidad);
-      // Guarda el siguiente numero como la cantidad
-    End
-    // Nro > que 10 (ej. 1 5) = 15
+  Begin
+      Read(archivo, cantidad); // Guarda el siguiente numero como la cantidad
+  End
+  // Nro > que 10 (ej. 1 5) = 15
   Else
-    Begin
-      Read(archivo, cant_2);
-      // Obtener el segundo nro de la line
-      cantidad := cant_1 * 10 + cant_2;
-      // Combinar el primer n£mero con el segundo
-    End;
+  Begin
+    Read(archivo, cant_2);  // Obtener el segundo nro de la linea
+    cantidad := cant_1 * 10 + cant_2; // Combinar el primer nro con el segundo
+  End;
 
-{Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
- como un objeto de coordenadas dentro de un array}
+
+	if (cantidad < 1) Then
+	  writeLn('Cantidad invalida'); // FALTA HACER UNA LOGICA CON ESTO (aparece arriba un ratito y se va)
+	
+  {Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
+  como un objeto de coordenadas dentro de un array}
   For i := 1 To cantidad Do
     Begin
       Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
+
+      // ---- Validar coordenadas
+      // Si la coordenada X es invalida
+			if (coordenadas[i].posicionX < 1) or (coordenadas[i].posicionX > LIMITE) Then
+		  Begin
+			  writeLn('Valor de posicion X invalido: ', coordenadas[i].posicionX, ', en la posicion ', i);
+				coordenadasBuenas:= false;
+			End;
+      // Si la coordenada Y es invalida
+			if (coordenadas[i].posicionY < 1) or (coordenadas[i].posicionY > LIMITE) Then
+		  Begin
+			  writeLn('Valor de posicion Y invalido: ', coordenadas[i].posicionY, ', en la posicion ', i);
+				coordenadasBuenas:= false;
+			End;
     End;
 End;
-// Leer Archivo Principal (Guardar su data en el objeto de tipo dataMapa)
 
+// Leer Archivo Principal (Guardar su data en el objeto de tipo dataMapa)
 Procedure leerArchivo(Var archivo: Text; Var datosMapa: dataMapa);
 Begin
   // Abrir archivo
   Reset(archivo);
   // Guardar fila y columna en el objeto
   Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
+	// Validar fila y columna
+	validarELemento(datosMapa.dimensiones.fil, 'las filas'); // Debe guardarse en una booleana
+	validarELemento(datosMapa.dimensiones.col, 'las columnas'); // Debe guardarse en una booleana  
   // Guardar posicion nave     (X,Y)
   Read(archivo, datosMapa.naveT[1], datosMapa.naveT[2]);
+	// Validar posicion X,Y nave
+	validarELemento(datosMapa.naveT[1], 'la posicion en X de la nave'); // Debe guardarse en una booleana
+	validarELemento(datosMapa.naveT[2], 'la posicion en Y de la nave'); // Debe guardarse en una booleana 
   // Guardar posicion planetaT (X,Y)
   Read(archivo, datosMapa.planetaT[1], datosMapa.planetaT[2]);
+	// Validar posicion X,Y planeta
+	validarELemento(datosMapa.planetaT[1], 'la posicion en X del planeta'); // Debe guardarse en una booleana
+	validarELemento(datosMapa.planetaT[2], 'la posicion en Y del planeta'); // Debe guardarse en una booleana
   // Guarda cantidad y coordenadas de estrellas
-  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.
-                           estrellas.coordenadas);
+  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas, coordenadasBuenasEstrellas);
   // Guardar cantidad y coordenadas de destructores
-  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa
-                           .
-                           destructores.coordenadas);
+  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas, coordenadasBuenasDestructores);
   Close(archivo);
 End;
 
@@ -222,11 +263,8 @@ Begin
   // Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
   leerArchivo(archivo, datosMapa);
   // Mostrar info del archivo
-  Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas '
-          ,
-          datosMapa.dimensiones.col);
-  Writeln('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ',
-          datosMapa.naveT[2]);
+  Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas ',datosMapa.dimensiones.col);
+  Writeln('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ',datosMapa.naveT[2]);
   Writeln('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],' y ', datosMapa.planetaT[2]);
   MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas, 'estrellas');
   MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas, 'destructores');
@@ -259,7 +297,7 @@ Begin
   Repeat
     Write('Indique la cantidad de ', mensaje, ' a ingresar: ');
     Readln(n);
-    If (n < 0) Or (n > lim) Then
+    If (n < 1) Or (n > lim) Then
       Writeln('Error, la cantidad de ', mensaje,' debe estar comprendido entre 1 y ', lim);
   Until (n>=1) And (n<=lim);
   validarDim := n;
