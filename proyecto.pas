@@ -18,6 +18,7 @@ Const
   BANDERA = '~';
   BOMBA = 'D';
   STAR = 'E';
+  POSMOV = '?';
   // Caracteres Especiales
   ARRIBA = 72;
   ABAJO = 80;
@@ -54,6 +55,9 @@ Type
   End;
   // Array de ordenadas
   ArrayDinamico = Array[1..LIMITE_ELEMENTOS] Of coordenada;
+
+  // Array De movimientos
+  ArrayMovimientos = Array[1..8] Of string;
   // Objeto donde se almacena toda la info del archivo
   dataMapa = Record
     plano: mapa;
@@ -200,6 +204,8 @@ Begin
     End;
 
 
+
+
 {Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
  como un objeto de coordenadas dentro de un array}
   For i := 1 To cantidad Do
@@ -333,9 +339,176 @@ Begin
     terreno[coordDest[i].posicionX, coordDest[i].posicionY] := BOMBA;
 End;
 
-// Funciones
-Procedure Personaje(Var nave: vector; fil, col, tecla: Integer);
+// Condicional de la estrella:
+
+Procedure condicionalEstrella(Var terrenoModificado: mapa; movimientos:
+                              ArrayMovimientos;
+                              param:
+                              ArrayDinamico
+                              ; cant: integer; nave, planeta:
+                              vector);
+
+Var 
+  i, cantidadEstrellas: Integer;
+  estrellaDisponible: Boolean;
+  difX, difY: Integer;
+  difFila, difCol: Integer;
 Begin
+  // Inicializar en False
+  estrellaDisponible := False;
+  cantidadEstrellas := cant;
+
+  For i:=1 To cantidadEstrellas Do
+    Begin
+      // Diferencia con valor absoluto
+      difX := Abs(nave[1] - param[i].posicionX);
+      difY := Abs(nave[2] - param[i].posicionY);
+
+      // Para determinar los numeros negativos
+      difFila := param[i].posicionX - nave[1];
+      difCol := param[i].posicionY - nave[2];
+
+
+
+// Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal) MISMA FILA O COLUMNA
+      // Si la estrella y nave están en la misma fila o columna
+      If (nave[1] = param[i].posicionX) And (nave[2] <>
+         param[i].posicionY) Then
+        Begin
+
+          // Misma columna hacia la derecha
+          If (nave[2] < param[i].posicionY) Then
+            Begin
+              writeLn('Misma columna hacia la Derecha');
+              estrellaDisponible := true;
+              // Condicional para no sobreescribir la estrella
+              If (Abs(nave[2] - param[i].posicionY) > 1) Then
+                // Animacion de la interrogacion
+                terrenoModificado[nave[1], nave[2]+1] := POSMOV;
+            End;
+
+          If (nave[2] > param[i].posicionY) Then
+            Begin
+              writeln('Misma columna hacia la izquierda');
+              estrellaDisponible := true;
+              // Condicional para no sobreescribir la estrella 
+              If (Abs(nave[2] - param[i].posicionY) > 1) Then
+                // Animacion de la interrogacion
+                terrenoModificado[nave[1], nave[2]-1] := POSMOV;
+            End;
+
+        End
+      Else If (nave[2] = param[i].posicionY) And (nave[1]
+              <> param[i].posicionX) Then
+             Begin
+
+               //  Misma fila hacia abajo
+
+               If (nave[1] < param[i].posicionX) Then
+                 Begin
+                   writeLn('Misma fila hacia abajo');
+                   estrellaDisponible := true;
+                   //  Condicional para no sobreescribir la estrella
+                   If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                     //  Animacion de la interrogacion
+                     terrenoModificado[nave[1]+1, nave[2]] := POSMOV;
+                 End;
+
+               // Misma fila hacia arriba
+
+               If (nave[1] > param[i].posicionX) Then
+                 Begin
+                   writeln('Misma fila hacia arriba');
+                   estrellaDisponible := true;
+                   //  Condicional para no sobreescribir la estrella
+                   If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                     //  Animacion de la interrogacion
+                     terrenoModificado[nave[1]-1, nave[2]] := POSMOV;
+                 End;
+             End;
+
+
+// Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
+      If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
+         param[i].posicionY)) Then
+        Begin
+          // Diagonal Abajo Derecha
+          If (difFila > 0) And (difCol > 0) And (nave[1] < param[i].posicionX)
+            Then
+            Begin
+              writeln('Diagonal Abajo Derecha: ', param[i].
+                      posicionX, ', ', param[i].posicionY);
+              estrellaDisponible := true;
+              // Animacion para no sobreescribir la estrella
+              If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                // Animacion de la interrogacion
+                terrenoModificado[nave[1]+1, nave[2]+1] := POSMOV;
+            End;
+
+          // Diagonal Arriba Izquierda
+          If (difFila < 0) And (difCol < 0) And (nave[1] > param[i].posicionX)
+            Then
+            Begin
+              writeln('Diagonal Arriba Izquierda: ', param[
+                      i].posicionX, ', ', param[i].
+                      posicionY);
+              estrellaDisponible := true;
+              // Animacion para no sobreescrbir la estrella
+              If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                // Animacion para la interrrogacion
+                terrenoModificado[(nave[1])-1, nave[2]-1] := POSMOV;
+            End;
+        End;
+
+
+
+// Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
+      If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
+         param[i].posicionY)) Then
+        Begin
+          // Diagonal Abajo Izquierda
+          If (difFila > 0) And (difCol < 0) And (nave[1] < param[i].posicionX)
+            Then
+            Begin
+              writeln('Diagonal Abajo Izquierda: ', param[i
+                      ].posicionX, ', ', param[i].posicionY
+              );
+              estrellaDisponible := true;
+              // Condicional para no sobreescrbir la estrella
+              If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                // Animacion para la interrogacion
+                terrenoModificado[nave[1]+1, nave[2]-1] := POSMOV;
+            End;
+
+          // Diagonal Arriba Derecha
+          If (difFila < 0) And (difCol > 0) And (nave[1] > param[i].posicionX)
+            Then
+            Begin
+              writeln('Diagonal Arriba Derecha: ', param[i]
+                      .posicionX, ', ', param[i].posicionY)
+              ;
+              estrellaDisponible := true;
+              // Condicional para no sobreescribir la estrella
+              If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                // Animacion para la interrogacion
+                terrenoModificado[nave[1]-1, nave[2]+1] := POSMOV;
+            End;
+        End;
+    End;
+
+  // condicionalEstrella := estrellaDisponible;
+End;
+
+// Funciones del Personaje
+Procedure Personaje(data: dataMapa; Var nave, planeta: vector; fil, col, tecla:
+                    Integer);
+
+Var 
+  movimientos: ArrayMovimientos;
+
+Begin
+
+
 
 // Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
   // Normales
@@ -368,99 +541,7 @@ Begin
       nave[1] := nave[1] + 1;
       nave[2] := nave[2] + 1;
     End;
-End;
 
-Function condicionalEstrella(data: dataMapa; nave, planeta:vector): Boolean;
-
-Var 
-  i, cantidadEstrellas: Integer;
-  estrellaDisponible: Boolean;
-  difX, difY: Integer;
-  difFila, difCol: Integer;
-Begin
-  // Inicializar en False
-  estrellaDisponible := False;
-  cantidadEstrellas := data.estrellas.cantidad;
-
-  For i:=1 To cantidadEstrellas Do
-    Begin
-      // Diferencia con valor absoluto
-      difX := Abs(nave[1] - data.estrellas.coordenadas[i].posicionX);
-      difY := Abs(nave[2] - data.estrellas.coordenadas[i].posicionY);
-
-      // Para determinar los numeros negativos
-      difFila := data.estrellas.coordenadas[i].posicionX - nave[1];
-      difCol := data.estrellas.coordenadas[i].posicionY - nave[2];
-
-
-// Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal) MISMA FILA O COLUMNA
-      // Si la estrella y nave están en la misma fila o columna
-      If (nave[1] = data.estrellas.coordenadas[i].posicionX) And (nave[2] <>
-         data.estrellas.coordenadas[i].posicionY) Then
-        Begin
-          writeLn('Misma columna');
-          estrellaDisponible := true;
-        End
-      Else If (nave[2] = data.estrellas.coordenadas[i].posicionY) And (nave[1]
-              <> data.estrellas.coordenadas[i].posicionX) Then
-             Begin
-               writeLn('Misma fila');
-               estrellaDisponible := true;
-             End;
-
-
-// Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
-      If (Abs(nave[1] - data.estrellas.coordenadas[i].posicionX) = Abs(nave[2] -
-         data.estrellas.coordenadas[i].posicionY)) Then
-        Begin
-          // Diagonal Abajo Derecha
-          If (difFila > 0) And (difCol > 0) And (nave[1] < data.estrellas.
-             coordenadas[i].posicionX) Then
-            Begin
-              writeln('Diagonal Abajo Derecha: ', data.estrellas.coordenadas[i].
-                      posicionX, ', ', data.estrellas.coordenadas[i].posicionY);
-              estrellaDisponible := true;
-            End;
-
-          // Diagonal Arriba Izquierda
-          If (difFila < 0) And (difCol < 0) And (nave[1] > data.estrellas.
-             coordenadas[i].posicionX) Then
-            Begin
-              writeln('Diagonal Arriba Izquierda: ', data.estrellas.coordenadas[
-                      i].posicionX, ', ', data.estrellas.coordenadas[i].
-                      posicionY);
-              estrellaDisponible := true;
-            End;
-        End;
-
-
-// Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
-      If (Abs(nave[1] - data.estrellas.coordenadas[i].posicionX) = Abs(nave[2] -
-         data.estrellas.coordenadas[i].posicionY)) Then
-        Begin
-          // Diagonal Abajo Izquierda
-          If (difFila > 0) And (difCol < 0) And (nave[1] < data.estrellas.
-             coordenadas[i].posicionX) Then
-            Begin
-              writeln('Diagonal Abajo Izquierda: ', data.estrellas.coordenadas[i
-                      ].posicionX, ', ', data.estrellas.coordenadas[i].posicionY
-              );
-              estrellaDisponible := true;
-            End;
-
-          // Diagonal Arriba Derecha
-          If (difFila < 0) And (difCol > 0) And (nave[1] > data.estrellas.
-             coordenadas[i].posicionX) Then
-            Begin
-              writeln('Diagonal Arriba Derecha: ', data.estrellas.coordenadas[i]
-                      .posicionX, ', ', data.estrellas.coordenadas[i].posicionY)
-              ;
-              estrellaDisponible := true;
-            End;
-        End;
-    End;
-
-  condicionalEstrella := estrellaDisponible;
 End;
 
 
@@ -468,15 +549,20 @@ End;
 //
 //
 Procedure leerMapa(Var data: dataMapa; Var terreno: mapa; Var nave, planeta:
-                   vector; fil,col, tecla:Integer);
+                   vector; fil, col, tecla:Integer);
 
 Var 
   i, j: Integer;
   estrellaDisponible: Boolean;
+  mov: ArrayMovimientos;
+  terrenoModificado: mapa;
 Begin
   Clrscr;
   Writeln('!!Intenta encontrar el Planeta!!');
   Writeln;
+
+  terrenoModificado := terreno;
+
   // Procedo a mover el personaje
   If (tecla > 0) Then
     Begin
@@ -484,10 +570,15 @@ Begin
       // if Condicional estrella es true, pasa lo de abajo, si no, no se llama
       //
       //
-      Personaje(nave, fil, col, tecla);
-      terreno[nave[1], nave[2]] := PERSONAJEPOS;
-      estrellaDisponible := condicionalEstrella(data, nave, planeta);
+      Personaje(data, nave, planeta, fil, col, tecla);
+      terrenoModificado[nave[1], nave[2]] := PERSONAJEPOS;
     End;
+
+  condicionalEstrella(terrenoModificado, mov, data.estrellas.
+                      coordenadas, data.
+                      estrellas.
+                      cantidad, nave, planeta);
+
   // Coloco las celdas
   For i := 1 To fil Do
     Begin
@@ -498,7 +589,8 @@ Begin
             Write(i, '  ', PARED, ' ');
           If ((j = 1) And (i >= 10)) Then
             Write(i, ' ', PARED, ' ');
-          Write(terreno[i, j], ' ');
+
+          Write(terrenoModificado[i, j], ' ');
         End;
       Writeln;
     End;
@@ -539,6 +631,8 @@ Begin
     Begin
       // Limpia la posicion anterior de la nave
       terreno[nave[1], nave[2]] := CELDA;
+
+
 
 // Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
       //
