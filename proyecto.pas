@@ -92,6 +92,17 @@ Var
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
@@ -164,6 +175,17 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
@@ -181,6 +203,16 @@ End;
 
 
 
+
+
+
+
+
+
+
+
+
+
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
@@ -188,6 +220,16 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -208,6 +250,17 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo
     End;
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -365,7 +418,7 @@ End;
 // Personaje 
 // Funciones del Personaje
 Procedure Personaje(listaMovimientos: ArrayMovimientos; Var contMovimientos:
-                    Integer; Var nave, planeta:
+                    Integer; terreno: mapa; Var nave, planeta:
                     vector; fil, col, tecla:
                     Integer);
 
@@ -385,27 +438,42 @@ Begin
 
 
 
-
 // Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
 
   Repeat
     Begin
 
-      writeln('Movimiento: ', listaMovimientos[i+1]);
-
       // Normales
       If ((tecla = W) And (nave[1] > 1) And (listaMovimientos[i+1] = 'Arriba'))
         Then
         Begin
-          nave[1] := nave[1] - 1;
-          bucle := true;
+          // Condicional para no chocar la estrella
+          If (terreno[nave[1]-1, nave[2]] = 'E') Then
+            writeln('Ingresa otro movimiento, estrella interrumpe tu camino.')
+          Else
+            Begin
+              // Arriba
+              nave[1] := nave[1] - 1;
+              bucle := true;
+            End;
         End;
       If ((tecla = S) And (nave[1] < fil)  And (listaMovimientos[i+1] = 'Abajo')
          ) Then
-        nave[1] := nave[1] + 1;
+        //  Abajo
+        If (terreno[nave[1]+1, nave[2]] = 'E') Then
+          writeln('Ingresa otro movimiento, estrella interrumpe tu camino.')
+      Else
+        Begin
+          nave[1] := nave[1] + 1;
+          bucle := true;
+        End;
       If ((tecla = A) And (nave[2] > 1)  And (listaMovimientos[i+1] =
          'Izquierda'))
         Then
+        // Izquierda
+        If (terreno[nave[1], nave[2]-1] = 'E') Then
+          writeln('Ingresa otro movimiento, estrella interrumpe tu camino.')
+      Else
         Begin
           nave[2] := nave[2] - 1;
           bucle := true;
@@ -413,6 +481,10 @@ Begin
       If ((tecla = D) And (nave[2] < col) And (listaMovimientos[i+1] = 'Derecha'
          ))
         Then
+        // Derecha
+        If (terreno[nave[1], nave[2]+1] = 'E') Then
+          writeln('Ingresa otro movimiento, estrella interrumpe tu camino.')
+      Else
         Begin
           nave[2] := nave[2] + 1;
           bucle := true;
@@ -420,6 +492,10 @@ Begin
       // Diagonales
       If ((tecla = Q) And (nave[1] > 1) And (nave[2] > 1)  And (listaMovimientos
          [i+1] = 'arrIzquierda')) Then
+        //  Arriba Izquierda
+        If (terreno[nave[1]-1, nave[2]-1] = 'E') Then
+          writeln('Ingresa otro movimiento, estrella interrumpe tu camino.')
+      Else
         Begin
           nave[1] := nave[1] - 1;
           nave[2] := nave[2] - 1;
@@ -427,6 +503,10 @@ Begin
         End;
       If ((tecla = E) And (nave[1] > 1) And (nave[2] < col)  And (
          listaMovimientos[i+1] = 'arrDerecha')) Then
+        //  Arriba Derecha
+        If (terreno[nave[1]-1, nave[2]+1] = 'E') Then
+          writeln('Ingresa otro movimiento, estrella interrumpe tu camino.')
+      Else
         Begin
           nave[1] := nave[1] - 1;
           nave[2] := nave[2] + 1;
@@ -434,6 +514,10 @@ Begin
         End;
       If ((tecla = Z) And (nave[1] < fil) And (nave[2] > 1)  And (
          listaMovimientos[i+1] = 'abjIzquierda')) Then
+        //  Abajo Izquierda
+        If (terreno[nave[1]+1, nave[2]-1] = 'E') Then
+          writeln('Ingresa otro movimiento, estrella interrumpe tu camino.')
+      Else
         Begin
           nave[1] := nave[1] + 1;
           nave[2] := nave[2] - 1;
@@ -441,6 +525,10 @@ Begin
         End;
       If ((tecla = X) And (nave[1] < fil) And (nave[2] < col)  And (
          listaMovimientos[i+1] = 'abjDerecha')) Then
+        //  Abajo derecha
+        If (terreno[nave[1]+1, nave[2]+1] = 'E') Then
+          writeln('Ingresa otro movimiento, estrella interrumpe tu camino.')
+      Else
         Begin
           nave[1] := nave[1] + 1;
           nave[2] := nave[2] + 1;
@@ -451,8 +539,7 @@ Begin
     End;
   Until ((bucle = true) Or (i = contMovimientos));
 
-  If (bucle = true) Then
-    writeln('Falso movimiento');
+  writeln;
 
 End;
 
@@ -489,13 +576,6 @@ Begin
       // Para determinar los numeros negativos
       difFila := param[i].posicionX - nave[1];
       difCol := param[i].posicionY - nave[2];
-
-
-
-
-
-
-
 
 
 
@@ -582,14 +662,6 @@ Begin
              End;
 
 
-
-
-
-
-
-
-
-
 // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -633,14 +705,6 @@ Begin
         End;
 
 
-
-
-
-
-
-
-
-
 // Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -680,8 +744,6 @@ Begin
             End;
         End;
     End;
-
-  writeln('Cantidad de movimientos: ', contMovimientos-1);
 End;
 
 
@@ -726,7 +788,8 @@ Begin
                           estrellas.
                           cantidad, nave, planeta);
       // Aqui procede a moverse el personaje:
-      Personaje(listaMovimientos, contMovimientos, nave, planeta, fil, col,
+      Personaje(listaMovimientos, contMovimientos, terreno, nave, planeta, fil,
+                col,
                 tecla);
       terrenoModificado[nave[1], nave[2]] := PERSONAJEPOS;
 
@@ -800,6 +863,13 @@ Begin
     Begin
       // Limpia la posicion anterior de la nave
       terreno[nave[1], nave[2]] := CELDA;
+
+
+
+
+
+
+
 
 
 
