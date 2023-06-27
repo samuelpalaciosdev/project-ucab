@@ -3,7 +3,7 @@ Program proyectoProgram;
 
 Uses crt;
 
-Const 
+Const
   // Prueba
   NUM_MENUPRINCIPAL = 3;
   NUM_SUBMENU = 4;
@@ -11,6 +11,7 @@ Const
   // MAIN
   LIMITE = 30;
   LIMITE_ELEMENTOS = 10;
+  LIMITE_MOVIMIENTOS = 200;
   MOVIMIENTOS_MAXIMO = 8;
   CELDA = '.';
   PARED = '|';
@@ -50,7 +51,7 @@ Const
   TURQUESA = 9;
   BLANCO = 15;
 
-Type 
+Type
   vector = Array[1..LIMITE] Of Integer;
   vectorString = Array[1..LIMITE] Of String;
   mapa = Array[1..LIMITE, 1..LIMITE] Of Char;
@@ -68,8 +69,15 @@ Type
 
   // Array De movimientos
   ArrayMovimientos = Array[1..8] Of string;
+
+  // Array de historial de movimientos
+  ArrayHistorialMovimientos = Array[1..LIMITE_MOVIMIENTOS] Of Coordenada;
+
   // Objeto donde se almacena toda la info del archivo
   dataMapa = Record
+    contadorMovimientos: Integer;
+    historialMovimientos: ArrayHistorialMovimientos;
+    // HistorialMovimientos[contadorMovimientos] := nave[1],nave[2]
     plano: mapa;
     dimensiones: Record
       fil: Integer;
@@ -95,7 +103,7 @@ Type
 
   // VARIABLES ARCHIVO
 
-Var 
+Var
   archivo: Text;
   rutaArchivo: String;
 
@@ -105,7 +113,7 @@ Var
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
                                       ArrayDinamico; mensaje: String);
 
-Var 
+Var
   i: Integer;
 Begin
   Writeln('Cantidad de ', mensaje, ': ', cantidad);
@@ -125,7 +133,7 @@ Procedure bloqueGenerador(Var param: ArrayDinamico; tipo: TipoGeneracionMapa;
                           nave, planeta: vector; fil
                           , col: Integer; Var cant: Integer);
 
-Var 
+Var
   i: Integer;
 Begin
   Randomize;
@@ -152,7 +160,7 @@ Procedure Generador(Var data: dataMapa; Var tipo:TipoGeneracionMapa; Var nave,
                     Var cant, cant2: Integer; Var param1, param2:ArrayDinamico;
                     fil, col: Integer);
 
-Var 
+Var
   i, j: Integer;
 Begin
   Randomize;
@@ -192,10 +200,9 @@ End;
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
 
-Var 
+Var
   i, cant_1, cant_2: Integer;
 Begin
-
 
 
 
@@ -215,8 +222,6 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo
     End;
-
-
 
 
 
@@ -253,7 +258,7 @@ End;
 Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa;
                           rutaArchivo: String);
 
-Var 
+Var
   i: Integer;
 Begin
   // Asignar la variable archivo al archivo en la ruta (rutaArchivo)
@@ -278,6 +283,34 @@ Begin
   Writeln;
   Readkey;
 End;
+
+// Historial de Movimientos del personaje
+
+Procedure agregarAHistorialMovimiento(nave: vector; Var historialMov:
+ArrayHistorialMovimientos; Var contMov:Integer);
+Begin
+
+  // [{X,Y}]
+	// Como contMov empieza en 1, Si todavía no se ha movido, guardar esa como la posicion inicial
+  If (contMov = 1) Then
+    Begin
+      historialMov[contMov].PosicionX := nave[1];
+      historialMov[contMov].PosicionY := nave[2];
+      contMov := contMov + 1;
+    End;
+		// Si alguna de las coordenadas (X o Y) son distintas (es un movimiento valido)
+  If (nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[contMov - 1].posicionY) Then
+    Begin
+      historialMov[contMov].PosicionX := nave[1];
+      historialMov[contMov].PosicionY := nave[2];
+      contMov := contMov + 1;
+    End;
+
+  writeLn('SAMUEL    ',historialMov[contMov-1].PosicionX, ' ', historialMov[contMov-1].PosicionY);
+  readkey;
+End;
+
+
 // ANIMACIONES
 //
 //
@@ -295,6 +328,20 @@ Begin
       Writeln;
       Readkey;
     End;
+End;
+
+Procedure imprimirHistorialMovimientos(data: dataMapa);
+Var
+  j: Integer;
+Begin
+	  Clrscr;
+		textColor(blue);
+		writeLn('El historial de movimientos fue: ');
+		writeLn('Historial de movimientos: ');
+		for j:=1 to (data.contadorMovimientos-1) Do
+		  writeLn('[',data.historialMovimientos[j].PosicionX, ',',data.historialMovimientos[j].PosicionY,']');
+		Writeln;
+		Readkey;
 End;
 
 // Animacin Perder
@@ -331,7 +378,7 @@ End;
 Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta:
                   vector; fil, col:Integer);
 
-Var 
+Var
   i, j: Integer;
   coordEst, coordDest: ArrayDinamico;
 Begin
@@ -371,24 +418,236 @@ Begin
     terreno[coordDest[i].posicionX, coordDest[i].posicionY] := BOMBA;
 End;
 
-// Personaje 
+
+// Condicional de la estrella:
+
+Procedure condicionalEstrella(Var listaMovimientos: ArrayMovimientos; Var
+                              contMovimientos: Integer; Var
+                              terrenoModificado: mapa;
+                              param:
+                              ArrayDinamico
+                              ; cant: integer; Var nave: vector; planeta:
+                              vector);
+
+Var
+  i, j, cantidadEstrellas: Integer;
+  estrellaDisponible: Boolean;
+  difX, difY: Integer;
+  difFila, difCol: Integer;
+Begin
+  // Inicializar en False
+  estrellaDisponible := False;
+  cantidadEstrellas := cant;
+
+  // Inicializo contador movimientos
+  contMovimientos := 1;
+
+
+  For i:=1 To cantidadEstrellas Do
+    Begin
+      // Diferencia con valor absoluto
+      difX := Abs(nave[1] - param[i].posicionX);
+      difY := Abs(nave[2] - param[i].posicionY);
+
+      // Para determinar los numeros negativos
+      difFila := param[i].posicionX - nave[1];
+      difCol := param[i].posicionY - nave[2];
+
+
+
+
+
+      // Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal)
+
+      // Si la estrella y nave están en la misma fila pero distinta columna
+      If (nave[1] = param[i].posicionX) And (nave[2] <>
+         param[i].posicionY) Then
+        Begin
+
+          // Estrella en misma columna hacia la derecha
+          If (nave[2] < param[i].posicionY) Then
+            Begin
+
+              // Voy a meter el movimiento dentro del array
+              contMovimientos := contMovimientos + 1;
+              // Posibles movimientos que puede hacer el usuario
+              listaMovimientos[contMovimientos] := 'Derecha';
+
+
+              // Condicional para no sobreescribir la estrella
+              // Poner interrogacion si la dist entre nave y estrella es > 1
+              If (Abs(nave[2] - param[i].PosicionY) > 1) Then
+                // Animacion de la interrogacion
+                terrenoModificado[nave[1], nave[2]+1] := POSMOV;
+              // Poner interrogacion a la derecha de la nave
+              // POSMOV = '?'
+            End;
+
+          // Estrella en misma columna hacia la izquierda
+
+          If (nave[2] > param[i].posicionY) Then
+            Begin
+
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'Izquierda';
+
+              // Condicional para no sobreescribir la estrella
+              If (Abs(nave[2] - param[i].posicionY) > 1) Then
+                // Animacion de la interrogacion
+                terrenoModificado[nave[1], nave[2]-1] := POSMOV;
+
+
+            End;
+
+        End
+        // Misma fila, distinta columna
+      Else If (nave[2] = param[i].posicionY) And (nave[1]
+              <> param[i].posicionX) Then
+             Begin
+
+               //  Estrella en misma fila hacia abajo
+
+               If (nave[1] < param[i].posicionX) Then
+                 Begin
+
+                   // Voy a meter el movimiento dentro de la variable
+                   contMovimientos := contMovimientos + 1;
+                   listaMovimientos[contMovimientos] := 'Abajo';
+
+
+                   //  Condicional para no sobreescribir la estrella
+                   If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                     //  Animacion de la interrogacion
+                     terrenoModificado[nave[1]+1, nave[2]] := POSMOV;
+                   // Fila hacia abajo (se pone interrogacion abajo)
+
+
+                 End;
+
+               // Estrella en misma fila hacia arriba
+
+               If (nave[1] > param[i].posicionX) Then
+                 Begin
+
+
+                   // Voy a meter el movimiento dentro de la variable
+                   contMovimientos := contMovimientos + 1;
+                   listaMovimientos[contMovimientos] := 'Arriba';
+
+
+                   //  Condicional para no sobreescribir la estrella
+                   If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                     //  Animacion de la interrogacion
+                     terrenoModificado[nave[1]-1, nave[2]] := POSMOV;
+                   // Poner estrella arriba de la nave
+
+
+                 End;
+             End;
+
+
+
+// Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
+      If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
+         param[i].posicionY)) Then
+        Begin
+          // Diagonal Abajo Derecha
+          If (difFila > 0) And (difCol > 0) And (nave[1] < param[i].posicionX)
+            Then
+            Begin
+
+
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'abjDerecha';
+
+
+              // Animacion para no sobreescribir la estrella
+              If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                // Animacion de la interrogacion
+                terrenoModificado[nave[1]+1, nave[2]+1] := POSMOV;
+              // Poner interrogacion abajo derecha de la nave
+
+
+            End;
+
+          // Diagonal Arriba Izquierda
+          If (difFila < 0) And (difCol < 0) And (nave[1] > param[i].posicionX)
+            Then
+            Begin
+
+
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'arrIzquierda';
+
+              // Animacion para no sobreescrbir la estrella
+              If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                // Animacion para la interrrogacion
+                terrenoModificado[(nave[1])-1, nave[2]-1] := POSMOV;
+              // Poner interrogacion arriba izquierda de la nave
+            End;
+        End;
+
+
+// Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
+      If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
+         param[i].posicionY)) Then
+        Begin
+          // Diagonal Abajo Izquierda
+          If (difFila > 0) And (difCol < 0) And (nave[1] < param[i].posicionX)
+            Then
+            Begin
+
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'abjIzquierda';
+
+              // Condicional para no sobreescrbir la estrella
+              If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                // Animacion para la interrogacion
+                terrenoModificado[nave[1]+1, nave[2]-1] := POSMOV;
+              // Poner interrogacion abajo izquierda de la nave
+
+            End;
+
+          // Diagonal Arriba Derecha
+          If (difFila < 0) And (difCol > 0) And (nave[1] > param[i].posicionX)
+            Then
+            Begin
+              // Voy a meter el movimiento dentro de la variable
+              contMovimientos := contMovimientos + 1;
+              listaMovimientos[contMovimientos] := 'arrDerecha';
+
+
+              // Condicional para no sobreescribir la estrella
+              If (Abs(nave[1] - param[i].posicionX) > 1) Then
+                // Animacion para la interrogacion
+                terrenoModificado[nave[1]-1, nave[2]+1] := POSMOV;
+              // Poner interrogacion arriba derecha de la nave
+            End;
+        End;
+    End;
+End;
+
+// Personaje
 // Funciones del Personaje
 Procedure Personaje(listaMovimientos: ArrayMovimientos; Var contMovimientos:
                     Integer; terreno: mapa; Var nave, planeta:
                     vector; fil, col, tecla:
                     Integer);
 
-Var 
+Var
   bucle: boolean;
   i: integer;
 
 Begin
 
-  // Inicializo: 
+  // Inicializo:
 
   i := 0;
   bucle := false;
-
 
 
 
@@ -396,12 +655,12 @@ Begin
 
   Repeat
     Begin
-
       // Normales
       If ((tecla = W) And (nave[1] > 1) And (listaMovimientos[i+1] = 'Arriba'))
         Then
         Begin
           // Condicional para no chocar la estrella
+          // Estrella arriba de la nave (interrumpir movimiento)
           If (terreno[nave[1]-1, nave[2]] = 'E') Then
             writeln('Ingresa otro movimiento, estrella interrumpe tu camino.')
           Else
@@ -490,230 +749,12 @@ Begin
         End;
 
       i := i + 1;
+      // era 0. ahora es 1
     End;
   Until ((bucle = true) Or (i = contMovimientos));
 
   writeln;
 
-End;
-
-// Condicional de la estrella:
-
-Procedure condicionalEstrella(Var listaMovimientos: ArrayMovimientos; Var
-                              contMovimientos: Integer; Var
-                              terrenoModificado: mapa;
-                              param:
-                              ArrayDinamico
-                              ; cant: integer; Var nave: vector; planeta:
-                              vector);
-
-Var 
-  i, j, cantidadEstrellas: Integer;
-  estrellaDisponible: Boolean;
-  difX, difY: Integer;
-  difFila, difCol: Integer;
-Begin
-  // Inicializar en False
-  estrellaDisponible := False;
-  cantidadEstrellas := cant;
-
-  // Inicializo contador movimientos
-  contMovimientos := 1;
-
-
-  For i:=1 To cantidadEstrellas Do
-    Begin
-      // Diferencia con valor absoluto
-      difX := Abs(nave[1] - param[i].posicionX);
-      difY := Abs(nave[2] - param[i].posicionY);
-
-      // Para determinar los numeros negativos
-      difFila := param[i].posicionX - nave[1];
-      difCol := param[i].posicionY - nave[2];
-
-
-// Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal) MISMA FILA O COLUMNA
-      // Si la estrella y nave están en la misma fila o columna
-      If (nave[1] = param[i].posicionX) And (nave[2] <>
-         param[i].posicionY) Then
-        Begin
-
-          // Misma columna hacia la derecha
-          If (nave[2] < param[i].posicionY) Then
-            Begin
-
-              // Voy a meter el movimiento dentro de la variable
-              contMovimientos := contMovimientos + 1;
-              listaMovimientos[contMovimientos] := 'Derecha';
-
-
-              // Condicional para no sobreescribir la estrella
-              If (Abs(nave[2] - param[i].posicionY) > 1) Then
-                // Animacion de la interrogacion
-                terrenoModificado[nave[1], nave[2]+1] := POSMOV;
-            End;
-
-          // Misma columna hacia la izquierda
-
-          If (nave[2] > param[i].posicionY) Then
-            Begin
-
-              // Voy a meter el movimiento dentro de la variable
-              contMovimientos := contMovimientos + 1;
-              listaMovimientos[contMovimientos] := 'Izquierda';
-
-              // Condicional para no sobreescribir la estrella 
-              If (Abs(nave[2] - param[i].posicionY) > 1) Then
-                // Animacion de la interrogacion
-                terrenoModificado[nave[1], nave[2]-1] := POSMOV;
-
-
-            End;
-
-        End
-      Else If (nave[2] = param[i].posicionY) And (nave[1]
-              <> param[i].posicionX) Then
-             Begin
-
-               //  Misma fila hacia abajo
-
-               If (nave[1] < param[i].posicionX) Then
-                 Begin
-
-
-                   // Voy a meter el movimiento dentro de la variable
-                   contMovimientos := contMovimientos + 1;
-                   listaMovimientos[contMovimientos] := 'Abajo';
-
-
-                   //  Condicional para no sobreescribir la estrella
-                   If (Abs(nave[1] - param[i].posicionX) > 1) Then
-                     //  Animacion de la interrogacion
-                     terrenoModificado[nave[1]+1, nave[2]] := POSMOV;
-
-
-                 End;
-
-               // Misma fila hacia arriba
-
-               If (nave[1] > param[i].posicionX) Then
-                 Begin
-
-
-                   // Voy a meter el movimiento dentro de la variable
-                   contMovimientos := contMovimientos + 1;
-                   listaMovimientos[contMovimientos] := 'Arriba';
-
-
-                   //  Condicional para no sobreescribir la estrella
-                   If (Abs(nave[1] - param[i].posicionX) > 1) Then
-                     //  Animacion de la interrogacion
-                     terrenoModificado[nave[1]-1, nave[2]] := POSMOV;
-
-
-                 End;
-             End;
-
-
-
-// Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
-      If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
-         param[i].posicionY)) Then
-        Begin
-          // Diagonal Abajo Derecha
-          If (difFila > 0) And (difCol > 0) And (nave[1] < param[i].posicionX)
-            Then
-            Begin
-
-
-              // Voy a meter el movimiento dentro de la variable
-              contMovimientos := contMovimientos + 1;
-              listaMovimientos[contMovimientos] := 'abjDerecha';
-
-
-              // Animacion para no sobreescribir la estrella
-              If (Abs(nave[1] - param[i].posicionX) > 1) Then
-                // Animacion de la interrogacion
-                terrenoModificado[nave[1]+1, nave[2]+1] := POSMOV;
-
-
-            End;
-
-          // Diagonal Arriba Izquierda
-          If (difFila < 0) And (difCol < 0) And (nave[1] > param[i].posicionX)
-            Then
-            Begin
-
-
-              // Voy a meter el movimiento dentro de la variable
-              contMovimientos := contMovimientos + 1;
-              listaMovimientos[contMovimientos] := 'arrIzquierda';
-
-              // Animacion para no sobreescrbir la estrella
-              If (Abs(nave[1] - param[i].posicionX) > 1) Then
-                // Animacion para la interrrogacion
-                terrenoModificado[(nave[1])-1, nave[2]-1] := POSMOV;
-
-
-            End;
-        End;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
-      If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
-         param[i].posicionY)) Then
-        Begin
-          // Diagonal Abajo Izquierda
-          If (difFila > 0) And (difCol < 0) And (nave[1] < param[i].posicionX)
-            Then
-            Begin
-
-              // Voy a meter el movimiento dentro de la variable
-              contMovimientos := contMovimientos + 1;
-              listaMovimientos[contMovimientos] := 'abjIzquierda';
-
-              // Condicional para no sobreescrbir la estrella
-              If (Abs(nave[1] - param[i].posicionX) > 1) Then
-                // Animacion para la interrogacion
-                terrenoModificado[nave[1]+1, nave[2]-1] := POSMOV;
-
-
-            End;
-
-          // Diagonal Arriba Derecha
-          If (difFila < 0) And (difCol > 0) And (nave[1] > param[i].posicionX)
-            Then
-            Begin
-              // Voy a meter el movimiento dentro de la variable
-              contMovimientos := contMovimientos + 1;
-              listaMovimientos[contMovimientos] := 'arrDerecha';
-
-
-              // Condicional para no sobreescribir la estrella
-              If (Abs(nave[1] - param[i].posicionX) > 1) Then
-                // Animacion para la interrogacion
-                terrenoModificado[nave[1]-1, nave[2]+1] := POSMOV;
-
-
-            End;
-        End;
-    End;
 End;
 
 // ANIMACIONES
@@ -732,7 +773,7 @@ End;
 Procedure AnimacionMenu(activo, max: Integer; Var menuVector:
                         vectorString);
 
-Var 
+Var
   i: Integer;
 Begin
   Clrscr;
@@ -761,7 +802,7 @@ Procedure leerMapa(Var data: dataMapa; Var terreno: mapa; Var nave,
                    planeta:
                    vector; fil, col, tecla:Integer);
 
-Var 
+Var
   i, j: Integer;
   estrellaDisponible: Boolean;
   listaMovimientos, basuraMovimientos: ArrayMovimientos;
@@ -777,15 +818,6 @@ Begin
   // Procedo a mover el personaje
   If (tecla > 0) Then
     Begin
-
-
-
-
-
-
-
-
-
 
 
 
@@ -812,6 +844,7 @@ Begin
                           planeta);
     End
   Else
+    // Mostrar interrogaciones cuando el mapa apenas se genera
     // Este condicional se encarga de mostrar las estrellas en el mapa
     condicionalEstrella(basuraMovimientos, basuraContador, terrenoModificado,
                         data
@@ -876,7 +909,7 @@ Procedure Partida(Var terreno: mapa; Var data: dataMapa; param
                   :vector;
                   fil, col, tecla:Integer);
 
-Var 
+Var
   ch: Char;
   desarrollo: Victoria;
   i: integer;
@@ -887,54 +920,35 @@ Begin
   desarrollo := sigue;
   // Relleno el Mapa
   relleno(terreno, data, nave, planeta, fil, col);
+
+  // Cont Movimientos
+
+  data.contadorMovimientos := 1;
+
   // Se lee el mapa inicial
   leerMapa(data, terreno, nave,
            planeta, fil, col, 0);
+
   // Bucle donde se desarollan los movimientos
   Repeat
     Begin
       // Limpia la posicion anterior de la nave
       terreno[nave[1], nave[2]] := CELDA;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
       //
       //
       //
       ch := Upcase(Readkey);
+			
+			// Guardar historial de movimientos de la nave para generar archivo de salida
+	    agregarAHistorialMovimiento(nave, data.historialMovimientos, data.contadorMovimientos);
+			
       leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
-      // si gano la partida, el boolean es true
+
+
+
+    // Si gano la partida, el boolean es true
       If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
         desarrollo := gano;
 
@@ -947,19 +961,27 @@ Begin
         End;
     End;
   Until ((Ord(ch) = ESC) Or (desarrollo = gano) Or (desarrollo = perder));
+
+
+	// Guardar historial de movimientos de la nave para generar archivo de salida
+	agregarAHistorialMovimiento(nave, data.historialMovimientos, data.contadorMovimientos);
   // Victoria
   If (desarrollo = gano) Then
+	Begin
     AnimacionGanar(desarrollo);
+    imprimirHistorialMovimientos(data);
+	End;
 
   If (desarrollo = perder) Then
     AnimacionPerder(desarrollo);
+		imprimirHistorialMovimientos(data);
 End;
 
 // Menu tutorial
 
 Procedure menuTutorial(Var opc: Integer; Var volver, salir: menuBoolean);
 
-Var 
+Var
   keyPad: Char;
   menuVector: vectorString;
   activo: Integer;
@@ -987,11 +1009,11 @@ Begin
       End
     Else
       keyPad := Upcase(Readkey);
-    Case Ord(keyPad) Of 
+    Case Ord(keyPad) Of
       0:
          Begin
            keyPad := Readkey;
-           Case Ord(keyPad) Of 
+           Case Ord(keyPad) Of
              ARRIBA:
                      Begin
                        If (activo > 1) Then
@@ -1098,7 +1120,7 @@ Procedure menuJugar(Var data: dataJuego; Var opc: Integer; Var volver,
                     :
                     menuBoolean);
 
-Var 
+Var
   keyPad: Char;
   menuVector: vectorString;
   activo: Integer;
@@ -1131,11 +1153,11 @@ Begin
       End
     Else
       keyPad := Upcase(Readkey);
-    Case Ord(keyPad) Of 
+    Case Ord(keyPad) Of
       0:
          Begin
            keyPad := Readkey;
-           Case Ord(keyPad) Of 
+           Case Ord(keyPad) Of
              ARRIBA:
                      Begin
                        If (activo > 1) Then
@@ -1170,7 +1192,7 @@ Begin
                           End;
                         If (activo = 2) Then
                           Begin
-                            data.dataPersonalizada.tipoMapa := 
+                            data.dataPersonalizada.tipoMapa :=
 
 
 
@@ -1291,7 +1313,7 @@ End;
 Procedure Menu(Var data: dataJuego; Var opc: Integer; Var volver, salir:
                menuBoolean);
 
-Var 
+Var
   keyPad: Char;
   menuVector: vectorString;
   activo: Integer;
@@ -1323,11 +1345,11 @@ Begin
       End
     Else
       keyPad := Upcase(Readkey);
-    Case Ord(keyPad) Of 
+    Case Ord(keyPad) Of
       0:
          Begin
            keyPad := Readkey;
-           Case Ord(keyPad) Of 
+           Case Ord(keyPad) Of
              ARRIBA:
                      Begin
                        If (activo > 1) Then
