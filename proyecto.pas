@@ -288,34 +288,28 @@ End;
 
 // Historial de Movimientos del personaje
 
-Procedure anadirAHistorialMovimiento(nave: vector; Var historialMov:
-                                     ArrayHistorialMovimientos; Var contMov:
-                                     Integer);
+Procedure agregarAHistorialMovimiento(nave: vector; Var historialMov:
+ArrayHistorialMovimientos; Var contMov:Integer);
 Begin
 
   // [{X,Y}]
-
+	// Como contMov empieza en 1, Si todavía no se ha movido, guardar esa como la posicion inicial
   If (contMov = 1) Then
     Begin
       historialMov[contMov].PosicionX := nave[1];
       historialMov[contMov].PosicionY := nave[2];
       contMov := contMov + 1;
-
     End;
-  If (historialMov[contMov].PosicionX <> historialMov[contMov - 1].posicionX)
-     And (historialMov[contMov].PosicionY <> historialMov[contMov - 1].posicionY
-     ) Then
+		// Si alguna de las coordenadas (X o Y) son distintas (es un movimiento valido)
+  If (nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[contMov - 1].posicionY) Then
     Begin
       historialMov[contMov].PosicionX := nave[1];
       historialMov[contMov].PosicionY := nave[2];
       contMov := contMov + 1;
     End;
 
-  writeLn(nave[1], ' ', nave[2]);
-  ;
+  writeLn('SAMUEL    ',historialMov[contMov-1].PosicionX, ' ', historialMov[contMov-1].PosicionY);
   readkey;
-
-
 End;
 
 
@@ -336,6 +330,20 @@ Begin
       Writeln;
       Readkey;
     End;
+End;
+
+Procedure imprimirHistorialMovimientos(data: dataMapa);
+Var
+  j: Integer;
+Begin
+	  Clrscr;
+		textColor(blue);
+		writeLn('El historial de movimientos fue: ');
+		writeLn('Historial de movimientos: ');
+		for j:=1 to (data.contadorMovimientos-1) Do
+		  writeLn('[',data.historialMovimientos[j].PosicionX, ',',data.historialMovimientos[j].PosicionY,']');
+		Writeln;
+		Readkey;
 End;
 
 // Animacin Perder
@@ -922,32 +930,27 @@ Begin
   // Se lee el mapa inicial
   leerMapa(data, terreno, nave,
            planeta, fil, col, 0);
+
   // Bucle donde se desarollan los movimientos
   Repeat
     Begin
       // Limpia la posicion anterior de la nave
       terreno[nave[1], nave[2]] := CELDA;
 
-      writeln('DANIEEEEEL');
-
-
-
 // Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
       //
       //
       //
       ch := Upcase(Readkey);
+			
+			// Guardar historial de movimientos de la nave para generar archivo de salida
+	    agregarAHistorialMovimiento(nave, data.historialMovimientos, data.contadorMovimientos);
+			
       leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
 
-      // A partir de aca
-
-      anadirAHistorialMovimiento(nave, data.historialMovimientos, data.
-                                 contadorMovimientos);
 
 
-
-
-      // si gano la partida, el boolean es true
+    // Si gano la partida, el boolean es true
       If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
         desarrollo := gano;
 
@@ -960,12 +963,20 @@ Begin
         End;
     End;
   Until ((Ord(ch) = ESC) Or (desarrollo = gano) Or (desarrollo = perder));
+
+
+	// Guardar historial de movimientos de la nave para generar archivo de salida
+	agregarAHistorialMovimiento(nave, data.historialMovimientos, data.contadorMovimientos);
   // Victoria
   If (desarrollo = gano) Then
+	Begin
     AnimacionGanar(desarrollo);
+    imprimirHistorialMovimientos(data);
+	End;
 
   If (desarrollo = perder) Then
     AnimacionPerder(desarrollo);
+		imprimirHistorialMovimientos(data);
 End;
 
 // Menu tutorial
