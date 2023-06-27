@@ -12,11 +12,11 @@ Const
   LIMITE = 30;
   LIMITE_ELEMENTOS = 10;
   MOVIMIENTOS_MAXIMO = 8;
-  CELDA = '#';
+  CELDA = '.';
   PARED = '|';
   PISO = '_';
   PERSONAJEPOS = 'A';
-  BANDERA = '~';
+  BANDERA = '#';
   BOMBA = 'D';
   STAR = 'E';
   POSMOV = '?';
@@ -40,6 +40,15 @@ Const
   D = 68;
   Z = 90;
   X = 88;
+
+  // Colores
+  AZUL = 1;
+  ROJO = 4;
+  MORADO = 5;
+  FONDO = 7;
+  COLOR_NORMAL = 8;
+  TURQUESA = 9;
+  BLANCO = 15;
 
 Type 
   vector = Array[1..LIMITE] Of Integer;
@@ -89,18 +98,6 @@ Type
 Var 
   archivo: Text;
   rutaArchivo: String;
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
@@ -174,18 +171,6 @@ Begin
       // Planeta y nave no pueden estar en la misma celda
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
@@ -203,16 +188,6 @@ End;
 
 
 
-
-
-
-
-
-
-
-
-
-
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
@@ -220,16 +195,6 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
 Var 
   i, cant_1, cant_2: Integer;
 Begin
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -250,15 +215,6 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo
     End;
-
-
-
-
-
-
-
-
-
 
 
 
@@ -436,8 +392,6 @@ Begin
 
 
 
-
-
 // Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
 
   Repeat
@@ -578,7 +532,6 @@ Begin
       difCol := param[i].posicionY - nave[2];
 
 
-
 // Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal) MISMA FILA O COLUMNA
       // Si la estrella y nave están en la misma fila o columna
       If (nave[1] = param[i].posicionX) And (nave[2] <>
@@ -662,6 +615,7 @@ Begin
              End;
 
 
+
 // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -705,6 +659,22 @@ Begin
         End;
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -746,6 +716,42 @@ Begin
     End;
 End;
 
+// ANIMACIONES
+
+Procedure ImpresoraColor(caracter: char; color: integer);
+Begin
+  // Cambio los colores
+  textColor(color);
+  write(caracter, ' ');
+  // RESET
+  textBackground(FONDO);
+  textColor(COLOR_NORMAL);
+End;
+
+// Animacion de los colores en los menus...
+Procedure AnimacionMenu(activo, max: Integer; Var menuVector:
+                        vectorString);
+
+Var 
+  i: Integer;
+Begin
+  Clrscr;
+  Writeln('---Bienvenido a L nave---');
+  Writeln;
+  For i := 1 To max Do
+    Begin
+      textBackground(FONDO);
+      textcolor(COLOR_NORMAL);
+      If (i = activo) Then
+        Begin
+          textBackground(FONDO);
+          textColor(BLANCO);
+        End;
+      Writeln(menuVector[i]);
+    End;
+End;
+
+
 
 
 // LEER EL MAPA FINAL PROCEDIMIENTO
@@ -771,6 +777,12 @@ Begin
   // Procedo a mover el personaje
   If (tecla > 0) Then
     Begin
+
+
+
+
+
+
 
 
 
@@ -817,7 +829,27 @@ Begin
           If ((j = 1) And (i >= 10)) Then
             Write(i, ' ', PARED, ' ');
 
-          Write(terrenoModificado[i, j], ' ');
+          // STAR, BOMBA, POSMOV, BANDERA Y PERSONAJEPOS
+
+          If (terrenoModificado[i, j] = CELDA) Then
+            ImpresoraColor(terrenoModificado[i, j], COLOR_NORMAL)
+          Else
+            Begin
+              If (terrenoModificado[i, j] = STAR) Then
+                ImpresoraColor(terrenoModificado[i, j], TURQUESA);
+
+              If (terrenoModificado[i, j] = BOMBA) Then
+                ImpresoraColor(terrenoModificado[i, j], ROJO);
+
+              If (terrenoModificado[i, j] = POSMOV) Then
+                ImpresoraColor(terrenoModificado[i, j], AZUL);
+
+              If (terrenoModificado[i, j] = BANDERA) Then
+                ImpresoraColor(terrenoModificado[i, j], AZUL);
+
+              If (terrenoModificado[i, j] = PERSONAJEPOS) Then
+                ImpresoraColor(terrenoModificado[i, j], BLANCO);
+            End;
         End;
       Writeln;
     End;
@@ -876,6 +908,26 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
       //
       //
@@ -888,7 +940,8 @@ Begin
 
       For i:= 1 To cant Do
         Begin
-          If ((nave[1] = param[i].posicionX) And (nave[2] = param[i].posicionY))
+          If ((nave[1] = param[i].posicionX) And (nave[2] = param[i].
+             posicionY))
             Then
             desarrollo := perder;
         End;
@@ -901,30 +954,6 @@ Begin
   If (desarrollo = perder) Then
     AnimacionPerder(desarrollo);
 End;
-
-// Animacion de los colores en los menus...
-Procedure AnimacionMenu(activo, max: Integer; Var menuVector:
-                        vectorString);
-
-Var 
-  i: Integer;
-Begin
-  Clrscr;
-  Writeln('---Bienvenido a L nave---');
-  Writeln;
-  For i := 1 To max Do
-    Begin
-      textBackground(green);
-      textcolor(red);
-      If (i = activo) Then
-        Begin
-          textBackground(green);
-          textColor(white);
-        End;
-      Writeln(menuVector[i]);
-    End;
-End;
-
 
 // Menu tutorial
 
@@ -946,7 +975,7 @@ Begin
   menuVector[1] := 'Controles';
   menuVector[2] := 'Como funciona?';
   menuVector[3] := 'Volver';
-  textBackground(Green);
+  textBackground(FONDO);
   Writeln('---L nave---');
   Writeln;
   Repeat
@@ -1086,7 +1115,7 @@ Begin
   menuVector[2] := 'Mapa Personalizado';
   menuVector[3] := 'Mapa al Azar';
   menuVector[4] := 'Volver';
-  textBackground(Green);
+  textBackground(FONDO);
   Writeln('---L nave---');
   Writeln;
   Repeat
@@ -1278,7 +1307,7 @@ Begin
   menuVector[1] := 'Jugar';
   menuVector[2] := 'Tutorial';
   menuVector[3] := 'Salir';
-  textBackground(Green);
+  textBackground(FONDO);
   Writeln('---Bienvenido a L nave---');
   Writeln;
   Writeln('Presiona cualquier tecla para comenzar...');
