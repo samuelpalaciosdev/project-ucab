@@ -104,8 +104,8 @@ Type
   // VARIABLES ARCHIVO
 
 Var
-  archivo: Text;
-  rutaArchivo: String;
+  entrada, salida: Text;
+  rutaArchivoEntrada: String;
 
 
 
@@ -199,7 +199,7 @@ End;
 
 
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
-Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
+Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
 
 Var
@@ -208,18 +208,18 @@ Begin
 
 
 
-// Leer el primer numero de la cantidad de estrellas o destructores del archivo y comprobar si es > o < que 10
+// Leer el primer numero de la cantidad de estrellas o destructores del archivo de entrada y comprobar si es > o < que 10
   // Nro < que 10 (ej. 0 7) = 7
-  Read(archivo, cant_1);
+  Read(entrada, cant_1);
   If (cant_1 = 0) Then
     Begin
-      Read(archivo, cantidad);
+      Read(entrada, cantidad);
       // Guarda el siguiente numero como la cantidad
     End
     // Nro > que 10 (ej. 1 5) = 15
   Else
     Begin
-      Read(archivo, cant_2);
+      Read(entrada, cant_2);
       // Obtener el segundo nro de la line
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo
@@ -231,54 +231,45 @@ Begin
  como un objeto de coordenadas dentro de un array}
   For i := 1 To cantidad Do
     Begin
-      Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
+      Read(entrada, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
-// Leer Archivo Principal (Guardar su data en el objeto de tipo dataMapa)
+// Leer archivo de entrada (guardar su data en el objeto de tipo dataMapa)
 
-Procedure leerArchivo(Var archivo: Text; Var datosMapa: dataMapa);
+Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa);
 Begin
   // Abrir archivo
-  Reset(archivo);
+  Reset(entrada);
   // Guardar fila y columna en el objeto
-  Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
+  Read(entrada, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
   // Guardar posicion nave     (X,Y)
-  Read(archivo, datosMapa.naveT[1], datosMapa.naveT[2]);
+  Read(entrada, datosMapa.naveT[1], datosMapa.naveT[2]);
   // Guardar posicion planetaT (X,Y)
-  Read(archivo, datosMapa.planetaT[1], datosMapa.planetaT[2]);
+  Read(entrada, datosMapa.planetaT[1], datosMapa.planetaT[2]);
   // Guarda cantidad y coordenadas de estrellas
-  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.
-                           estrellas.coordenadas);
+  leerCantidadYCoordenadas(entrada, datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas);
   // Guardar cantidad y coordenadas de destructores
-  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa
-                           .
-                           destructores.coordenadas);
-  Close(archivo);
+  leerCantidadYCoordenadas(entrada, datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas);
+  Close(entrada);
 End;
 
-// Procesar datos del Archivo
-Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa;
-                          rutaArchivo: String);
+// Procesar datos del archivo de entrada
+Procedure procesarArchivo(Var entrada: Text; Var datosMapa: dataMapa;
+                          rutaArchivoEntrada: String);
 
 Var
   i: Integer;
 Begin
-  // Asignar la variable archivo al archivo en la ruta (rutaArchivo)
-  Assign(archivo, rutaArchivo);
+  // Asignar la variable archivo al archivo en la ruta (rutaArchivoEntrada)
+  Assign(entrada, rutaArchivoEntrada);
   // Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
-  leerArchivo(archivo, datosMapa);
-  // Mostrar info del archivo
-  Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas '
-          ,
-          datosMapa.dimensiones.col);
-  Writeln('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ',
-          datosMapa.naveT[2]);
-  Writeln('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],' y ',
-          datosMapa.planetaT[2]);
-  MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.
-                              coordenadas, 'estrellas');
-  MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.
-                              destructores.coordenadas, 'destructores');
+  leerArchivo(entrada, datosMapa);
+  // Mostrar info del archivo de entrada
+  Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas ', datosMapa.dimensiones.col);
+  Writeln('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ', datosMapa.naveT[2]);
+  Writeln('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],' y ', datosMapa.planetaT[2]);
+  MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.coordenadas, 'estrellas');
+  MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.destructores.coordenadas, 'destructores');
   Delay(300);
   Writeln;
   Writeln('Presiona para jugar si estas listo...');
@@ -308,9 +299,11 @@ Begin
       contMov := contMov + 1;
     End;
 
-  writeLn('SAMUEL    ',historialMov[contMov-1].PosicionX, ' ', historialMov[contMov-1].PosicionY);
+  writeLn('Posicion historial [',historialMov[contMov-1].PosicionX, ' ', historialMov[contMov-1].PosicionY, ']');
   readkey;
 End;
+
+// Procedure generarArchivoSalida()
 
 
 // ANIMACIONES
@@ -1092,7 +1085,7 @@ Begin
   Delay(300);
   Randomize;
   If (tipo = TipoArchivo) Then
-    procesarArchivo(archivo, data, rutaArchivo);
+    procesarArchivo(entrada, data, rutaArchivoEntrada);
   If (tipo = TipoAleatorio) Then
     Begin
       fil := Random(LIMITE-15)+1;
@@ -1411,8 +1404,8 @@ Var
   salir, volver: menuBoolean;
 Begin
   Clrscr;
-  // Ruta archivo estatico
-  rutaArchivo := 'est.dat';
+  // Ruta archivo de entrada
+  rutaArchivoEntrada := 'est.dat';
   // Partida Completa
   Menu(dataPrincipal, opc, volver, salir);
 End.
