@@ -105,7 +105,7 @@ Type
 
 Var
   entrada, salida: Text;
-  rutaArchivoEntrada: String;
+  rutaArchivoEntrada, rutaArchivoSalida: String;
 
 
 
@@ -279,7 +279,7 @@ End;
 
 // Historial de Movimientos del personaje
 
-Procedure agregarAHistorialMovimiento(nave: vector; Var historialMov:
+Procedure agregarAlHistorialDeMovimientos(nave: vector; Var historialMov:
 ArrayHistorialMovimientos; Var contMov:Integer);
 Begin
 
@@ -303,8 +303,30 @@ Begin
   readkey;
 End;
 
-// Procedure generarArchivoSalida()
+Procedure generarArchivoSalida(data: dataMapa);
+Var
+  i, contMovs: Integer;
+	historialMovs: ArrayHistorialMovimientos;
+Begin
 
+  contMovs:= data.contadorMovimientos;
+  historialMovs:= data.historialMovimientos;
+	
+  rewrite(salida);
+	
+	for i:=1 to (contMovs - 1) Do
+	Begin
+	  writeLn(salida, historialMovs[i].PosicionX, ' ' ,historialMovs[i].PosicionY);
+	End;
+
+	close(salida);
+End;
+
+Procedure procesarArchivoSalida(var salida: Text;  datosMapa: dataMapa; rutaArchivoSalida: String);
+Begin
+  Assign(salida, rutaArchivoSalida);
+	generarArchivoSalida(datosMapa)  
+End;
 
 // ANIMACIONES
 //
@@ -918,7 +940,7 @@ Begin
 
   // Cont Movimientos
 
-  data.contadorMovimientos := 1;
+  data.contadorMovimientos := 1; // Inicializar contador de movimientos en 1 (agregarAlHistorialDeMovimientos)
 
   // Se lee el mapa inicial
   leerMapa(data, terreno, nave,
@@ -937,7 +959,7 @@ Begin
       ch := Upcase(Readkey);
 			
 			// Guardar historial de movimientos de la nave para generar archivo de salida
-	    agregarAHistorialMovimiento(nave, data.historialMovimientos, data.contadorMovimientos);
+	    agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.contadorMovimientos);
 			
       leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
 
@@ -959,17 +981,19 @@ Begin
 
 
 	// Guardar historial de movimientos de la nave para generar archivo de salida
-	agregarAHistorialMovimiento(nave, data.historialMovimientos, data.contadorMovimientos);
+	agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.contadorMovimientos);
   // Victoria
   If (desarrollo = gano) Then
 	Begin
     AnimacionGanar(desarrollo);
     imprimirHistorialMovimientos(data);
+		procesarArchivoSalida(salida,data, rutaArchivoSalida);
 	End;
 
   If (desarrollo = perder) Then
     AnimacionPerder(desarrollo);
 		imprimirHistorialMovimientos(data);
+		procesarArchivoSalida(salida,data, rutaArchivoSalida);
 End;
 
 // Menu tutorial
@@ -1406,6 +1430,7 @@ Begin
   Clrscr;
   // Ruta archivo de entrada
   rutaArchivoEntrada := 'est.dat';
+	rutaArchivoSalida:= 'E:\Default Folders\Samuel\Desktop\UCAB 2do semestre\project-ucab\est.res';
   // Partida Completa
   Menu(dataPrincipal, opc, volver, salir);
 End.
