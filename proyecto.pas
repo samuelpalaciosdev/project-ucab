@@ -104,8 +104,9 @@ Type
   // VARIABLES ARCHIVO
 
 Var 
-  archivo: Text;
-  rutaArchivo: String;
+  entrada, salida: Text;
+  rutaArchivoEntrada, rutaArchivoSalida: String;
+
 
 
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
@@ -180,8 +181,6 @@ Begin
 
 
 
-
-
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
@@ -201,7 +200,7 @@ End;
 
 
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
-Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
+Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
 
 Var 
@@ -210,18 +209,19 @@ Begin
 
 
 
-// Leer el primer numero de la cantidad de estrellas o destructores del archivo y comprobar si es > o < que 10
+
+// Leer el primer numero de la cantidad de estrellas o destructores del archivo de entrada y comprobar si es > o < que 10
   // Nro < que 10 (ej. 0 7) = 7
-  Read(archivo, cant_1);
+  Read(entrada, cant_1);
   If (cant_1 = 0) Then
     Begin
-      Read(archivo, cantidad);
+      Read(entrada, cantidad);
       // Guarda el siguiente numero como la cantidad
     End
     // Nro > que 10 (ej. 1 5) = 15
   Else
     Begin
-      Read(archivo, cant_2);
+      Read(entrada, cant_2);
       // Obtener el segundo nro de la line
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo
@@ -229,49 +229,48 @@ Begin
 
 
 
+
 {Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
  como un objeto de coordenadas dentro de un array}
   For i := 1 To cantidad Do
     Begin
-      Read(archivo, coordenadas[i].posicionX, coordenadas[i].posicionY);
+      Read(entrada, coordenadas[i].posicionX, coordenadas[i].posicionY);
     End;
 End;
-// Leer Archivo Principal (Guardar su data en el objeto de tipo dataMapa)
+// Leer archivo de entrada (guardar su data en el objeto de tipo dataMapa)
 
-Procedure leerArchivo(Var archivo: Text; Var datosMapa: dataMapa);
+Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa);
 Begin
   // Abrir archivo
-  Reset(archivo);
+  Reset(entrada);
   // Guardar fila y columna en el objeto
-  Read(archivo, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
+  Read(entrada, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
   // Guardar posicion nave     (X,Y)
-  Read(archivo, datosMapa.naveT[1], datosMapa.naveT[2]);
+  Read(entrada, datosMapa.naveT[1], datosMapa.naveT[2]);
   // Guardar posicion planetaT (X,Y)
-  Read(archivo, datosMapa.planetaT[1], datosMapa.planetaT[2]);
+  Read(entrada, datosMapa.planetaT[1], datosMapa.planetaT[2]);
   // Guarda cantidad y coordenadas de estrellas
-  leerCantidadYCoordenadas(archivo, datosMapa.estrellas.cantidad, datosMapa.
+  leerCantidadYCoordenadas(entrada, datosMapa.estrellas.cantidad, datosMapa.
                            estrellas.coordenadas);
   // Guardar cantidad y coordenadas de destructores
-  leerCantidadYCoordenadas(archivo, datosMapa.destructores.cantidad, datosMapa
-                           .
+  leerCantidadYCoordenadas(entrada, datosMapa.destructores.cantidad, datosMapa.
                            destructores.coordenadas);
-  Close(archivo);
+  Close(entrada);
 End;
 
-// Procesar datos del Archivo
-Procedure procesarArchivo(Var archivo: Text; Var datosMapa: dataMapa;
-                          rutaArchivo: String);
+// Procesar datos del archivo de entrada
+Procedure procesarArchivo(Var entrada: Text; Var datosMapa: dataMapa;
+                          rutaArchivoEntrada: String);
 
 Var 
   i: Integer;
 Begin
-  // Asignar la variable archivo al archivo en la ruta (rutaArchivo)
-  Assign(archivo, rutaArchivo);
+  // Asignar la variable archivo al archivo en la ruta (rutaArchivoEntrada)
+  Assign(entrada, rutaArchivoEntrada);
   // Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
-  leerArchivo(archivo, datosMapa);
-  // Mostrar info del archivo
-  Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas '
-          ,
+  leerArchivo(entrada, datosMapa);
+  // Mostrar info del archivo de entrada
+  Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas ',
           datosMapa.dimensiones.col);
   Writeln('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ',
           datosMapa.naveT[2]);
@@ -290,37 +289,61 @@ End;
 
 // Historial de Movimientos del personaje
 
-Procedure anadirAHistorialMovimiento(nave: vector; Var historialMov:
-                                     ArrayHistorialMovimientos; Var contMov:
-                                     Integer);
-
-Var 
-  i: integer;
+Procedure agregarAlHistorialDeMovimientos(nave: vector; Var historialMov:
+                                          ArrayHistorialMovimientos; Var contMov
+                                          :Integer);
 Begin
 
   // [{X,Y}]
 
+// Como contMov empieza en 1, Si todavía no se ha movido, guardar esa como la posicion inicial
   If (contMov = 1) Then
     Begin
       historialMov[contMov].PosicionX := nave[1];
       historialMov[contMov].PosicionY := nave[2];
       contMov := contMov + 1;
-
     End;
-  If (historialMov[contMov].PosicionX <> historialMov[contMov - 1].posicionX)
-     And (historialMov[contMov].PosicionY <> historialMov[contMov - 1].posicionY
-     ) Then
+
+ // Si alguna de las coordenadas (X o Y) son distintas (es un movimiento valido)
+  If (nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[
+     contMov - 1].posicionY) Then
     Begin
       historialMov[contMov].PosicionX := nave[1];
       historialMov[contMov].PosicionY := nave[2];
       contMov := contMov + 1;
     End;
 
-  For i:= 1 To contMov-1 Do
+  writeLn('Posicion historial [',historialMov[contMov-1].PosicionX, ' ',
+          historialMov[contMov-1].PosicionY, ']');
+  readkey;
+End;
+
+Procedure generarArchivoSalida(data: dataMapa);
+
+Var 
+  i, contMovs: Integer;
+  historialMovs: ArrayHistorialMovimientos;
+Begin
+
+  contMovs := data.contadorMovimientos;
+  historialMovs := data.historialMovimientos;
+
+  rewrite(salida);
+
+  For i:=1 To (contMovs - 1) Do
     Begin
-      writeLn(historialMov[i].posicionX, ' ', historialMov[i].
-              posicionY);
+      writeLn(salida, historialMovs[i].PosicionX, ' ' ,historialMovs[i].
+              PosicionY);
     End;
+
+  close(salida);
+End;
+
+Procedure procesarArchivoSalida(Var salida: Text;  datosMapa: dataMapa;
+                                rutaArchivoSalida: String);
+Begin
+  Assign(salida, rutaArchivoSalida);
+  generarArchivoSalida(datosMapa)
 End;
 
 // ANIMACIONES
@@ -340,6 +363,22 @@ Begin
       Writeln;
       Readkey;
     End;
+End;
+
+Procedure imprimirHistorialMovimientos(data: dataMapa);
+
+Var 
+  j: Integer;
+Begin
+  Clrscr;
+  textColor(blue);
+  writeLn('El historial de movimientos fue: ');
+  writeLn('Historial de movimientos: ');
+  For j:=1 To (data.contadorMovimientos-1) Do
+    writeLn('[',data.historialMovimientos[j].PosicionX, ',',data.
+            historialMovimientos[j].PosicionY,']');
+  Writeln;
+  Readkey;
 End;
 
 // Animacin Perder
@@ -373,8 +412,7 @@ End;
 // POR HACER RELLENO ESTATICO
 //
 //
-Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta
-                  :
+Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta:
                   vector; fil, col:Integer);
 
 Var 
@@ -382,8 +420,7 @@ Var
   coordEst, coordDest: ArrayDinamico;
 Begin
 {Condicionales para saber que data voy a generar dependiendo del tipo de mapa}
-  If ((data.tipoMapa = TipoAleatorio) Or (data.tipoMapa = TipoPersonalizado)
-     )
+  If ((data.tipoMapa = TipoAleatorio) Or (data.tipoMapa = TipoPersonalizado))
     Then
     Begin
       Generador(data, data.tipoMapa, nave, planeta, data.estrellas.cantidad,
@@ -457,7 +494,7 @@ Begin
 
 
 
-      // Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal) 
+      // Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal)
 
       // Si la estrella y nave están en la misma fila pero distinta columna
       If (nave[1] = param[i].posicionX) And (nave[2] <>
@@ -492,7 +529,7 @@ Begin
               contMovimientos := contMovimientos + 1;
               listaMovimientos[contMovimientos] := 'Izquierda';
 
-              // Condicional para no sobreescribir la estrella 
+              // Condicional para no sobreescribir la estrella
               If (Abs(nave[2] - param[i].posicionY) > 1) Then
                 // Animacion de la interrogacion
                 terrenoModificado[nave[1], nave[2]-1] := POSMOV;
@@ -549,16 +586,6 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
-
-
 // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -603,16 +630,6 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
-
-
 // Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -653,7 +670,7 @@ Begin
     End;
 End;
 
-// Personaje 
+// Personaje
 // Funciones del Personaje
 Procedure Personaje(listaMovimientos: ArrayMovimientos; Var contMovimientos:
                     Integer; terreno: mapa; Var nave, planeta:
@@ -666,20 +683,10 @@ Var
 
 Begin
 
-  // Inicializo: 
+  // Inicializo:
 
   i := 0;
   bucle := false;
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -859,16 +866,6 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
-
-
     // Este Condicional se encarga de mandar el objeto de Movimientos verdadero:
       condicionalEstrella(listaMovimientos, contMovimientos, basuraMapa,
                           data.estrellas.
@@ -968,29 +965,17 @@ Begin
   // Cont Movimientos
 
   data.contadorMovimientos := 1;
+  // Inicializar contador de movimientos en 1 (agregarAlHistorialDeMovimientos)
 
   // Se lee el mapa inicial
   leerMapa(data, terreno, nave,
            planeta, fil, col, 0);
+
   // Bucle donde se desarollan los movimientos
   Repeat
     Begin
       // Limpia la posicion anterior de la nave
       terreno[nave[1], nave[2]] := CELDA;
-
-      writeln('DANIEEEEEL');
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
@@ -998,17 +983,17 @@ Begin
       //
       //
       ch := Upcase(Readkey);
+
+
+   // Guardar historial de movimientos de la nave para generar archivo de salida
+      agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
+                                      contadorMovimientos);
+
       leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
 
-      // A partir de aca
-
-      anadirAHistorialMovimiento(nave, data.historialMovimientos, data.
-                                 contadorMovimientos);
 
 
-
-
-      // si gano la partida, el boolean es true
+      // Si gano la partida, el boolean es true
       If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
         desarrollo := gano;
 
@@ -1021,12 +1006,23 @@ Begin
         End;
     End;
   Until ((Ord(ch) = ESC) Or (desarrollo = gano) Or (desarrollo = perder));
+
+
+  // Guardar historial de movimientos de la nave para generar archivo de salida
+  agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
+                                  contadorMovimientos);
   // Victoria
   If (desarrollo = gano) Then
-    AnimacionGanar(desarrollo);
+    Begin
+      AnimacionGanar(desarrollo);
+      imprimirHistorialMovimientos(data);
+      procesarArchivoSalida(salida,data, rutaArchivoSalida);
+    End;
 
   If (desarrollo = perder) Then
     AnimacionPerder(desarrollo);
+  imprimirHistorialMovimientos(data);
+  procesarArchivoSalida(salida,data, rutaArchivoSalida);
 End;
 
 // Menu tutorial
@@ -1142,7 +1138,7 @@ Begin
   Delay(300);
   Randomize;
   If (tipo = TipoArchivo) Then
-    procesarArchivo(archivo, data, rutaArchivo);
+    procesarArchivo(entrada, data, rutaArchivoEntrada);
   If (tipo = TipoAleatorio) Then
     Begin
       fil := Random(LIMITE-15)+1;
@@ -1461,8 +1457,9 @@ Var
   salir, volver: menuBoolean;
 Begin
   Clrscr;
-  // Ruta archivo estatico
-  rutaArchivo := 'est.dat';
+  // Ruta archivo de entrada
+  rutaArchivoEntrada := 'est.dat';
+  rutaArchivoSalida := 'est.res';
   // Partida Completa
   Menu(dataPrincipal, opc, volver, salir);
 End.
