@@ -108,17 +108,6 @@ Var
   rutaArchivo: String;
 
 
-
-
-
-
-
-
-
-
-
-
-
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
@@ -192,6 +181,7 @@ Begin
 
 
 
+
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
@@ -209,6 +199,7 @@ End;
 
 
 
+
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
@@ -216,6 +207,7 @@ Procedure leerCantidadYCoordenadas(Var archivo: Text; Var cantidad: Integer; Var
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
 
 
 // Leer el primer numero de la cantidad de estrellas o destructores del archivo y comprobar si es > o < que 10
@@ -234,6 +226,7 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo
     End;
+
 
 
 {Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
@@ -565,6 +558,7 @@ Begin
 
 
 
+
 // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -606,6 +600,7 @@ Begin
               // Poner interrogacion arriba izquierda de la nave
             End;
         End;
+
 
 
 
@@ -675,6 +670,7 @@ Begin
 
   i := 0;
   bucle := false;
+
 
 
 
@@ -872,6 +868,7 @@ Begin
 
 
 
+
     // Este Condicional se encarga de mandar el objeto de Movimientos verdadero:
       condicionalEstrella(listaMovimientos, contMovimientos, basuraMapa,
                           data.estrellas.
@@ -982,6 +979,7 @@ Begin
       terreno[nave[1], nave[2]] := CELDA;
 
       writeln('DANIEEEEEL');
+
 
 
 
