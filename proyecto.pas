@@ -109,6 +109,8 @@ Var
 
 
 
+
+
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
@@ -181,6 +183,8 @@ Begin
 
 
 
+
+
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
@@ -199,6 +203,8 @@ End;
 
 
 
+
+
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
@@ -206,6 +212,8 @@ Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
+
 
 
 
@@ -226,6 +234,8 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo
     End;
+
+
 
 
 
@@ -296,6 +306,8 @@ Begin
 
   // [{X,Y}]
 
+
+
 // Como contMov empieza en 1, Si todavía no se ha movido, guardar esa como la posicion inicial
   If (contMov = 1) Then
     Begin
@@ -303,6 +315,8 @@ Begin
       historialMov[contMov].PosicionY := nave[2];
       contMov := contMov + 1;
     End;
+
+
 
  // Si alguna de las coordenadas (X o Y) son distintas (es un movimiento valido)
   If (nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[
@@ -312,10 +326,6 @@ Begin
       historialMov[contMov].PosicionY := nave[2];
       contMov := contMov + 1;
     End;
-
-  writeLn('Posicion historial [',historialMov[contMov-1].PosicionX, ' ',
-          historialMov[contMov-1].PosicionY, ']');
-  readkey;
 End;
 
 Procedure generarArchivoSalida(data: dataMapa);
@@ -586,6 +596,8 @@ Begin
 
 
 
+
+
 // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -627,6 +639,8 @@ Begin
               // Poner interrogacion arriba izquierda de la nave
             End;
         End;
+
+
 
 
 
@@ -687,6 +701,8 @@ Begin
 
   i := 0;
   bucle := false;
+
+
 
 
 
@@ -866,6 +882,8 @@ Begin
 
 
 
+
+
     // Este Condicional se encarga de mandar el objeto de Movimientos verdadero:
       condicionalEstrella(listaMovimientos, contMovimientos, basuraMapa,
                           data.estrellas.
@@ -978,11 +996,15 @@ Begin
       terreno[nave[1], nave[2]] := CELDA;
 
 
+
+
 // Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
       //
       //
       //
       ch := Upcase(Readkey);
+
+
 
 
    // Guardar historial de movimientos de la nave para generar archivo de salida
