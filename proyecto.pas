@@ -1430,7 +1430,7 @@ Begin
   Clrscr;
   // Ruta archivo de entrada
   rutaArchivoEntrada := 'est.dat';
-	rutaArchivoSalida:= 'E:\Default Folders\Samuel\Desktop\UCAB 2do semestre\project-ucab\est.res';
+	rutaArchivoSalida:= 'est.res';
   // Partida Completa
   Menu(dataPrincipal, opc, volver, salir);
 End.
