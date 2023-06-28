@@ -129,9 +129,10 @@ Begin
     End;
 End;
 
-{
-Procedure generarCoordenadasRandom(var param: ArrayDinamico; elemento: TipoElemento; Var diagonalCont,
-diagonalDetrasCont: Integer; nave, planeta: vector; fil, col, cant:Integer);
+
+Procedure generarCoordenadasRandom(var param: ArrayDinamico; elemento: TipoElemento;
+  var diagonalCont, diagonalDetrasCont, estrellaAtrasVerHor: Integer; nave, planeta: vector;
+  fil, col: Integer; cant: Integer);
 Var
   i,j: Integer;
 	difX,difY: Integer;
@@ -157,12 +158,35 @@ Begin
 			// (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] - param[i].posicionY))    [Abajo Derecha y Arriba Izquierda]
 
 			// (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] - param[i].posicionY))    [Arriba Derecha y Abajo Izquierda]
+
+			// Verificar si es diagonal o está detrás del planeta
+   	 	if (elemento = Estrellas) then
+   	 	begin
+     	  // Verificar si la estrella está detrás del planeta en el eje x o y
+     	  if ((param[i].posicionX < planeta[1]) and (param[i].posicionY = planeta[2])) or
+       	 ((param[i].posicionY > planeta[2]) and (param[i].posicionX = planeta[1])) then
+        estrellaAtrasVerHor := estrellaAtrasVerHor + 1;
+
+        difX := param[i].posicionX - nave[1];
+        difY := param[i].posicionY - nave[2];
+
+        // Verificar si la estrella está diagonal a la nave
+        if Abs(difX) = Abs(difY) then
+        begin
+          diagonalCont := diagonalCont + 1;
+          WriteLn('Estrella diagonal a planeta [', param[i].posicionX, ',', param[i].posicionY, ']');
+
+          // Verificar si está detrás del planeta en posición diagonal (justo detras de él)
+          if ((param[i].posicionX = planeta[1] - 1) and (param[i].posicionY = planeta[2] - 1)) or
+            ((param[i].posicionX = planeta[1] + 1) and (param[i].posicionY = planeta[2] + 1)) then
+            diagonalDetrasCont := diagonalDetrasCont + 1;
+        end;
+      end;
+			
 		End;
 		
 
 	End;
-
-	
 End;
 
 
@@ -171,7 +195,7 @@ Procedure bloqueGenerador(Var param: ArrayDinamico; tipo: TipoGeneracionMapa; el
                           nave, planeta: vector; fil
                           , col: Integer; Var cant: Integer);
 Var
-  i, diagonalCont, diagonalDetrasCont: Integer;
+  i, diagonalCont, diagonalDetrasCont, estrellaAtrasVerHor: Integer;
 Begin
 
   Randomize;
@@ -185,16 +209,17 @@ Begin
 
 	diagonalCont:= 0; // Contador para verificar estrellas diagonales a planeta
 	diagonalDetrasCont:= 0;
+	estrellaAtrasVerHor:= 0;
 
 	if (elemento = Estrellas) Then
 	Begin
 	  Repeat
-		  generarCoordenadasRandom(param, elemento,diagonalCont, diagonalDetrasCont, nave, planeta, fil, col, cant);
-		Until (diagonalCont >= 5) and (diagonalDetrasCont >=2);
+		  generarCoordenadasRandom(param, elemento,diagonalCont, diagonalDetrasCont, estrellaAtrasVerHor, nave, planeta, fil, col, cant);
+		Until (diagonalCont >= 2) and (diagonalDetrasCont >=1) and (estrellaAtrasVerHor >= 1);
 	End
 	Else
 	Begin
-		 generarCoordenadasRandom(param, elemento,diagonalCont, diagonalDetrasCont,nave, planeta, fil, col, cant);
+		 generarCoordenadasRandom(param, elemento,diagonalCont, diagonalDetrasCont, estrellaAtrasVerHor,nave, planeta, fil, col, cant);
 	End;
 
   // MostrarCantidadYCoordenadas(cant, param, 'holaaaaaaaaaaaa');
@@ -203,8 +228,6 @@ Begin
   Writeln('Cargando...');
   Delay(400);
 End;
-
-}
 
 // Generador
 Procedure Generador(Var data: dataMapa; Var tipo:TipoGeneracionMapa; Var nave,
@@ -220,7 +243,6 @@ Begin
     Begin
 
 			// ---- Randomizo el planeta
-
       // Randomizar posicion X (fil) del planeta entre los limites [Segunda fila o Penultima fila];
 			if (Random(2) + 1) = 1 Then
 			// Planeta en penultima fila
@@ -245,12 +267,12 @@ Begin
       Until ((nave[1] <> planeta[1]) Or (nave[2] <> planeta[2])); // Planeta y nave no pueden estar en la misma celda
 
 
-{ Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
+		{ Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
         Begin
-         { bloqueGenerador(param1, tipo, nave, planeta, fil, col, cant);
-          bloqueGenerador(param2, tipo, nave, planeta, fil, col, cant2); }
+          bloqueGenerador(param1, tipo, Estrellas,nave, planeta, fil, col, cant);
+          // bloqueGenerador(param2, tipo, Destructores,nave, planeta, fil, col, cant2); 
         End;
       Writeln;
       Writeln('!Presiona para jugar!');
