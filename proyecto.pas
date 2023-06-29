@@ -132,7 +132,7 @@ Begin
 End;
 
 // Bloque del generador (No repetir codigo)
-Procedure bloqueEstrellas(Var param: ArrayDinamico; tipo: TipoGeneracionMapa;
+Procedure bloqueEstrellas(Var estrella: ArrayDinamico; tipo: TipoGeneracionMapa;
                           nave, planeta: vector; fil
                           , col: Integer; Var cantEstrellas: Integer);
 
@@ -143,7 +143,7 @@ Begin
 
   // Determino la cantEstrellas de estrellas en el mapa con la formula Magica
   promedio := (fil+col) Div 2;
-  cantEstrellas := promedio Div 2;
+  cantEstrellas := (promedio Div 2)+2;
 
   // estrellaPlaneta si es 1 = diagonal Arriba izquierda del planeta
   // estrellaPlaneta si es 2 = diagonal Arriba derecha del planeta
@@ -158,12 +158,12 @@ Begin
 
         If (i = 1) Then
           Begin
-            param[i].posicionX := 1;
+            estrella[i].posicionX := 1;
             If (estrellaPlaneta = 1) Then
-              param[i].posicionY := planeta[2]-1;
+              estrella[i].posicionY := planeta[2]-1;
 
             If (estrellaPlaneta = 2) Then
-              param[i].posicionY := planeta[2]+1;
+              estrella[i].posicionY := planeta[2]+1;
           End
 
         Else If (i = 2) Then
@@ -178,15 +178,15 @@ Begin
                      //  En caso de que la difDiagIzquierda sea mayor que la nave[1] (Habria un conflicto al no tener los suficientes movimientos)
                      If (difDiagIzquierda >= nave[1]) Then
                        Begin
-                         param[i].posicionX := nave[1] - (nave[1] - 1);
-                         param[i].posicionY := nave[2] + (nave[1] - 1);
+                         estrella[i].posicionX := nave[1] - (nave[1] - 1);
+                         estrella[i].posicionY := nave[2] + (nave[1] - 1);
                        End;
 
                      // En caso de que difDiagIzquierda sea menor que la nave[1] (Habrian suficientes movimientos para poder restar DifDiagIzquierda)
                      If (difDiagIzquierda < nave[1]) Then
                        Begin
-                         param[i].posicionX := nave[1] - difDiagIzquierda;
-                         param[i].posicionY := nave[2] + difDiagIzquierda;
+                         estrella[i].posicionX := nave[1] - difDiagIzquierda;
+                         estrella[i].posicionY := nave[2] + difDiagIzquierda;
                        End;
                    End;
 
@@ -197,23 +197,23 @@ Begin
                      // Si X es mayor a Y en la nave
                      If (nave[1] > nave[2]) Then
                        Begin
-                         param[i].posicionX := nave[1] - (nave[2] - 1);
-                         param[i].posicionY := nave[2] - (nave[2] - 1);
+                         estrella[i].posicionX := nave[1] - (nave[2] - 1);
+                         estrella[i].posicionY := nave[2] - (nave[2] - 1);
                        End;
 
 
                      // Si Y es mayor a X en la nave
                      If (nave[2] > nave[1]) Then
                        Begin
-                         param[i].posicionX := nave[1] - (nave[1] - 1);
-                         param[i].posicionY := nave[2] - (nave[1] - 1);
+                         estrella[i].posicionX := nave[1] - (nave[1] - 1);
+                         estrella[i].posicionY := nave[2] - (nave[1] - 1);
                        End;
 
                      // Si X es igual a Y 
                      If (nave[1] = nave[2]) Then
                        Begin
-                         param[i].posicionX := nave[1] - (nave[1] - 1);
-                         param[i].posicionY := nave[2] - (nave[2] - 1);
+                         estrella[i].posicionX := nave[1] - (nave[1] - 1);
+                         estrella[i].posicionY := nave[2] - (nave[2] - 1);
                        End;
 
                    End;
@@ -223,31 +223,61 @@ Begin
 
         Else If (i = 3) Then
                Begin
-                 param[i].posicionX := planeta[1];
+                 estrella[i].posicionX := planeta[1];
                  Repeat
                    If (estrellaPlaneta = 1) Then
-                     param[i].posicionY := random(col-planeta[2])+planeta[2];
+                     estrella[i].posicionY := random(col-planeta[2])+planeta[2];
 
                    If (estrellaPlaneta = 2) Then
-                     param[i].posicionY := random(planeta[2]);
+                     estrella[i].posicionY := random(planeta[2])+1;
 
                    // No quiero que este en la misma posicion que el planeta y una diferencia considerable entre las mismas
-                 Until (param[i].posicionY <> planeta[2]) And (Abs(param[i].posicionY - planeta[2]) > 1);
+                 Until (estrella[i].posicionY <> planeta[2]) And (Abs(estrella[i].posicionY - planeta[2]) > 1);
                End
 
         Else
           Begin
-            param[i].posicionX := Random(fil)+1;
-            param[i].posicionY := Random(col)+1;
+            estrella[i].posicionX := Random(fil)+1;
+            estrella[i].posicionY := Random(col)+1;
+
+            // Hacer el intento que las estrellas randomizadas no coincidan con el camino de la diagonal de la estrella[2] y la estrella[1]
+            If (Abs(estrella[2].posicionX - estrella[i].posicionX) = Abs(estrella[2].posicionY - estrella[i].posicionY)) Or (Abs(estrella[1].posicionX - estrella[i].posicionX) =
+               Abs(estrella[1].posicionY - estrella[i].posicionY)) Then
+              Begin
+                writeln('COINCIDE: ', estrella[i].posicionX, ', ', estrella[i].posicionY);
+                readkey;
+                // En caso de que la columna sea mayor a 3 la muevo 2 posiciones hacia la izquierda
+                If (estrella[i].posicionY > 3) Then
+                  estrella[i].posicionY := estrella[i].posicionY - 2
+                Else
+                  estrella[i].posicionY := estrella[i].posicionY + 2;
+              End;
+
+            // En caso de que la estrella[i] este muy cerca de estrella[2]
+            If (Abs(estrella[2].posicionX - estrella[i].posicionX) <= 1) Then
+              Begin
+                // En caso de que la fila sea mayor a 3 la muevo 2 posiciones hacia la izquierda
+
+                If (estrella[i].posicionY > 3) Then
+                  estrella[i].posicionY := estrella[i].posicionY - 2
+                Else
+                  estrella[i].posicionY := estrella[i].posicionY + 2;
+              End;
+
+            // En caso de que hayan varias estrellas[i] en la fila columna del planeta
+
+            If (planeta[1] = estrella[i].posicionX) Then
+              Begin
+                estrella[i].posicionX := estrella[i].posicionX + 2;
+              End;
+
           End;
-        // callback
-
-
-
         // el condicional para romper el bucle verifica si las estrellas estan encima del planeta y/o la nave
-      Until (((param[i].posicionX <> nave[1]) Or (param[i].posicionY <> nave[2])
-            ) And ((param[i].posicionX <> planeta[1]) Or (param[i].posicionY <>
+      Until (((estrella[i].posicionX <> nave[1]) Or (estrella[i].posicionY <> nave[2])
+            ) And ((estrella[i].posicionX <> planeta[1]) Or (estrella[i].posicionY <>
             planeta[2])));
+
+      writeln('POSICION ESTRELLA MISMA FILA: ', estrella[3].posicionX, ', ', estrella[3].posicionY);
     End;
   writeln;
   writeln;
@@ -275,12 +305,10 @@ Begin
       // Va a agarrar la penultima o la ultima fila la posicion en X de la nave
       nave[1] := Random(2)+(fil-1);
 
-
-
       // Randomizo la posicion en Y de la de la nave, no puede tocar ningun extremo
       Repeat
-        nave[2] := Random(col-2)+2;
-      Until (nave[2] <> col) And (Abs(nave[2] - col) > 1);
+        nave[2] := Random(col-4)+3;
+      Until (nave[2] <> col) And (Abs(nave[2] - col) > 2);
 
       // Randomizar la posición X,Y del planeta
       Repeat
