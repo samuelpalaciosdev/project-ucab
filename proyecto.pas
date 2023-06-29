@@ -111,15 +111,7 @@ Var
 
 
 
-
-
-
-
-
-
-
-
-// Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
+  // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
                                       ArrayDinamico; mensaje: String);
@@ -140,30 +132,63 @@ Begin
 End;
 
 // Bloque del generador (No repetir codigo)
-Procedure bloqueGenerador(Var param: ArrayDinamico; tipo: TipoGeneracionMapa;
+Procedure bloqueEstrellas(Var param: ArrayDinamico; tipo: TipoGeneracionMapa;
                           nave, planeta: vector; fil
-                          , col: Integer; Var cant: Integer);
+                          , col: Integer; Var cantEstrellas: Integer);
 
 Var 
-  i: Integer;
+  i, promedio, estrellaPlaneta: Integer;
 Begin
   Randomize;
-  If (tipo = TipoAleatorio) Then
-    cant := Random(LIMITE_ELEMENTOS)+1;
-  For i := 1 To cant Do
+
+  // Determino la cantEstrellas de estrellas en el mapa con la formula Magica
+  promedio := (fil+col) Div 2;
+  cantEstrellas := promedio Div 2;
+
+  // estrellaPlaneta si es 1 = diagonal Arriba izquierda del planeta
+  // estrellaPlaneta si es 2 = diagonal Arriba derecha del planeta
+  estrellaPlaneta := Random(2)+1;
+  writeln('ESTRELLA PLANETA: ', estrellaPlaneta);
+
+  For i := 1 To cantEstrellas Do
     Begin
       Repeat
-        param[i].posicionX := Random(fil)+1;
-        param[i].posicionY := Random(col)+1;
+
+        // Condicional de la estrella detras del planeta
+
+        If (i = 1) Then
+          Begin
+            param[i].posicionX := 1;
+            If (estrellaPlaneta = 1) Then
+              param[i].posicionY := planeta[2]-1;
+
+            If (estrellaPlaneta = 2) Then
+              param[i].posicionY := planeta[2]+1;
+          End
+        Else
+          Begin
+            param[i].posicionX := Random(fil)+1;
+            param[i].posicionY := Random(col)+1;
+          End;
+        // callback
+
+
+
+
+        // el condicional para romper el bucle verifica si las estrellas estan encima del planeta y/o la nave
       Until (((param[i].posicionX <> nave[1]) Or (param[i].posicionY <> nave[2])
             ) And ((param[i].posicionX <> planeta[1]) Or (param[i].posicionY <>
             planeta[2])));
     End;
-  MostrarCantidadYCoordenadas(cant, param, 'PENE');
-  Readkey;
+  writeln;
+  writeln;
+  writeln('CANTIDAD DE ESTRELLAS GENERADAS: ', cantEstrellas);
   Writeln;
   Writeln('Cargando...');
   Delay(400);
+  writeln;
+  Writeln('!Presiona para jugar!');
+  readkey;
 End;
 // Generador
 Procedure Generador(Var data: dataMapa; Var tipo:TipoGeneracionMapa; Var nave,
@@ -182,7 +207,8 @@ Begin
       nave[1] := Random(2)+(fil-1);
 
 
-   // Randomizo la posicion en Y de la de la nave, no puede tocar ningun extremo
+
+      // Randomizo la posicion en Y de la de la nave, no puede tocar ningun extremo
       Repeat
         nave[2] := Random(col-1)+2;
       Until (nave[2] <> col);
@@ -191,7 +217,6 @@ Begin
       Repeat
         // Posiciono el planeta en la 2da fila
         planeta[1] := 2;
-
         // Me aseguro de que el planeta no toque ningun extremo de la columna
         Repeat
           planeta[2] := Random(col-1)+2;
@@ -200,36 +225,16 @@ Begin
       Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
       // Planeta y nave no pueden estar en la misma celda
 
-
-
-
 { Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
         Begin
-          bloqueGenerador(param1, tipo, nave, planeta, fil, col, cant);
-          // bloqueGenerador(param2, tipo, nave, planeta, fil, col, cant2);
+          bloqueEstrellas(param1, tipo, nave, planeta, fil, col, cant);
         End;
-      Writeln;
-      Writeln('!Presiona para jugar!');
-      Readkey;
     End;
 End;
 // ARCHIVOS
 //
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
@@ -241,19 +246,7 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-// Leer el primer numero de la cantidad de estrellas o destructores del archivo de entrada y comprobar si es > o < que 10
+  // Leer el primer numero de la cantidad de estrellas o destructores del archivo de entrada y comprobar si es > o < que 10
   // Nro < que 10 (ej. 0 7) = 7
   Read(entrada, cant_1);
   If (cant_1 = 0) Then
@@ -269,20 +262,6 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo
     End;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 {Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
  como un objeto de coordenadas dentro de un array}
@@ -352,17 +331,7 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
-
-
-// Como contMov empieza en 1, Si todavía no se ha movido, guardar esa como la posicion inicial
+  // Como contMov empieza en 1, Si todavía no se ha movido, guardar esa como la posicion inicial
   If (contMov = 1) Then
     Begin
       historialMov[contMov].PosicionX := nave[1];
@@ -372,18 +341,7 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
-
-
-
- // Si alguna de las coordenadas (X o Y) son distintas (es un movimiento valido)
+  // Si alguna de las coordenadas (X o Y) son distintas (es un movimiento valido)
   If (nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[
      contMov - 1].posicionY) Then
     Begin
@@ -505,31 +463,14 @@ Begin
 
 
 
-
-
-
-
-
-
-
-
-        'La suma de la cantidad de las FILAS y las COLUMNAS debe ser mayor a 12'
+            'La suma de la cantidad de las FILAS y las COLUMNAS debe ser mayor a 12'
     );
     writeln(
 
 
 
 
-
-
-
-
-
-
-
-
-
-        ' igualmente las FILAS y las COLUMNAS deben ser mayor a 3 y menor a 15.'
+            ' igualmente las FILAS y las COLUMNAS deben ser mayor a 3 y menor a 15.'
     );
     writeln;
     writeln('Presiona para continuar...');
@@ -567,9 +508,6 @@ Begin
                 data.destructores.cantidad, data.estrellas.coordenadas, data.
                 destructores.coordenadas, fil, col);
     End;
-  MostrarCantidadYCoordenadas(data.estrellas.cantidad, data.estrellas.
-                              coordenadas, 'Estrellas');
-  Readkey;
   coordEst := data.estrellas.coordenadas;
   coordDest := data.destructores.coordenadas;
   For i := 1 To fil Do
@@ -681,27 +619,7 @@ Begin
                  End;
              End;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
+      // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
         Begin
@@ -732,27 +650,7 @@ Begin
             End;
         End;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
+      // Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
 
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] - param[i].posicionY))
         Then
@@ -873,27 +771,7 @@ Begin
                  End;
              End;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
+      // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
         Begin
@@ -923,27 +801,7 @@ Begin
             End;
         End;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
+      // Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
         Begin
@@ -988,27 +846,7 @@ Begin
   i := 0;
   bucle := false;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
+  // Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
 
   Repeat
     Begin
@@ -1176,22 +1014,7 @@ Begin
   If (tecla > 0) Then
     Begin
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // Este Condicional se encarga de mandar el objeto de Movimientos verdadero:
+      // Este Condicional se encarga de mandar el objeto de Movimientos verdadero:
       condicionalEstrella(listaMovimientos, contMovimientos,
                           data.estrellas.
                           coordenadas, data.
@@ -1242,19 +1065,7 @@ Begin
                 ImpresoraColor(terrenoModificado[i, j], TURQUESA);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-        // Caso especial de la interrogacion encima de la estrella o del planeta
+              // Caso especial de la interrogacion encima de la estrella o del planeta
               If (terrenoModificado[i, j] = POSMOV) And ((terreno[i, j] =
                  BANDERA
                  ) Or (terreno[i, j] = STAR)) Then
@@ -1262,39 +1073,13 @@ Begin
               Else
                 Begin
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-              // Caso especial donde la interrogacion este encima del Destructor
+                  // Caso especial donde la interrogacion este encima del Destructor
                   If ((terrenoModificado[i, j] = POSMOV) And (terreno[i, j
                      ] = BOMBA)
                      ) Then
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-                  //  El color de la interrogacion es rojo, por el caso especial
+                    //  El color de la interrogacion es rojo, por el caso especial
                     ImpresoraColor(terrenoModificado[i, j], ROJO)
                   Else
                     Begin
@@ -1361,40 +1146,13 @@ Begin
       // Limpia la posicion anterior de la nave
       terreno[nave[1], nave[2]] := CELDA;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
+      // Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
       //
       //
       //
       ch := Upcase(Readkey);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-   // Guardar historial de movimientos de la nave para generar archivo de salida
+      // Guardar historial de movimientos de la nave para generar archivo de salida
       agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
                                       contadorMovimientos);
 
