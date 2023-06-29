@@ -116,6 +116,9 @@ Var
 
 
 
+
+
+
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
@@ -175,20 +178,27 @@ Begin
   If ((tipo = TipoPersonalizado) Or (tipo = TipoAleatorio)) Then
     Begin
  {Randomizo la nave}
-      nave[1] := Random(fil)+1;
-      nave[2] := Random(col)+1;
+      // Va a agarrar la penultima o la ultima fila la posicion en X de la nave
+      nave[1] := Random(2)+(fil-1);
+
+
+   // Randomizo la posicion en Y de la de la nave, no puede tocar ningun extremo
+      Repeat
+        nave[2] := Random(col-1)+2;
+      Until (nave[2] <> col);
+
       // Randomizar la posición X,Y del planeta
       Repeat
-        planeta[1] := Random(fil)+1;
-        // X
-        planeta[2] := Random(col)+1;
+        // Posiciono el planeta en la 2da fila
+        planeta[1] := 2;
+
+        // Me aseguro de que el planeta no toque ningun extremo de la columna
+        Repeat
+          planeta[2] := Random(col-1)+2;
+        Until (planeta[2] <> col);
         // Y
       Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
       // Planeta y nave no pueden estar en la misma celda
-
-
-
-
 
 
 
@@ -209,6 +219,18 @@ End;
 //
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico);
@@ -216,6 +238,18 @@ Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
 Var 
   i, cant_1, cant_2: Integer;
 Begin
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -235,6 +269,18 @@ Begin
       cantidad := cant_1 * 10 + cant_2;
       // Combinar el primer n£mero con el segundo
     End;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -311,6 +357,11 @@ Begin
 
 
 
+
+
+
+
+
 // Como contMov empieza en 1, Si todavía no se ha movido, guardar esa como la posicion inicial
   If (contMov = 1) Then
     Begin
@@ -318,6 +369,11 @@ Begin
       historialMov[contMov].PosicionY := nave[2];
       contMov := contMov + 1;
     End;
+
+
+
+
+
 
 
 
@@ -453,9 +509,18 @@ Begin
 
 
 
+
+
+
+
         'La suma de la cantidad de las FILAS y las COLUMNAS debe ser mayor a 12'
     );
     writeln(
+
+
+
+
+
 
 
 
@@ -624,6 +689,18 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -654,6 +731,18 @@ Begin
               // Poner interrogacion arriba izquierda de la nave
             End;
         End;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -792,6 +881,18 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
@@ -821,6 +922,18 @@ Begin
 
             End;
         End;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -874,6 +987,18 @@ Begin
 
   i := 0;
   bucle := false;
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1054,6 +1179,18 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
     // Este Condicional se encarga de mandar el objeto de Movimientos verdadero:
       condicionalEstrella(listaMovimientos, contMovimientos,
                           data.estrellas.
@@ -1105,6 +1242,18 @@ Begin
                 ImpresoraColor(terrenoModificado[i, j], TURQUESA);
 
 
+
+
+
+
+
+
+
+
+
+
+
+
         // Caso especial de la interrogacion encima de la estrella o del planeta
               If (terrenoModificado[i, j] = POSMOV) And ((terreno[i, j] =
                  BANDERA
@@ -1115,10 +1264,34 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
               // Caso especial donde la interrogacion este encima del Destructor
                   If ((terrenoModificado[i, j] = POSMOV) And (terreno[i, j
                      ] = BOMBA)
                      ) Then
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                   //  El color de la interrogacion es rojo, por el caso especial
@@ -1190,11 +1363,35 @@ Begin
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 // Esto sostiene el repeat (no corre el codigo de abajo hasta que se presione una tecla)
       //
       //
       //
       ch := Upcase(Readkey);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
    // Guardar historial de movimientos de la nave para generar archivo de salida
