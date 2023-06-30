@@ -142,9 +142,18 @@ Begin
 
   randomize;
 
+  niveles := niveles - 2;
+
   // Determino la cantidad de destructores
   promedio := (fil+col) Div 2;
-  cantDestructores := (promedio Div 2);
+
+  // Generacion de destructores dependiendo del nivel
+
+  If (niveles >= 3) Then
+    cantDestructores := (promedio Div 2)+(niveles)
+  Else
+    cantDestructores := (promedio Div 2)-2;
+
 
   For i:= 1 To cantDestructores Do
     Begin
@@ -212,7 +221,15 @@ Begin
 
   // Determino la cantEstrellas de estrellas en el mapa con la formula Magica
   promedio := (fil+col) Div 2;
-  cantEstrellas := (promedio Div 2)+2;
+
+  // Generacion de estrellas dependiendo del nivel
+  If (niveles >= 3) Then
+    Begin
+      cantEstrellas := (promedio Div 2);
+    End
+  Else
+    cantEstrellas := ((promedio Div 2)+3)-(niveles);
+
 
   // estrellaPlaneta si es 1 = diagonal Arriba izquierda del planeta
   // estrellaPlaneta si es 2 = diagonal Arriba derecha del planeta
@@ -1286,10 +1303,6 @@ Begin
               If (terrenoModificado[i, j] = BANDERA) Then
                 ImpresoraColor(terrenoModificado[i, j], AZUL);
 
-              // Impresion de la estrella
-              If (terrenoModificado[i, j] = STAR) Then
-                ImpresoraColor(terrenoModificado[i, j], TURQUESA);
-
 
               // Caso especial de la interrogacion encima de la estrella o del planeta
               If (terrenoModificado[i, j] = POSMOV) And ((terreno[i, j] =
@@ -1324,6 +1337,10 @@ Begin
 
                     End;
                 End;
+
+              // Impresion de la estrella
+              If (terrenoModificado[i, j] = STAR) Then
+                ImpresoraColor(terrenoModificado[i, j], TURQUESA);
             End;
         End;
       Writeln;
