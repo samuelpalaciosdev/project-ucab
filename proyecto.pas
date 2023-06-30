@@ -525,33 +525,26 @@ Begin
   Assign(mejorCamino, rutaArchivoMejorCamino);
   writeLn('El archivo mejor tiene ', contNrosArchivo(mejorCamino), ' numeros');
 End;
-{Function contarNrosDeArchivo(var archivo: text):Integer;
+
+
+Procedure coincideConMejorCamino(data: dataMapa; var salida, mejorCamino: Text; rutaArchivoMejorCamino: String);
 Var
-  cantNros: Integer;
-	nro: Integer;
+  posXMejor, posYMejor: Integer;
+  posXSalida, posYSalida: Integer;
+  cantNrosSalida, cantNrosMejorCamino: Integer;
+  i: Integer;
+  coinciden: Boolean;
 Begin
 
-  cantNros:= 0 ;
+  Assign(mejorCamino, rutaArchivoMejorCamino);
 
-	reset(archivo);
+  cantNrosSalida:= (data.contadorMovimientos - 1) * 2;
+	cantNrosMejorCamino:= contNrosArchivo(mejorCamino);
 
- 	while not eof(archivo) do
-  begin
-    read(archivo, nro);  // Solo agarrar primer numero de cada linea
-    if not eof(archivo) then
-      cantNros := cantNros + 1;
-    readln(archivo);  // Omitir el resto de la línea
-  end;
-
-	close(archivo);
+	writeLn('El archivo mejor tiene ', cantNrosMejorCamino, ' numeros');
+	writeLn('El archivo de salida tiene ', cantNrosSalida, ' numeros');
 	
-	cantNros:= cantNros * 2; // Como solo se agarraba el primer numero de cada linea y son 2 x linea...
-	writeLn('El archivo tiene ', cantNros, ' numeros');
-	
-	contarNrosDeArchivo:= cantNros;
-End;}
-
-
+End;
 
 {
 procedure coincideConMejorCamino(data: dataMapa; var salida, mejorCamino: Text; rutaArchivoMejorCamino: String);
@@ -1392,10 +1385,10 @@ Begin
       AnimacionGanar(desarrollo);
       imprimirHistorialMovimientos(data);
       procesarArchivoSalida(salida,data, rutaArchivoSalida);
-			// coincideConMejorCamino(data, salida, mejorCamino, rutaArchivoMejorCamino);
+			coincideConMejorCamino(data, salida, mejorCamino, rutaArchivoMejorCamino);
 			// imprimirArchivo(salida);
 
-			imprimirAlgo(mejorCamino, rutaArchivoMejorCamino);
+			// imprimirAlgo(mejorCamino, rutaArchivoMejorCamino);
 			readkey;
     End;
 
