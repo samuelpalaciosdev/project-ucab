@@ -58,7 +58,7 @@ Type
   vectorString = Array[1..LIMITE] Of String;
   mapa = Array[1..LIMITE, 1..LIMITE] Of Char;
   matriz = Array[1..LIMITE_ELEMENTOS, 1..LIMITE_ELEMENTOS] Of Integer;
-  Victoria = (sigue, gano, perder, navePerdida);
+  Victoria = (sigue, gano, perder, navePerdida, abandono);
   TipoGeneracionMapa = (TipoArchivo, TipoAleatorio, TipoPersonalizado);
   menuBoolean = (seguir, marchar);
   // Tipo de dato usado en varias keys del objeto
@@ -150,7 +150,6 @@ Begin
   // estrellaPlaneta si es 1 = diagonal Arriba izquierda del planeta
   // estrellaPlaneta si es 2 = diagonal Arriba derecha del planeta
   estrellaPlaneta := Random(2)+1;
-  writeln('ESTRELLA PLANETA: ', estrellaPlaneta);
 
   For i := 1 To cantEstrellas Do
     Begin
@@ -246,8 +245,6 @@ Begin
             If (Abs(estrella[2].posicionX - estrella[i].posicionX) = Abs(estrella[2].posicionY - estrella[i].posicionY)) Or (Abs(estrella[1].posicionX - estrella[i].posicionX) =
                Abs(estrella[1].posicionY - estrella[i].posicionY)) Then
               Begin
-                writeln('COINCIDE: ', estrella[i].posicionX, ', ', estrella[i].posicionY);
-                readkey;
                 // En caso de que la columna sea mayor a 3 la muevo 2 posiciones hacia la izquierda
                 If (estrella[i].posicionY > 3) Then
                   estrella[i].posicionY := estrella[i].posicionY - 2
@@ -278,12 +275,7 @@ Begin
       Until (((estrella[i].posicionX <> nave[1]) Or (estrella[i].posicionY <> nave[2])
             ) And ((estrella[i].posicionX <> planeta[1]) Or (estrella[i].posicionY <>
             planeta[2])));
-
-      writeln('POSICION ESTRELLA MISMA FILA: ', estrella[3].posicionX, ', ', estrella[3].posicionY);
     End;
-  writeln;
-  writeln;
-  writeln('CANTIDAD DE ESTRELLAS GENERADAS: ', cantEstrellas);
   Writeln;
   Writeln('Cargando...');
   Delay(400);
@@ -476,55 +468,9 @@ Procedure procesarArchivoSalida(Var salida: Text;  datosMapa: dataMapa;
 Begin
   Assign(salida, rutaArchivoSalida);
   generarArchivoSalida(datosMapa);
-  readkey;
 End;
 
-// ANIMACIONES
-//
-//
-
-// Animacion Ganar
-Procedure AnimacionGanar(desarrollo: Victoria);
-Begin
-  // Si el personaje llego a el planeta
-  If (desarrollo = gano) Then
-    Begin
-      Clrscr;
-      textcolor(red);
-      Writeln('!Ganaste!, Felicitaciones');
-      Writeln;
-      Writeln;
-
-    End;
-End;
-
-// Animacion Perder
-
-Procedure AnimacionPerder(desarrollo: Victoria);
-Begin
-  // Si el personaje llego a perder
-
-  If (desarrollo = perder) Then
-    Begin
-      Clrscr;
-      textcolor(blue);
-      writeln('!Perdiste!, pisaste un destructor');
-      writeln;
-    End;
-End;
-
-// Animacion navePerdida
-Procedure perdidaAnimacion(desarrollo: Victoria);
-Begin
-  If (desarrollo = navePerdida) Then
-    Begin
-      Clrscr;
-      textcolor(blue);
-      writeln('!Perdiste!, Te quedaste sin movimientos posibles');
-      writeln;
-    End;
-End;
-
+// Historial de coordenadas de la nave
 
 Procedure imprimirHistorialMovimientos(data: dataMapa);
 
@@ -1198,10 +1144,6 @@ Begin
           errores := errores + 1;
         End;
     End;
-
-  writeln;
-  writeln('HORRORES: ', errores);
-  writeln('Cant MOVI: ', contMovimientos);
 End;
 
 // LEER EL MAPA FINAL PROCEDIMIENTO
@@ -1221,6 +1163,9 @@ Begin
   Clrscr;
   Writeln('!!Intenta encontrar el Planeta!!');
   Writeln;
+  // Mostrar el score de la partida
+  If (data.tipoMapa = tipoAleatorio) Or (data.tipoMapa = tipoPersonalizado) Then
+    writeln('NIVEL: ', data.score);
 
   terrenoModificado := terreno;
 
@@ -1334,27 +1279,25 @@ End;
 //
 //
 
-Procedure Partida(Var terreno: mapa; Var data: dataMapa; param
+Procedure Partida(Var terreno: mapa; Var data: dataMapa; Var desarrolloPartida: Victoria; param
                   : ArrayDinamico; cant: integer; nave, planeta
                   :vector;
-                  fil, col, tecla:Integer);
+                  fil, col:Integer);
 
 Var 
   ch: Char;
-  desarrollo: Victoria;
   rastro: vector;
   i: integer;
 
 Begin
   Clrscr;
   // Se declara la partida
-  desarrollo := sigue;
+  desarrolloPartida := sigue;
   // Relleno el Mapa
   relleno(terreno, data, nave, planeta, fil, col);
 
   // Contadores inicializados
   data.contadorMovimientos := 1;
-  data.score := 0;
   data.contErrores := 0;
 
   // Inicializo el rastro
@@ -1395,48 +1338,36 @@ Begin
 
       leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
 
-
-
       // Si gano la partida, el boolean es true
       If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
-        desarrollo := gano;
+        desarrolloPartida := gano;
+
+      writeln(nave[1], ' ', nave[2], ',, ', planeta[1], ' ', planeta[2], ' ', desarrolloPartida);
 
       For i:= 1 To cant Do
         Begin
           If ((nave[1] = param[i].posicionX) And (nave[2] = param[i].
              posicionY))
             Then
-            desarrollo := perder;
+            desarrolloPartida := perder;
         End;
 
       // En caso de nave Perdida
-      If (data.contErrores = 8) Then
-        desarrollo := navePerdida;
+      If (data.contErrores >= 8) Then
+        desarrolloPartida := navePerdida;
     End;
-  Until ((Ord(ch) = ESC) Or (desarrollo = gano) Or (desarrollo = perder) Or (desarrollo = navePerdida));
+  Until (Ord(ch) = ESC) Or (desarrolloPartida = gano) Or (desarrolloPartida = perder) Or (desarrolloPartida = navePerdida);
+
+  // Registrar el abandono
+  If (ord(ch) = ESC) Then
+    desarrolloPartida := abandono;
 
 
   // Guardar historial de movimientos de la nave para generar archivo de salida
   agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
                                   contadorMovimientos);
-  // Victoria
-  If (desarrollo = gano) Then
-    Begin
-      AnimacionGanar(desarrollo);
-      imprimirHistorialMovimientos(data);
-      procesarArchivoSalida(salida,data, rutaArchivoSalida);
-    End;
-
-  If (desarrollo = perder) Then
-    AnimacionPerder(desarrollo);
-
-  If (desarrollo = navePerdida) Then
-    perdidaAnimacion(desarrollo);
-
-  readkey;
 
   // Imprimir data de los archivos
-  imprimirHistorialMovimientos(data);
   procesarArchivoSalida(salida,data, rutaArchivoSalida);
 End;
 
@@ -1542,13 +1473,71 @@ Begin
     End;
   Until (salir = marchar) Or (volver = marchar);
 End;
+
+// ANIMACIONES
+//
+//
+
+// Animacion Ganar
+Procedure AnimacionGanar(desarrollo: Victoria; score: integer);
+Begin
+  // Si el personaje llego a el planeta
+  If (desarrollo = gano) Then
+    Begin
+      Clrscr;
+      textcolor(red);
+      If (score = 0) Then
+        writeln('!Felicidades!, lograste descifrar el camino.')
+      Else
+        Writeln('Pasaste al siguiente nivel: ', score, ' ...');
+      Writeln;
+      Delay(1000);
+    End;
+End;
+
+// Animacion Perder
+
+Procedure AnimacionPerder(desarrollo: Victoria);
+Begin
+  // Si el personaje llego a perder
+
+  If (desarrollo = perder) Then
+    Begin
+      Clrscr;
+      textcolor(blue);
+      writeln('!Perdiste!, pisaste un destructor');
+      writeln;
+    End;
+End;
+
+// Animacion navePerdida
+Procedure perdidaAnimacion(desarrollo: Victoria);
+Begin
+  If (desarrollo = navePerdida) Then
+    Begin
+      Clrscr;
+      textcolor(blue);
+      writeln('!Perdiste!, Te quedaste sin movimientos posibles');
+      writeln;
+    End;
+End;
+
+
 // MENU JUGAR::
 Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave,
                           planeta:
                           vector;Var fil, col: Integer; tipo:
                           TipoGeneracionMapa)
 ;
+
+Var 
+  desarrollo: Victoria;
+
 Begin
+
+  // Inicializar el score:
+  data.score := 1;
+
   Clrscr;
   Delay(300);
   Randomize;
@@ -1570,9 +1559,76 @@ Begin
       data.estrellas.cantidad := 5;
       data.destructores.cantidad := 5;
     End;
-  Partida(plano, data, data.destructores.coordenadas, data.destructores.
-          cantidad, nave, planeta, fil, col, 0
+  Partida(plano, data, desarrollo, data.destructores.coordenadas, data.destructores.
+          cantidad, nave, planeta, fil, col
   );
+
+
+  If (tipo = tipoAleatorio) Or (tipo = tipoPersonalizado) Then
+    Begin
+      Repeat
+        Begin
+          Delay(200);
+          // Victoria
+          If (desarrollo = gano) Then
+            Begin
+              data.score := data.score + 1;
+              AnimacionGanar(desarrollo, data.score);
+              procesarArchivoSalida(salida,data, rutaArchivoSalida);
+              Partida(plano, data, desarrollo, data.destructores.coordenadas, data.destructores.
+                      cantidad, nave, planeta, fil, col
+              );
+            End;
+
+          If (desarrollo = perder) Then
+            Begin
+              AnimacionPerder(desarrollo);
+              writeln('Presiona para seguir...');
+              readkey;
+            End;
+
+          If (desarrollo = navePerdida) Then
+            Begin
+              perdidaAnimacion(desarrollo);
+              writeln('Presiona para seguir...');
+              readkey;
+            End;
+
+        End;
+      Until  (desarrollo = perder) Or (desarrollo = navePerdida) Or (desarrollo = abandono);
+    End
+    // En caso de que sea tipo = tipoArchivo
+  Else
+    Begin
+      If (desarrollo = gano) Then
+        Begin
+          AnimacionGanar(desarrollo, 0);
+          procesarArchivoSalida(salida, data, rutaArchivoSalida);
+          Delay(300);
+          writeln;
+          writeln('Presiona cualquier tecla para salir al menu.');
+          readkey;
+        End;
+
+      If (desarrollo = perder) Then
+        Begin
+          AnimacionPerder(desarrollo);
+          Delay(300);
+          writeln;
+          writeln('Presiona para seguir...');
+          readkey;
+        End;
+
+      If (desarrollo = navePerdida) Then
+        Begin
+          AnimacionPerder(desarrollo);
+          Delay(300);
+          writeln;
+          writeln('Presiona para seguir...');
+          readkey;
+        End;
+    End;
+
 End;
 // Menu opcion jugar
 
