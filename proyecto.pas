@@ -490,11 +490,42 @@ Begin
 		writeLn(lineaArchivo);
 	End;
 
-	close(archivo);
+	close(archivo); // Como solo se agarraba el primer numero de cada linea y son 2 x linea..
 
 End;
 
-Function contarNrosDeArchivo(var archivo: text):Integer;
+Function contNrosArchivo(var archivo: Text): Integer;
+Var
+  cont, nro: Integer;
+Begin
+  cont := 0;  // Inicializar la variable cont
+
+  reset(archivo);
+  while not eof(archivo) Do
+  Begin
+    while not eoln(archivo) do
+    begin
+      read(archivo, nro);
+      cont := cont + 1;
+    end;
+    Readln(archivo); // Omitir el resto de la línea
+  End;
+
+  close(archivo);
+
+  contNrosArchivo := cont;
+End;
+
+
+
+
+
+Procedure imprimirAlgo(var mejorCamino: Text; rutaArchivoMejorCamino: String);
+Begin
+  Assign(mejorCamino, rutaArchivoMejorCamino);
+  writeLn('El archivo mejor tiene ', contNrosArchivo(mejorCamino), ' numeros');
+End;
+{Function contarNrosDeArchivo(var archivo: text):Integer;
 Var
   cantNros: Integer;
 	nro: Integer;
@@ -518,39 +549,58 @@ Begin
 	writeLn('El archivo tiene ', cantNros, ' numeros');
 	
 	contarNrosDeArchivo:= cantNros;
-End;
+End;}
 
 
-Procedure coincideConMejorCamino(data: dataMapa; var salida, mejorCamino: Text; rutaArchivoMejorCamino: String);
-Var
+
+{
+procedure coincideConMejorCamino(data: dataMapa; var salida, mejorCamino: Text; rutaArchivoMejorCamino: String);
+var
+  posXMejor, posYMejor: Integer;
+  posXSalida, posYSalida: Integer;
   cantNrosSalida, cantNrosMejorCamino: Integer;
-	nroMejor: Integer;
-Begin
-
+  i: Integer;
+  coinciden: Boolean;
+begin
   clrscr;
-
-
   Assign(mejorCamino, rutaArchivoMejorCamino);
 
-  cantNrosSalida:= (data.contadorMovimientos - 1) * 2; { Contador de movimientos (se le resta 1 pq inicializa en 1 y * 2
-																										(porque son 2 coordenadas X Y)}
-	cantNrosMejorCamino:= contarNrosDeArchivo(mejorCamino);
+  cantNrosSalida := (data.contadorMovimientos - 1) * 2;
+  cantNrosMejorCamino := contarNrosDeArchivo(mejorCamino);
 
-	{
-	reset(mejorCamino);
+  if cantNrosSalida = cantNrosMejorCamino then
+  begin
+    reset(mejorCamino);
+    reset(salida);
 
-	while not (eof(mejorCamino)) Do
-	Begin
-	  read(mejorCamino, nroMejor);
-		
-    cantNrosMejorCamino := cantNrosMejorCamino + 1;
-	End;
+    coinciden := true; // Inicializar a true
 
-	close(mejorCamino);}
+    for i := 1 to cantNrosSalida do
+    begin
+      read(mejorCamino, posXMejor, posYMejor);
+      read(salida, posXSalida, posYSalida);
 
-	writeLn('La cantidad de numeros del archivo de mejor camino son: ', cantNrosMejorCamino, ' y la cant del arch salido son: ', cantNrosSalida);
-	
-End;
+      if (posXMejor <> posXSalida) or (posYMejor <> posYSalida) then
+      begin
+        writeln('Posiciones de x y y diferentes en mejor [', posXMejor, ',', posYMejor, '] y salida [', posXSalida, ',', posYSalida, ']');
+        coinciden := false;
+      end;
+    end;
+
+    if coinciden then
+      writeln('Todos los números coinciden');
+  end
+  else
+  begin
+    writeln('La cantidad de números en el archivo de salida no coincide con el archivo de mejor camino.');
+  end;
+	Close(mejorCamino);
+  Close(salida);
+
+  writeln('La cantidad de números del archivo de mejor camino es: ', cantNrosMejorCamino, ' y la cantidad del archivo de salida es: ', cantNrosSalida);
+end;
+}
+
 
 // ANIMACIONES
 //
@@ -1342,8 +1392,10 @@ Begin
       AnimacionGanar(desarrollo);
       imprimirHistorialMovimientos(data);
       procesarArchivoSalida(salida,data, rutaArchivoSalida);
-			coincideConMejorCamino(data, salida, mejorCamino, rutaArchivoMejorCamino);
+			// coincideConMejorCamino(data, salida, mejorCamino, rutaArchivoMejorCamino);
 			// imprimirArchivo(salida);
+
+			imprimirAlgo(mejorCamino, rutaArchivoMejorCamino);
 			readkey;
     End;
 
