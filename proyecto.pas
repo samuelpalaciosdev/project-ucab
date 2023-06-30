@@ -544,6 +544,24 @@ Begin
 	writeLn('El archivo mejor tiene ', cantNrosMejorCamino, ' numeros');
 	writeLn('El archivo de salida tiene ', cantNrosSalida, ' numeros');
 	
+
+	if (cantNrosSalida = cantNrosMejorCamino) Then
+	Begin
+	  reset(salida);
+    for i:=1 to (cantNrosSalida div 2) Do
+		Begin
+		  Read(salida, posXSalida, posYSalida);
+			writeLn('Salida ', i, ' [',posXSalida,',',posYSalida,']');
+		End;
+		close(salida);
+	End
+	Else
+	Begin
+    writeLn('No fue el mejor camino :(');
+	End;
+
+
+	
 End;
 
 {
