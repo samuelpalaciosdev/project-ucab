@@ -45,12 +45,12 @@ Const
 
   // Colores
   AZUL = 1;
+  VERDE = 3;
   ROJO = 4;
   MORADO = 5;
   FONDO = 7;
   COLOR_NORMAL = 8;
   TURQUESA = 9;
-  VERDE = 3;
   BLANCO = 15;
 
 Type 
@@ -133,8 +133,75 @@ Begin
     End;
 End;
 
-// Bloque del generador (No repetir codigo)
-Procedure bloqueEstrellas(Var estrella: ArrayDinamico; tipo: TipoGeneracionMapa;
+Procedure bloqueDestructores(Var destructores: ArrayDinamico; niveles: integer; tipo: TipoGeneracionMapa; nave, planeta: vector; fil, col: Integer; Var cantDestructores: Integer);
+
+Var 
+  i, promedio: integer;
+
+Begin
+
+  randomize;
+
+  // Determino la cantidad de destructores
+  promedio := (fil+col) Div 2;
+  cantDestructores := (promedio Div 2);
+
+  For i:= 1 To cantDestructores Do
+    Begin
+      Repeat
+
+        // Destructor junto del 1ro
+
+        If (i = 1) Then
+          Begin
+            Repeat
+              destructores[i].posicionX := Random(fil-6)+3;
+              destructores[i].posicionY := Random(col-6)+3;
+            Until (Abs(destructores[i].posicionX - fil) > 2) And (Abs(destructores[i].posicionY - col) > 2);
+          End
+
+          // Destructor junto del 1ro
+        Else If (i = 2) Then
+               Begin
+                 destructores[i].posicionX := destructores[1].posicionX + 1;
+                 destructores[i].posicionY := destructores[1].posicionY;
+               End
+
+               // Destructor junto del 1ro
+        Else If (i = 3) Then
+               Begin
+                 destructores[i].posicionX := destructores[1].posicionX;
+                 destructores[i].posicionY := destructores[1].posicionY - 1;
+               End
+               //  Demas destructores despues de los 3 primeros
+        Else
+          Begin
+            Repeat
+
+              destructores[i].posicionX := Random(fil)+1;
+              destructores[i].posicionY := Random(col)+1;
+
+              // Este condicional me evita un posible destructor detras del planeta
+              If (destructores[i].posicionX = 1) And ((destructores[i].posicionY = (planeta[2]-1)) Or (destructores[i].posicionY = (planeta[2]+1))) Then
+                destructores[i].posicionX := destructores[i].posicionX + 3;
+
+            Until (Abs(destructores[i].posicionX - fil) > 1) And (Abs(destructores[i].posicionY - col) > 1);
+          End;
+
+      Until ((destructores[i].posicionX <> nave[1]) Or (destructores[i].posicionY <> nave[2])
+            ) And ((destructores[i].posicionX <> planeta[1]) Or (destructores[i].posicionY <>
+            planeta[2]));
+    End;
+  Writeln;
+  Writeln('Cargando...');
+  Delay(400);
+  writeln;
+  Writeln('!Presiona para jugar!');
+  readkey;
+End;
+
+// Bloque del generador de estrellas (No repetir codigo)
+Procedure bloqueEstrellas(Var estrella: ArrayDinamico; niveles: integer; tipo: TipoGeneracionMapa;
                           nave, planeta: vector; fil
                           , col: Integer; Var cantEstrellas: Integer);
 
@@ -272,21 +339,15 @@ Begin
 
           End;
         // el condicional para romper el bucle verifica si las estrellas estan encima del planeta y/o la nave
-      Until (((estrella[i].posicionX <> nave[1]) Or (estrella[i].posicionY <> nave[2])
+      Until ((estrella[i].posicionX <> nave[1]) Or (estrella[i].posicionY <> nave[2])
             ) And ((estrella[i].posicionX <> planeta[1]) Or (estrella[i].posicionY <>
-            planeta[2])));
+            planeta[2]));
     End;
-  Writeln;
-  Writeln('Cargando...');
-  Delay(400);
-  writeln;
-  Writeln('!Presiona para jugar!');
-  readkey;
 End;
 // Generador
 Procedure Generador(Var data: dataMapa; Var tipo:TipoGeneracionMapa; Var nave,
                     planeta: vector;
-                    Var cant, cant2: Integer; Var param1, param2:ArrayDinamico;
+                    Var cant, cant2: Integer; Var param1, param2: ArrayDinamico;
                     fil, col: Integer);
 
 Var 
@@ -320,7 +381,8 @@ Begin
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
         Begin
-          bloqueEstrellas(param1, tipo, nave, planeta, fil, col, cant);
+          bloqueEstrellas(param1, data.score, tipo, nave, planeta, fil, col, cant);
+          bloqueDestructores(param2, data.score, tipo, nave, planeta, fil, col, cant2);
         End;
     End;
 End;
@@ -1252,7 +1314,13 @@ Begin
                         ImpresoraColor(terrenoModificado[i, j], AZUL);
                       // Impresion del destructor, quiero que aparezca vacio
                       If (terrenoModificado[i, j] = BOMBA) Then
-                        ImpresoraColor(CELDA, COLOR_NORMAL);
+                        Begin
+                          If (data.score = 1) Then
+                            ImpresoraColor(terrenoModificado[i, j], ROJO)
+                          Else
+                            ImpresoraColor(CELDA, COLOR_NORMAL);
+                        End;
+
 
                     End;
                 End;
@@ -1279,8 +1347,8 @@ End;
 //
 //
 
-Procedure Partida(Var terreno: mapa; Var data: dataMapa; Var desarrolloPartida: Victoria; param
-                  : ArrayDinamico; cant: integer; nave, planeta
+Procedure Partida(Var terreno: mapa; Var data: dataMapa; Var desarrolloPartida: Victoria; Var destructores
+                  : ArrayDinamico; Var cant: integer; nave, planeta
                   :vector;
                   fil, col:Integer);
 
@@ -1342,11 +1410,9 @@ Begin
       If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
         desarrolloPartida := gano;
 
-      writeln(nave[1], ' ', nave[2], ',, ', planeta[1], ' ', planeta[2], ' ', desarrolloPartida);
-
       For i:= 1 To cant Do
         Begin
-          If ((nave[1] = param[i].posicionX) And (nave[2] = param[i].
+          If ((nave[1] = destructores[i].posicionX) And (nave[2] = destructores[i].
              posicionY))
             Then
             desarrolloPartida := perder;
