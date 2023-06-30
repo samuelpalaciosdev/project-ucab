@@ -527,7 +527,7 @@ Begin
 End;
 
 
-Procedure coincideConMejorCamino(data: dataMapa; var salida, mejorCamino: Text; rutaArchivoMejorCamino: String);
+Function coincideConMejorCamino(data: dataMapa; var salida, mejorCamino: Text; rutaArchivoMejorCamino: String):Boolean;
 Var
   posXMejor, posYMejor: Integer;
   posXSalida, posYSalida: Integer;
@@ -555,6 +555,17 @@ Begin
 			writeLn('Salida ', i, ' [',posXSalida,',',posYSalida,']');
 			Read(mejorCamino, posXMejor, posYMejor);
 			writeLn('Mejor ', i, ' [',posXMejor,',',posYMejor,']');
+
+			if (posXSalida = posXMejor) and  (posYMejor = posYSalida) Then
+			Begin
+				 coinciden:= True;
+				 writeLn('Los numeros coinciden al mejor camino :) X [',posXSalida,',',posXMejor,'] Y [',posYSalida,',',posYMejor,']')
+			End
+			Else
+			Begin
+			  coinciden:= False;
+				writeLn('Los numeros que no coincidieron fueron:X [',posXSalida,',',posXMejor,'] Y [',posYSalida,',',posYMejor,']');
+			End;
 		End;
 		close(salida);
 	End
@@ -563,7 +574,7 @@ Begin
     writeLn('No fue el mejor camino :(');
 	End;
 
-
+	coincideConMejorCamino:= coinciden;
 	
 End;
 
@@ -1402,21 +1413,24 @@ Begin
 
   // Victoria
   If (desarrollo = gano) Then
-    Begin
-      AnimacionGanar(desarrollo);
-      imprimirHistorialMovimientos(data);
-      procesarArchivoSalida(salida,data, rutaArchivoSalida);
-			coincideConMejorCamino(data, salida, mejorCamino, rutaArchivoMejorCamino);
+  Begin
+    AnimacionGanar(desarrollo);
+    imprimirHistorialMovimientos(data);
+    procesarArchivoSalida(salida,data, rutaArchivoSalida);
+		coincideConMejorCamino(data, salida, mejorCamino, rutaArchivoMejorCamino);
 			// imprimirArchivo(salida);
 
 			// imprimirAlgo(mejorCamino, rutaArchivoMejorCamino);
-			readkey;
-    End;
+		readkey;
+  End;
 
   If (desarrollo = perder) Then
+  Begin
     AnimacionPerder(desarrollo);
-  imprimirHistorialMovimientos(data);
-  procesarArchivoSalida(salida,data, rutaArchivoSalida);
+  	imprimirHistorialMovimientos(data);
+  	procesarArchivoSalida(salida,data, rutaArchivoSalida);
+	  coincideConMejorCamino(data, salida, mejorCamino, rutaArchivoMejorCamino);
+	End;
 End;
 
 // Menu tutorial
