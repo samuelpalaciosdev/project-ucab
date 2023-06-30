@@ -548,10 +548,13 @@ Begin
 	if (cantNrosSalida = cantNrosMejorCamino) Then
 	Begin
 	  reset(salida);
+		reset(mejorCamino);
     for i:=1 to (cantNrosSalida div 2) Do
 		Begin
 		  Read(salida, posXSalida, posYSalida);
 			writeLn('Salida ', i, ' [',posXSalida,',',posYSalida,']');
+			Read(mejorCamino, posXMejor, posYMejor);
+			writeLn('Mejor ', i, ' [',posXMejor,',',posYMejor,']');
 		End;
 		close(salida);
 	End
