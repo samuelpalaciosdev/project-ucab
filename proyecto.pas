@@ -77,6 +77,7 @@ Type
 
   // Objeto donde se almacena toda la info del archivo
   dataMapa = Record
+    archivoValidado: boolean;
     contErrores: Integer;
     score: Integer;
     contadorMovimientos: Integer;
@@ -111,9 +112,24 @@ Var
   entrada, salida: Text;
   rutaArchivoEntrada, rutaArchivoSalida: String;
 
+Function validarElemento(elemento: Integer; lim: integer; mensaje: String): Boolean;
 
+Var 
+  elementoValido: Boolean;
+Begin
 
-  // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
+  elementoValido := True;
+
+  If (elemento < 1) Or (elemento > lim) Then
+    Begin
+      writeLn('Error, el valor de ', mensaje, ' debe estar comprendida entre 1 y ', lim);
+      elementoValido := False;
+    End;
+
+  validarElemento := elementoValido;
+End;
+
+// Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
                                       ArrayDinamico; mensaje: String);
@@ -164,8 +180,8 @@ Begin
         If (i = 1) Then
           Begin
             Repeat
-              destructores[i].posicionX := Random(fil-6)+3;
-              destructores[i].posicionY := Random(col-6)+3;
+              destructores[i].posicionX := Random(fil-6)+4;
+              destructores[i].posicionY := Random(col-6)+4;
             Until (Abs(destructores[i].posicionX - fil) > 2) And (Abs(destructores[i].posicionY - col) > 2);
           End
 
@@ -408,12 +424,14 @@ End;
 
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
-                                   coordenadas: ArrayDinamico);
+                                   coordenadas: ArrayDinamico; fil, col: integer; Var validadorIndividual: Boolean);
 
 Var 
   i, cant_1, cant_2: Integer;
 Begin
 
+  validadorIndividual := true;
+  // Inicializar en true
 
 
   // Leer el primer numero de la cantidad de estrellas o destructores del archivo de entrada y comprobar si es > o < que 10
@@ -433,31 +451,103 @@ Begin
       // Combinar el primer n£mero con el segundo
     End;
 
+  If (cantidad < 1) Then
+    writeLn('Cantidad invalida');
+  // FALTA HACER UNA LOGICA CON ESTO (aparece arriba un ratito y se va)
+
+
+
 {Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
  como un objeto de coordenadas dentro de un array}
   For i := 1 To cantidad Do
     Begin
       Read(entrada, coordenadas[i].posicionX, coordenadas[i].posicionY);
+
+      // ---- Validar coordenadas
+      // Si la coordenada X es invalida
+      If (coordenadas[i].posicionX < 1) Or (coordenadas[i].posicionX > fil) Then
+        Begin
+          writeLn('Valor de posicion X invalido: ', coordenadas[i].posicionX, ', en la posicion ', i);
+          validadorIndividual := false;
+        End;
+      // Si la coordenada Y es invalida
+      If (coordenadas[i].posicionY < 1) Or (coordenadas[i].posicionY > col) Then
+        Begin
+          writeLn('Valor de posicion Y invalido: ', coordenadas[i].posicionY, ', en la posicion ', i);
+          validadorIndividual := false;
+        End;
     End;
 End;
 // Leer archivo de entrada (guardar su data en el objeto de tipo dataMapa)
 
-Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa);
+Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa; Var archivoValidado: boolean);
+
+Var 
+  validadorIndividual: boolean;
+
 Begin
+
+  archivoValidado := true;
   // Abrir archivo
   Reset(entrada);
   // Guardar fila y columna en el objeto
   Read(entrada, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
+  // Validar fila y columna
+  validadorIndividual := validarELemento(datosMapa.dimensiones.fil, LIMITE, 'las filas');
+
+  If (validadorIndividual = false) Then
+    archivoValidado := false;
+  // Debe guardarse en una booleana
+  validadorIndividual := validarELemento(datosMapa.dimensiones.col, LIMITE, 'las columnas');
+
+
+  If (validadorIndividual = false) Then
+    archivoValidado := false;
+  // Debe guardarse en una booleana 
   // Guardar posicion nave     (X,Y)
   Read(entrada, datosMapa.naveT[1], datosMapa.naveT[2]);
+  // Validar posicion X,Y nave
+  validadorIndividual := validarELemento(datosMapa.naveT[1], datosMapa.dimensiones.fil, 'la posicion en X de la nave');
+
+  If (validadorIndividual = false) Then
+    archivoValidado := false;
+  // Debe guardarse en una booleana
+  validadorIndividual := validarELemento(datosMapa.naveT[2], datosMapa.dimensiones.col, 'la posicion en Y de la nave');
+
+
+  If (validadorIndividual = false) Then
+    archivoValidado := false;
+  // Debe guardarse en una booleana 
   // Guardar posicion planetaT (X,Y)
   Read(entrada, datosMapa.planetaT[1], datosMapa.planetaT[2]);
+  // Validar posicion X,Y planeta
+  validadorIndividual := validarELemento(datosMapa.planetaT[1], datosMapa.dimensiones.fil, 'la posicion en X del planeta');
+
+  If (validadorIndividual = false) Then
+    archivoValidado := false;
+  // Debe guardarse en una booleana
+  validadorIndividual := validarELemento(datosMapa.planetaT[2], datosMapa.dimensiones.col, 'la posicion en Y del planeta');
+
+  If (validadorIndividual = false) Then
+    archivoValidado := false;
+  // Debe guardarse en una booleana
   // Guarda cantidad y coordenadas de estrellas
   leerCantidadYCoordenadas(entrada, datosMapa.estrellas.cantidad, datosMapa.
-                           estrellas.coordenadas);
+                           estrellas.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col, validadorIndividual);
+
+
+  If (validadorIndividual = false) Then
+    archivoValidado := false;
+
+
   // Guardar cantidad y coordenadas de destructores
   leerCantidadYCoordenadas(entrada, datosMapa.destructores.cantidad, datosMapa.
-                           destructores.coordenadas);
+                           destructores.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col,  validadorIndividual);
+
+  If (validadorIndividual = false) Then
+    archivoValidado := false;
+
+  // Cerrar archivo
   Close(entrada);
 End;
 
@@ -471,7 +561,7 @@ Begin
   // Asignar la variable archivo al archivo en la ruta (rutaArchivoEntrada)
   Assign(entrada, rutaArchivoEntrada);
   // Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
-  leerArchivo(entrada, datosMapa);
+  leerArchivo(entrada, datosMapa, datosMapa.archivoValidado);
   // Mostrar info del archivo de entrada
   Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas ',
           datosMapa.dimensiones.col);
@@ -485,7 +575,11 @@ Begin
                               destructores.coordenadas, 'destructores');
   Delay(300);
   Writeln;
-  Writeln('Presiona para jugar si estas listo...');
+
+  If (datosMapa.archivoValidado) Then
+    Writeln('Presiona para jugar si estas listo...')
+  Else
+    writeln('Error, ingresa los datos bien en el archivo.');
   Writeln;
   Readkey;
 End;
@@ -573,7 +667,7 @@ Begin
   Repeat
     Write('Indique la cantidad de ', mensaje, ' a ingresar: ');
     Readln(n);
-    If (n < 0) Or (n > lim) Then
+    If (n < 1) Or (n > lim) Then
       Writeln('Error, la cantidad de ', mensaje,
               ' debe estar comprendido entre 1 y ', lim);
   Until (n>=1) And (n<=lim);
@@ -588,9 +682,12 @@ End;
 Procedure validarPersonalizado(Var fil, col: integer; lim: Integer);
 
 Var 
-  total: integer;
+  total, i: integer;
 
 Begin
+
+  i := 0;
+
   Repeat
     writeln('INSTRUCCIONES:');
     writeln;
@@ -604,14 +701,20 @@ Begin
     writeln;
     // Cantidad de filas no mayor a 15 ni menor a 3;
     Repeat
-      writeln('Indica la cantidad de filas: ');
-      read(fil);
+      write('Indica la cantidad de filas: ');
+      readLn(fil);
+      If (fil < 6) Then
+        writeLn('Error, indique cantidad entre 6 y ', lim);
+      writeLn;
     Until (fil >= 6) And (fil <= lim);
     writeln;
     // Cantidad de columnas no mayor a 15 ni menor a 3
     Repeat
-      writeln('Indica la cantidad de columnas: ');
-      read(col);
+      write('Indica la cantidad de columnas: ');
+      readLn(col);
+      If (col < 6) Then
+        writeLn('Error, indique cantidad entre 6 y ', lim);
+      writeLn;
     Until (col >= 6) And  (col <= lim);
 
   Until (fil+col >= 12);
@@ -1648,10 +1751,18 @@ Begin
       data.estrellas.cantidad := 5;
       data.destructores.cantidad := 5;
     End;
-  Partida(plano, data, desarrollo, data.destructores.coordenadas, data.destructores.
-          cantidad, nave, planeta, fil, col
-  );
 
+  If (tipo = tipoAleatorio) Or (tipo = tipoPersonalizado) Then
+    Partida(plano, data, desarrollo, data.destructores.coordenadas, data.destructores.
+            cantidad, nave, planeta, fil, col
+    );
+
+  If (data.archivoValidado) Then
+    Partida(plano, data, desarrollo, data.destructores.coordenadas, data.destructores.
+            cantidad, nave, planeta, fil, col
+    )
+  Else
+    writeln('Regresa al menu...');
 
   If (tipo = tipoAleatorio) Or (tipo = tipoPersonalizado) Then
     Begin
@@ -1689,32 +1800,35 @@ Begin
     // En caso de que sea tipo = tipoArchivo
   Else
     Begin
-      If (desarrollo = gano) Then
+      If (data.archivoValidado) Then
         Begin
-          AnimacionGanar(desarrollo, 0);
-          procesarArchivoSalida(salida, data, rutaArchivoSalida);
-          Delay(300);
-          writeln;
-          writeln('Presiona cualquier tecla para salir al menu.');
-          readkey;
-        End;
+          If (desarrollo = gano) Then
+            Begin
+              AnimacionGanar(desarrollo, 0);
+              procesarArchivoSalida(salida, data, rutaArchivoSalida);
+              Delay(300);
+              writeln;
+              writeln('Presiona cualquier tecla para salir al menu.');
+              readkey;
+            End;
 
-      If (desarrollo = perder) Then
-        Begin
-          AnimacionPerder(desarrollo);
-          Delay(300);
-          writeln;
-          writeln('Presiona para seguir...');
-          readkey;
-        End;
+          If (desarrollo = perder) Then
+            Begin
+              AnimacionPerder(desarrollo);
+              Delay(300);
+              writeln;
+              writeln('Presiona para seguir...');
+              readkey;
+            End;
 
-      If (desarrollo = navePerdida) Then
-        Begin
-          AnimacionPerder(desarrollo);
-          Delay(300);
-          writeln;
-          writeln('Presiona para seguir...');
-          readkey;
+          If (desarrollo = navePerdida) Then
+            Begin
+              AnimacionPerder(desarrollo);
+              Delay(300);
+              writeln;
+              writeln('Presiona para seguir...');
+              readkey;
+            End;
         End;
     End;
 
