@@ -462,8 +462,8 @@ Begin
 End;
 
 // Procesar datos del archivo de entrada
-Procedure procesarArchivo(Var entrada: Text; Var datosMapa: dataMapa;
-                          rutaArchivoEntrada: String);
+Procedure procesarArchivoEntrada(Var entrada: Text; Var datosMapa: dataMapa;
+                                 rutaArchivoEntrada: String);
 
 Var 
   i: Integer;
@@ -585,7 +585,7 @@ End;
 
 // Funcion validadora del personalizado:
 
-Procedure validarPersonalizado(Var n1, n2: integer; lim: Integer);
+Procedure validarPersonalizado(Var fil, col: integer; lim: Integer);
 
 Var 
   total: integer;
@@ -596,7 +596,7 @@ Begin
     writeln;
     writeln('La suma de la cantidad de las FILAS y las COLUMNAS debe ser mayor a 12'
     );
-    writeln(' igualmente las FILAS y las COLUMNAS deben ser mayor a 3 y menor a 15.'
+    writeln(' igualmente las FILAS y las COLUMNAS deben ser mayor o igual a 6 y menor a 15.'
     );
     writeln;
     writeln('Presiona para continuar...');
@@ -605,15 +605,16 @@ Begin
     // Cantidad de filas no mayor a 15 ni menor a 3;
     Repeat
       writeln('Indica la cantidad de filas: ');
-      read(n1);
-    Until ((n1 <= lim) And (n1 >= 3));
+      read(fil);
+    Until (fil >= 6) And (fil <= lim);
     writeln;
     // Cantidad de columnas no mayor a 15 ni menor a 3
     Repeat
       writeln('Indica la cantidad de columnas: ');
-      read(n2);
-    Until ((n2 <= lim) And (n2 >= 3));
-  Until ((n1+n2) >= 12);
+      read(col);
+    Until (col >= 6) And  (col <= lim);
+
+  Until (fil+col >= 12);
 End;
 
 // Relleno
@@ -1218,7 +1219,7 @@ Begin
           errores := errores + 2;
         End;
 
-      If (contMovimientos = 3) And ((Abs(nave[1] - estrellas[i].posicionX) <= 1) And (Abs(nave[2] - estrellas[i].posicionY) <= 1)) Then
+      If (contMovimientos >= 3) And ((Abs(nave[1] - estrellas[i].posicionX) <= 1) And (Abs(nave[2] - estrellas[i].posicionY) <= 1)) Then
         Begin
           errores := errores + 1;
         End;
@@ -1242,6 +1243,7 @@ Begin
   Clrscr;
   Writeln('!!Intenta encontrar el Planeta!!');
   Writeln;
+
   // Mostrar el score de la partida
   If (data.tipoMapa = tipoAleatorio) Or (data.tipoMapa = tipoPersonalizado) Then
     writeln('NIVEL: ', data.score);
@@ -1277,6 +1279,10 @@ Begin
     // Este condicional se encarga de mostrar las estrellas en el mapa
     generacionInterrogaciones(terrenoModificado, contMov, data.estrellas.coordenadas,
                               data.estrellas.cantidad, nave, planeta);
+
+
+  writeln('Errores: ', data.contErrores);
+  writeln('Movimientos: ', contArray-1);
 
   // Coloco las celdas
   For i := 1 To fil Do
@@ -1625,7 +1631,7 @@ Begin
   Delay(300);
   Randomize;
   If (tipo = TipoArchivo) Then
-    procesarArchivo(entrada, data, rutaArchivoEntrada);
+    procesarArchivoEntrada(entrada, data, rutaArchivoEntrada);
   If (tipo = TipoAleatorio) Then
     Begin
       fil := Random(4)+9;
@@ -2010,8 +2016,8 @@ Var
 Begin
   Clrscr;
   // Ruta archivo de entrada
-  rutaArchivoEntrada := 'est.dat';
-  rutaArchivoSalida := 'est.res';
+  rutaArchivoEntrada := 'C:\Users\user\Desktop\Proyecto\project-ucab\est.dat';
+  rutaArchivoSalida := 'C:\Users\user\Desktop\Proyecto\project-ucab\est.res';
   // Partida Completa
   Menu(dataPrincipal, opc, volver, salir);
 End.
