@@ -9,8 +9,9 @@ Const
   NUM_SUBMENU = 4;
   NUM_TUTORIAL = 3;
   // MAIN
-  LIMITE = 30;
+  LIMITE = 15;
   LIMITE_PERSONALIZADO = 15;
+	// LIMITE_ELEMENTOS = 10;
   LIMITE_ELEMENTOS = 10;
   LIMITE_MOVIMIENTOS = 200;
   MOVIMIENTOS_MAXIMO = 8;
@@ -111,6 +112,7 @@ Type
 Var 
   entrada, salida: Text;
   rutaArchivoEntrada, rutaArchivoSalida: String;
+  validadorIndividual: boolean;
 
 Function validarElemento(elemento: Integer; lim: integer; mensaje: String): Boolean;
 
@@ -132,7 +134,7 @@ End;
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
 
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
-                                      ArrayDinamico; mensaje: String);
+                                      ArrayDinamico; validadorIndividual: Boolean;mensaje: String);
 
 Var 
   i: Integer;
@@ -141,12 +143,15 @@ Begin
   // Mostrar la cantidad de estrellas o destructores
   Writeln('Coordenadas de ', mensaje, ':');
   // Mostrar las coordenadas de estrellas o destructores
-  For i := 1 To cantidad Do
+	if (validadorIndividual = true) Then
+	Begin
+  	For i := 1 To cantidad Do
     Begin
       Writeln(i, ': X=', coordenadas[i].posicionX, ', Y=', coordenadas[i].
               posicionY);
       // Mostrar las coordenadas de cada elemento
     End;
+	End;
 End;
 
 Procedure bloqueDestructores(Var destructores: ArrayDinamico; niveles: integer; tipo: TipoGeneracionMapa; nave, planeta: vector; fil, col: Integer; Var cantDestructores: Integer);
@@ -389,20 +394,22 @@ Begin
   Randomize;
   If ((tipo = TipoPersonalizado) Or (tipo = TipoAleatorio)) Then
     Begin
- {Randomizo la nave}
+		
+ 			// ---- Randomizar la posicion X,Y de la  nave
+			
       // Va a agarrar la penultima o la ultima fila la posicion en X de la nave
       nave[1] := Random(2)+(fil-1);
 
-      // Randomizo la posicion en Y de la de la nave, no puede tocar ningun extremo
+      // Randomizar la posicion en Y de la de la nave, no puede tocar ningun extremo
       Repeat
         nave[2] := Random(col-4)+3;
       Until (nave[2] <> col) And (Abs(nave[2] - col) > 2);
 
-      // Randomizar la posición X,Y del planeta
+      // ---- Randomizar la posición X,Y del planeta
       Repeat
         // Posiciono el planeta en la 2da fila
         planeta[1] := 2;
-        // Me aseguro de que el planeta no toque ningun extremo de la columna
+        // Asegurar que el planeta no toque ningun extremo de la columna
         Repeat
           planeta[2] := Random(col-4)+3;
         Until (planeta[2] <> col) And (Abs(planeta[2] - col) > 2);
@@ -410,7 +417,7 @@ Begin
       Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
       // Planeta y nave no pueden estar en la misma celda
 
-{ Si es tipo aleatorio puedo hacer 2 llamadas a la funcion del bloque de una vez para que me genere
+		 { Si es tipo aleatorio se puede hacer 2 llamadas a la funcion del bloque de una vez para que genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
         Begin
@@ -424,66 +431,107 @@ End;
 
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
-                                   coordenadas: ArrayDinamico; fil, col: integer; Var validadorIndividual: Boolean);
+          coordenadas: ArrayDinamico; fil, col: integer; Var validadorIndividual: Boolean; mensaje: String);
 
 Var 
-  i, cant_1, cant_2: Integer;
+  i, cant_1, cant_2: Integer; // Cantidad
+	contCoordenadasQueFaltan: Integer; // Condicional si cantidad > nrodecoordenadas dado
+	singular: String;
 Begin
 
-  validadorIndividual := true;
-  // Inicializar en true
+  validadorIndividual := true; // Inicializar en true
+	contCoordenadasQueFaltan:= 0;
+
+  // Convertidor de mensaje a singular
+	if (mensaje = 'estrellas') Then
+	  singular:= 'estrella'
+	Else if (mensaje = 'destructores') Then
+	  singular:= 'destructor';
 
 
-  // Leer el primer numero de la cantidad de estrellas o destructores del archivo de entrada y comprobar si es > o < que 10
-  // Nro < que 10 (ej. 0 7) = 7
+  // Leer el primer numero de la cantidad de estrellas o destructores del archivo de entrada y comprobar si empieza con 0
+	// El 0 como primer caracter de la linea denota cantidad y el segundo numero seria el valor de la cantidad
+	
+  // Agarra el primer numero de la linea
   Read(entrada, cant_1);
+	// Verifica si es 0
   If (cant_1 = 0) Then
-    Begin
-      Read(entrada, cantidad);
-      // Guarda el siguiente numero como la cantidad
-    End
-    // Nro > que 10 (ej. 1 5) = 15
+  Begin
+      Read(entrada, cantidad); // Guarda el siguiente numero como la cantidad
+  End
+  // Si el primer numero no es 0, no denota cantidad
   Else
+    validadorIndividual := false;  
+
+	// Asegurar que la cantidad esté entre el limite
+  If (cantidad < 1) or (cantidad > LIMITE_ELEMENTOS) Then
+  Begin
+    writeLn('Cantidad invalida de ', mensaje, ', debe estar entre 1 y ', LIMITE_ELEMENTOS);
+		validadorIndividual := false;
+	End;
+
+	if (validadorIndividual = true) Then
+	Begin
+    // Rellena las posiciones faltantes en el array de coordenadas con ceros
+	  For i:= (cantidad + 1) to LIMITE_ELEMENTOS do
+	  Begin
+  	  coordenadas[i].posicionX := 5;
+  	  coordenadas[i].posicionY := 5;
+	  End;
+	End;
+
+	{Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
+  como un objeto de coordenadas dentro de un array}
+  if (validadorIndividual = true) Then
+	Begin
+	  For i := 1 To cantidad Do
     Begin
-      Read(entrada, cant_2);
-      // Obtener el segundo nro de la line
-      cantidad := cant_1 * 10 + cant_2;
-      // Combinar el primer n£mero con el segundo
-    End;
-
-  If (cantidad < 1) Then
-    writeLn('Cantidad invalida');
-  // FALTA HACER UNA LOGICA CON ESTO (aparece arriba un ratito y se va)
-
-
-
-{Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
- como un objeto de coordenadas dentro de un array}
-  For i := 1 To cantidad Do
-    Begin
+		  // Guarda las coordenadas X y Y en el array de objetos de tipo coordenada
       Read(entrada, coordenadas[i].posicionX, coordenadas[i].posicionY);
+			
+			// Si la coordenada x es 0 denota una cantidad
+			If (coordenadas[i].posicionX = 0) and (coordenadas[i].posicionY <> 0)  Then
+      Begin
+        writeLn('Error, valor de posicion X (0) de ',singular,' en la posicion ',i, ' hace referencia a una cantidad ');
+        validadorIndividual := false;
+      End;
+			
+			// Si se dio una cantidad mayor al nro de coordenadas dado (se pone coordenadas x=0 y=0)
+			If (coordenadas[i].posicionX = 0) and (coordenadas[i].posicionY = 0)  Then
+      Begin
+        contCoordenadasQueFaltan:= contCoordenadasQueFaltan + 1;
+				validadorIndividual:= false;
+      End; 
 
       // ---- Validar coordenadas
       // Si la coordenada X es invalida
       If (coordenadas[i].posicionX < 1) Or (coordenadas[i].posicionX > fil) Then
-        Begin
-          writeLn('Valor de posicion X invalido: ', coordenadas[i].posicionX, ', en la posicion ', i);
-          validadorIndividual := false;
-        End;
+      Begin
+        writeLn('Error, valor de posicion X (', coordenadas[i].posicionX,') de ', singular,' en la posicion ', i ,' es invalido');
+        validadorIndividual := false;
+      End;
       // Si la coordenada Y es invalida
       If (coordenadas[i].posicionY < 1) Or (coordenadas[i].posicionY > col) Then
-        Begin
-          writeLn('Valor de posicion Y invalido: ', coordenadas[i].posicionY, ', en la posicion ', i);
-          validadorIndividual := false;
-        End;
+      Begin
+			  writeLn('Error, valor de posicion Y (', coordenadas[i].posicionY,') de ', singular,' en la posicion ', i ,' es invalido');
+        validadorIndividual := false;
+      End;
     End;
+    
+		// Imprimir cuantas coordenadas faltan (en caso de que falten)
+	  if (contCoordenadasQueFaltan > 0) Then
+		Begin
+		  writeLn('Error, faltan ', contCoordenadasQueFaltan, ' coordenadas ', mensaje, ', se esperaban ', cantidad,
+			' y solo hay ', (cantidad - contCoordenadasQueFaltan));
+		End;
+	End;
 End;
+
 // Leer archivo de entrada (guardar su data en el objeto de tipo dataMapa)
-
 Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa; Var archivoValidado: boolean);
-
-Var 
-  validadorIndividual: boolean;
+{
+Var
+  validadorIndividual: boolean;}
 
 Begin
 
@@ -533,7 +581,8 @@ Begin
   // Debe guardarse en una booleana
   // Guarda cantidad y coordenadas de estrellas
   leerCantidadYCoordenadas(entrada, datosMapa.estrellas.cantidad, datosMapa.
-                           estrellas.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col, validadorIndividual);
+                           estrellas.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col,
+													  validadorIndividual, 'estrellas');
 
 
   If (validadorIndividual = false) Then
@@ -541,11 +590,15 @@ Begin
 
 
   // Guardar cantidad y coordenadas de destructores
-  leerCantidadYCoordenadas(entrada, datosMapa.destructores.cantidad, datosMapa.
-                           destructores.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col,  validadorIndividual);
+  If not (eof(entrada)) Then
+	Begin
+	  leerCantidadYCoordenadas(entrada, datosMapa.destructores.cantidad, datosMapa.
+        destructores.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col,
+				validadorIndividual, 'destructores');
 
-  If (validadorIndividual = false) Then
-    archivoValidado := false;
+    If (validadorIndividual = false) Then
+      archivoValidado := false;
+	End;
 
   // Cerrar archivo
   Close(entrada);
@@ -570,9 +623,9 @@ Begin
   Writeln('Las coordenadas de el planeta T son: ', datosMapa.planetaT[1],' y ',
           datosMapa.planetaT[2]);
   MostrarCantidadYCoordenadas(datosMapa.estrellas.cantidad, datosMapa.estrellas.
-                              coordenadas, 'estrellas');
+                              coordenadas, validadorIndividual,'estrellas');
   MostrarCantidadYCoordenadas(datosMapa.destructores.cantidad, datosMapa.
-                              destructores.coordenadas, 'destructores');
+                              destructores.coordenadas, validadorIndividual,'destructores');
   Delay(300);
   Writeln;
 
@@ -2130,8 +2183,8 @@ Var
 Begin
   Clrscr;
   // Ruta archivo de entrada
-  rutaArchivoEntrada := 'C:\Users\user\Desktop\Proyecto\project-ucab\est.dat';
-  rutaArchivoSalida := 'C:\Users\user\Desktop\Proyecto\project-ucab\est.res';
+  rutaArchivoEntrada := 'C:\project-ucab\est.dat';
+  rutaArchivoSalida := 'C:\project-ucab\est.res';
   // Partida Completa
   Menu(dataPrincipal, opc, volver, salir);
 End.
