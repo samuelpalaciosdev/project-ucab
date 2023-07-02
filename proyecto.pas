@@ -142,15 +142,15 @@ Begin
   // Mostrar la cantidad de estrellas o destructores
   Writeln('Coordenadas de ', mensaje, ':');
   // Mostrar las coordenadas de estrellas o destructores
-	if (validadorIndividual = true) Then
-	Begin
-  	For i := 1 To cantidad Do
+  If (validadorIndividual = true) Then
     Begin
-      Writeln(i, ': X=', coordenadas[i].posicionX, ', Y=', coordenadas[i].
-              posicionY);
-      // Mostrar las coordenadas de cada elemento
+      For i := 1 To cantidad Do
+        Begin
+          Writeln(i, ': X=', coordenadas[i].posicionX, ', Y=', coordenadas[i].
+                  posicionY);
+          // Mostrar las coordenadas de cada elemento
+        End;
     End;
-	End;
 End;
 
 Procedure bloqueDestructores(Var destructores: ArrayDinamico; niveles: integer; tipo: TipoGeneracionMapa; nave, planeta: vector; fil, col: Integer; Var cantDestructores: Integer);
@@ -393,9 +393,9 @@ Begin
   Randomize;
   If ((tipo = TipoPersonalizado) Or (tipo = TipoAleatorio)) Then
     Begin
-		
- 			// ---- Randomizar la posicion X,Y de la  nave
-			
+
+      // ---- Randomizar la posicion X,Y de la  nave
+
       // Va a agarrar la penultima o la ultima fila la posicion en X de la nave
       nave[1] := Random(2)+(fil-1);
 
@@ -416,7 +416,7 @@ Begin
       Until ((planeta[1] <> nave[1]) Or (planeta[2] <> nave[2]));
       // Planeta y nave no pueden estar en la misma celda
 
-		 { Si es tipo aleatorio se puede hacer 2 llamadas a la funcion del bloque de una vez para que genere
+   { Si es tipo aleatorio se puede hacer 2 llamadas a la funcion del bloque de una vez para que genere
 		 las coordenadas de destructores y estrellas sin problema }
       If ((tipo = tipoAleatorio) Or (tipo = tipoPersonalizado)) Then
         Begin
@@ -551,7 +551,7 @@ Begin
   // Guarda cantidad y coordenadas de estrellas
   leerCantidadYCoordenadas(entrada, datosMapa.estrellas.cantidad, datosMapa.
                            estrellas.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col,
-													  validadorIndividual, 'estrellas');
+                           validadorIndividual, 'estrellas');
 
 
   If (validadorIndividual = false) Then
@@ -559,15 +559,15 @@ Begin
 
 
   // Guardar cantidad y coordenadas de destructores
-  If not (eof(entrada)) Then
-	Begin
-	  leerCantidadYCoordenadas(entrada, datosMapa.destructores.cantidad, datosMapa.
-        destructores.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col,
-				validadorIndividual, 'destructores');
+  If Not (eof(entrada)) Then
+    Begin
+      leerCantidadYCoordenadas(entrada, datosMapa.destructores.cantidad, datosMapa.
+                               destructores.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col,
+                               validadorIndividual, 'destructores');
 
-    If (validadorIndividual = false) Then
-      archivoValidado := false;
-	End;
+      If (validadorIndividual = false) Then
+        archivoValidado := false;
+    End;
 
   // Cerrar archivo
   Close(entrada);
@@ -1405,9 +1405,6 @@ Begin
     generacionInterrogaciones(terrenoModificado, contMov, data.estrellas.coordenadas,
                               data.estrellas.cantidad, nave, planeta);
 
-
-  writeln('Errores: ', data.contErrores);
-  writeln('Movimientos: ', contArray-1);
 
   // Coloco las celdas
   For i := 1 To fil Do
