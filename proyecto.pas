@@ -1618,17 +1618,10 @@ Begin
     desarrolloPartida := abandono;
 
 
-
-
-
-
-
-{
   // Guardar historial de movimientos de la nave para generar archivo de salida
   agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
                                   contadorMovimientos);
 
-}
 
   // Imprimir data de los archivos
   procesarArchivoSalida(salida,data, rutaArchivoSalida);
