@@ -11,6 +11,7 @@ Const
   // MAIN
   LIMITE = 15;
   LIMITE_PERSONALIZADO = 15;
+  // LIMITE_ELEMENTOS = 10;
   LIMITE_ELEMENTOS = 10;
   LIMITE_MOVIMIENTOS = 200;
   MOVIMIENTOS_MAXIMO = 8;
@@ -111,7 +112,7 @@ Type
 Var 
   entrada, salida: Text;
   rutaArchivoEntrada, rutaArchivoSalida: String;
-  validadorIndividual: boolean;
+
 
 Function validarElemento(elemento: Integer; lim: integer; mensaje: String): Boolean;
 
@@ -428,79 +429,111 @@ End;
 // ARCHIVOS
 //
 
+// Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
 Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
-          coordenadas: ArrayDinamico; fil, col: integer; Var validadorIndividual: Boolean; mensaje: String);
-Var
-  i, cant_1, cant_2: Integer; // Índice
+                                   coordenadas: ArrayDinamico; fil, col: integer; Var validadorIndividual: Boolean; mensaje: String);
+
+Var 
+  i, cant_1, cant_2: Integer;
+  // Cantidad
+  contCoordenadasQueFaltan: Integer;
+  // Condicional si cantidad > nrodecoordenadas dado
   singular: String;
 Begin
+
   validadorIndividual := true;
+  // Inicializar en true
+  contCoordenadasQueFaltan := 0;
 
-  // Convertir mensaje a singular
-  if (mensaje = 'estrellas') Then
-    singular:= 'estrella'
-  Else if (mensaje = 'destructores') Then
-    singular:= 'destructor';
+  // Convertidor de mensaje a singular
+  If (mensaje = 'estrellas') Then
+    singular := 'estrella'
+  Else If (mensaje = 'destructores') Then
+         singular := 'destructor';
 
-  // Leer el primer número de la cantidad de estrellas o destructores del archivo de entrada y comprueba si empieza con 0
+
+  // Leer el primer numero de la cantidad de estrellas o destructores del archivo de entrada y comprobar si empieza con 0
+  // El 0 como primer caracter de la linea denota cantidad y el segundo numero seria el valor de la cantidad
+
+  // Agarra el primer numero de la linea
   Read(entrada, cant_1);
-
-  // Verificar si es 0
-  if (cant_1 = 0) then
-  begin
-    Read(entrada, cantidad); // Guardar el siguiente número como la cantidad
-  end
-  else
-  begin
-    validadorIndividual := false;
-    writeln('Error, el valor no denota una cantidad de ', mensaje);
-  end;
-
-  // Asegurar que la cantidad esté entre el límite
-  If (cantidad < 1) or (cantidad > LIMITE_ELEMENTOS) Then
-  Begin
-    writeln('Cantidad inválida de ', mensaje, ', debe estar entre 1 y ', LIMITE_ELEMENTOS);
-    validadorIndividual := false;
-  End;
-
-  // Leer las coordenadas de las estrellas o destructores y guardar la posición de cada elemento
-  // como un objeto de coordenadas dentro de un array
-  For i := 1 To cantidad Do
-  Begin
-    // Leer una coordenada
-    If not Eof(entrada) Then
+  // Verifica si es 0
+  If (cant_1 = 0) Then
     Begin
-      Read(entrada, coordenadas[i].posicionX, coordenadas[i].posicionY);
-
-      // ---- Validar coordenadas
-      // Si la coordenada X es inválida
-      If (coordenadas[i].posicionX < 1) Or (coordenadas[i].posicionX > fil) Then
-      Begin
-        writeLn('Error, valor de posicion X (', coordenadas[i].posicionX, ') de ', singular, ' en la posicion ', i ,' es invalido');
-        validadorIndividual := false;
-      End;
-
-      // Si la coordenada Y es inválida
-      If (coordenadas[i].posicionY < 1) Or (coordenadas[i].posicionY > col) Then
-      Begin
-        writeLn('Error, valor de posicion Y (', coordenadas[i].posicionY, ') de ', singular, ' en la posicion ', i ,' es invalido');
-        validadorIndividual := false;
-      End;
+      Read(entrada, cantidad);
+      // Guarda el siguiente numero como la cantidad
     End
-    Else
+    // Si el primer numero no es 0, no denota cantidad
+  Else
+    validadorIndividual := false;
+
+  // Asegurar que la cantidad esté entre el limite
+  If (cantidad < 1) Or (cantidad > LIMITE_ELEMENTOS) Then
     Begin
-      writeln('Error, se esperaban ', cantidad, ' coordenadas de ', mensaje, ' pero solo se encontraron ', i-1);
+      writeLn('Cantidad invalida de ', mensaje, ', debe estar entre 1 y ', LIMITE_ELEMENTOS);
       validadorIndividual := false;
-      Break; // Salir del bucle
     End;
-  End;
+
+  If (validadorIndividual = true) Then
+    Begin
+      // Rellena las posiciones faltantes en el array de coordenadas con ceros
+      For i:= (cantidad + 1) To LIMITE_ELEMENTOS Do
+        Begin
+          coordenadas[i].posicionX := 5;
+          coordenadas[i].posicionY := 5;
+        End;
+    End;
+
+ {Leer las coordenadas de las estrellas o destructores y guarda la posicion de cada elemento
+  como un objeto de coordenadas dentro de un array}
+  If (validadorIndividual = true) Then
+    Begin
+      For i := 1 To cantidad Do
+        Begin
+          // Guarda las coordenadas X y Y en el array de objetos de tipo coordenada
+          Read(entrada, coordenadas[i].posicionX, coordenadas[i].posicionY);
+
+          // Si la coordenada x es 0 denota una cantidad
+          If (coordenadas[i].posicionX = 0) And (coordenadas[i].posicionY <> 0)  Then
+            Begin
+              writeLn('Error, valor de posicion X (0) de ',singular,' en la posicion ',i, ' hace referencia a una cantidad ');
+              validadorIndividual := false;
+            End;
+
+          // Si se dio una cantidad mayor al nro de coordenadas dado (se pone coordenadas x=0 y=0)
+          If (coordenadas[i].posicionX = 0) And (coordenadas[i].posicionY = 0)  Then
+            Begin
+              contCoordenadasQueFaltan := contCoordenadasQueFaltan + 1;
+              validadorIndividual := false;
+            End;
+
+          // ---- Validar coordenadas
+          // Si la coordenada X es invalida
+          If (coordenadas[i].posicionX < 1) Or (coordenadas[i].posicionX > fil) Then
+            Begin
+              writeLn('Error, valor de posicion X (', coordenadas[i].posicionX,') de ', singular,' en la posicion ', i ,' es invalido');
+              validadorIndividual := false;
+            End;
+          // Si la coordenada Y es invalida
+          If (coordenadas[i].posicionY < 1) Or (coordenadas[i].posicionY > col) Then
+            Begin
+              writeLn('Error, valor de posicion Y (', coordenadas[i].posicionY,') de ', singular,' en la posicion ', i ,' es invalido');
+              validadorIndividual := false;
+            End;
+        End;
+
+      // Imprimir cuantas coordenadas faltan (en caso de que falten)
+      If (contCoordenadasQueFaltan > 0) Then
+        Begin
+          writeLn('Error, faltan ', contCoordenadasQueFaltan, ' coordenadas ', mensaje, ', se esperaban ', cantidad,
+                  ' y solo hay ', (cantidad - contCoordenadasQueFaltan));
+        End;
+    End;
 End;
 
 // Leer archivo de entrada (guardar su data en el objeto de tipo dataMapa)
-Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa; Var archivoValidado: boolean);
-{
-Var
-  validadorIndividual: boolean;}
+Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa; Var archivoValidado: boolean; Var validadorIndividual: boolean);
+
 
 Begin
 
@@ -579,11 +612,13 @@ Procedure procesarArchivoEntrada(Var entrada: Text; Var datosMapa: dataMapa;
 
 Var 
   i: Integer;
+  validadorIndividual: boolean;
+
 Begin
   // Asignar la variable archivo al archivo en la ruta (rutaArchivoEntrada)
   Assign(entrada, rutaArchivoEntrada);
   // Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
-  leerArchivo(entrada, datosMapa, datosMapa.archivoValidado);
+  leerArchivo(entrada, datosMapa, datosMapa.archivoValidado, validadorIndividual);
   // Mostrar info del archivo de entrada
   Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas ',
           datosMapa.dimensiones.col);
@@ -615,6 +650,9 @@ Begin
 
   // [{X,Y}]
 
+  If (contMov = 0) Then
+    contMov := contMov + 1;
+
 
 
   // Como contMov empieza en 1, Si todavía no se ha movido, guardar esa como la posicion inicial
@@ -628,13 +666,15 @@ Begin
 
 
   // Si alguna de las coordenadas (X o Y) son distintas (es un movimiento valido)
-  If (nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[
-     contMov - 1].posicionY) Then
+  If ((nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[
+     contMov - 1].posicionY) And (nave[1] <> 0) And (nave[2] <> 0)) Then
     Begin
       historialMov[contMov].PosicionX := nave[1];
       historialMov[contMov].PosicionY := nave[2];
       contMov := contMov + 1;
     End;
+
+
 End;
 
 Procedure generarArchivoSalida(data: dataMapa);
@@ -676,9 +716,12 @@ Begin
   textColor(blue);
   writeLn('El historial de movimientos fue: ');
   writeLn('Historial de movimientos: ');
-  For j:=1 To (data.contadorMovimientos-1) Do
+  For j:=1 To (data.contadorMovimientos) Do
     writeLn('[',data.historialMovimientos[j].PosicionX, ',',data.
             historialMovimientos[j].PosicionY,']');
+
+  writeln;
+  writeln('cantidad de movimientos: ', data.contadorMovimientos);
   Writeln;
 End;
 
@@ -1510,7 +1553,7 @@ Begin
   relleno(terreno, data, nave, planeta, fil, col);
 
   // Contadores inicializados
-  data.contadorMovimientos := 1;
+  data.contadorMovimientos := 0;
   data.contErrores := 0;
 
   // Inicializo el rastro
@@ -1545,11 +1588,12 @@ Begin
       //
       ch := Upcase(Readkey);
 
+      leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
+
+
       // Guardar historial de movimientos de la nave para generar archivo de salida
       agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
                                       contadorMovimientos);
-
-      leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
 
       // Si gano la partida, el boolean es true
       If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
@@ -1574,9 +1618,18 @@ Begin
     desarrolloPartida := abandono;
 
 
+
+
+
+
+
+
+{
   // Guardar historial de movimientos de la nave para generar archivo de salida
   agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
                                   contadorMovimientos);
+
+}
 
   // Imprimir data de los archivos
   procesarArchivoSalida(salida,data, rutaArchivoSalida);
@@ -1690,11 +1743,14 @@ End;
 //
 
 // Animacion Ganar
-Procedure AnimacionGanar(desarrollo: Victoria; score: integer);
+Procedure AnimacionGanar(data: dataMapa; desarrollo: Victoria; score: integer);
 Begin
   // Si el personaje llego a el planeta
   If (desarrollo = gano) Then
     Begin
+      Clrscr;
+      imprimirHistorialMovimientos(data);
+      readkey;
       Clrscr;
       textcolor(red);
       If (score = 0) Then
@@ -1792,7 +1848,7 @@ Begin
           If (desarrollo = gano) Then
             Begin
               data.score := data.score + 1;
-              AnimacionGanar(desarrollo, data.score);
+              AnimacionGanar(data, desarrollo, data.score);
               procesarArchivoSalida(salida,data, rutaArchivoSalida);
               Partida(plano, data, desarrollo, data.destructores.coordenadas, data.destructores.
                       cantidad, nave, planeta, fil, col
@@ -1823,7 +1879,7 @@ Begin
         Begin
           If (desarrollo = gano) Then
             Begin
-              AnimacionGanar(desarrollo, 0);
+              AnimacionGanar(data, desarrollo, 0);
               procesarArchivoSalida(salida, data, rutaArchivoSalida);
               Delay(300);
               writeln;
@@ -2149,8 +2205,8 @@ Var
 Begin
   Clrscr;
   // Ruta archivo de entrada
-  rutaArchivoEntrada := 'C:\project-ucab\est.dat';
-  rutaArchivoSalida := 'C:\project-ucab\est.res';
+  rutaArchivoEntrada := 'C:\Users\user\Desktop\Proyecto\project-ucab\est.dat';
+  rutaArchivoSalida := 'C:\Users\user\Desktop\Proyecto\project-ucab\est.res';
   // Partida Completa
   Menu(dataPrincipal, opc, volver, salir);
 End.
