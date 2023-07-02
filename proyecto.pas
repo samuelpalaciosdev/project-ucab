@@ -1618,18 +1618,10 @@ Begin
     desarrolloPartida := abandono;
 
 
-
-
-
-
-
-
-{
   // Guardar historial de movimientos de la nave para generar archivo de salida
   agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
                                   contadorMovimientos);
 
-}
 
   // Imprimir data de los archivos
   procesarArchivoSalida(salida,data, rutaArchivoSalida);
@@ -1743,14 +1735,18 @@ End;
 //
 
 // Animacion Ganar
-Procedure AnimacionGanar(data: dataMapa; desarrollo: Victoria; score: integer);
+Procedure AnimacionGanar(data: dataMapa; desarrollo: Victoria; tipo: TipoGeneracionMapa; score: integer);
 Begin
   // Si el personaje llego a el planeta
   If (desarrollo = gano) Then
     Begin
-      Clrscr;
-      imprimirHistorialMovimientos(data);
-      readkey;
+      If (tipo = tipoArchivo) Then
+        Begin
+          Clrscr;
+          imprimirHistorialMovimientos(data);
+          readkey;
+        End;
+
       Clrscr;
       textcolor(red);
       If (score = 0) Then
@@ -1848,7 +1844,7 @@ Begin
           If (desarrollo = gano) Then
             Begin
               data.score := data.score + 1;
-              AnimacionGanar(data, desarrollo, data.score);
+              AnimacionGanar(data, desarrollo, tipo, data.score);
               procesarArchivoSalida(salida,data, rutaArchivoSalida);
               Partida(plano, data, desarrollo, data.destructores.coordenadas, data.destructores.
                       cantidad, nave, planeta, fil, col
@@ -1879,7 +1875,7 @@ Begin
         Begin
           If (desarrollo = gano) Then
             Begin
-              AnimacionGanar(data, desarrollo, 0);
+              AnimacionGanar(data, desarrollo, tipo, 0);
               procesarArchivoSalida(salida, data, rutaArchivoSalida);
               Delay(300);
               writeln;
