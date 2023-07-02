@@ -112,7 +112,7 @@ Type
 Var 
   entrada, salida: Text;
   rutaArchivoEntrada, rutaArchivoSalida: String;
-  validadorIndividual: boolean;
+
 
 Function validarElemento(elemento: Integer; lim: integer; mensaje: String): Boolean;
 
@@ -532,10 +532,8 @@ Begin
 End;
 
 // Leer archivo de entrada (guardar su data en el objeto de tipo dataMapa)
-Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa; Var archivoValidado: boolean);
-{
-Var
-  validadorIndividual: boolean;}
+Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa; Var archivoValidado: boolean; Var validadorIndividual: boolean);
+
 
 Begin
 
@@ -614,11 +612,13 @@ Procedure procesarArchivoEntrada(Var entrada: Text; Var datosMapa: dataMapa;
 
 Var 
   i: Integer;
+  validadorIndividual: boolean;
+
 Begin
   // Asignar la variable archivo al archivo en la ruta (rutaArchivoEntrada)
   Assign(entrada, rutaArchivoEntrada);
   // Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
-  leerArchivo(entrada, datosMapa, datosMapa.archivoValidado);
+  leerArchivo(entrada, datosMapa, datosMapa.archivoValidado, validadorIndividual);
   // Mostrar info del archivo de entrada
   Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas ',
           datosMapa.dimensiones.col);
