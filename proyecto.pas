@@ -650,6 +650,9 @@ Begin
 
   // [{X,Y}]
 
+  If (contMov = 0) Then
+    contMov := contMov + 1;
+
 
 
   // Como contMov empieza en 1, Si todavía no se ha movido, guardar esa como la posicion inicial
@@ -663,13 +666,15 @@ Begin
 
 
   // Si alguna de las coordenadas (X o Y) son distintas (es un movimiento valido)
-  If (nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[
-     contMov - 1].posicionY) Then
+  If ((nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[
+     contMov - 1].posicionY) And (nave[1] <> 0) And (nave[2] <> 0)) Then
     Begin
       historialMov[contMov].PosicionX := nave[1];
       historialMov[contMov].PosicionY := nave[2];
       contMov := contMov + 1;
     End;
+
+
 End;
 
 Procedure generarArchivoSalida(data: dataMapa);
@@ -711,9 +716,12 @@ Begin
   textColor(blue);
   writeLn('El historial de movimientos fue: ');
   writeLn('Historial de movimientos: ');
-  For j:=1 To (data.contadorMovimientos-1) Do
+  For j:=1 To (data.contadorMovimientos) Do
     writeLn('[',data.historialMovimientos[j].PosicionX, ',',data.
             historialMovimientos[j].PosicionY,']');
+
+  writeln;
+  writeln('cantidad de movimientos: ', data.contadorMovimientos);
   Writeln;
 End;
 
@@ -1545,7 +1553,7 @@ Begin
   relleno(terreno, data, nave, planeta, fil, col);
 
   // Contadores inicializados
-  data.contadorMovimientos := 1;
+  data.contadorMovimientos := 0;
   data.contErrores := 0;
 
   // Inicializo el rastro
@@ -1580,11 +1588,12 @@ Begin
       //
       ch := Upcase(Readkey);
 
+      leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
+
+
       // Guardar historial de movimientos de la nave para generar archivo de salida
       agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
                                       contadorMovimientos);
-
-      leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
 
       // Si gano la partida, el boolean es true
       If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
@@ -1609,9 +1618,17 @@ Begin
     desarrolloPartida := abandono;
 
 
+
+
+
+
+
+{
   // Guardar historial de movimientos de la nave para generar archivo de salida
   agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
                                   contadorMovimientos);
+
+}
 
   // Imprimir data de los archivos
   procesarArchivoSalida(salida,data, rutaArchivoSalida);
@@ -1725,11 +1742,14 @@ End;
 //
 
 // Animacion Ganar
-Procedure AnimacionGanar(desarrollo: Victoria; score: integer);
+Procedure AnimacionGanar(data: dataMapa; desarrollo: Victoria; score: integer);
 Begin
   // Si el personaje llego a el planeta
   If (desarrollo = gano) Then
     Begin
+      Clrscr;
+      imprimirHistorialMovimientos(data);
+      readkey;
       Clrscr;
       textcolor(red);
       If (score = 0) Then
@@ -1827,7 +1847,7 @@ Begin
           If (desarrollo = gano) Then
             Begin
               data.score := data.score + 1;
-              AnimacionGanar(desarrollo, data.score);
+              AnimacionGanar(data, desarrollo, data.score);
               procesarArchivoSalida(salida,data, rutaArchivoSalida);
               Partida(plano, data, desarrollo, data.destructores.coordenadas, data.destructores.
                       cantidad, nave, planeta, fil, col
@@ -1858,7 +1878,7 @@ Begin
         Begin
           If (desarrollo = gano) Then
             Begin
-              AnimacionGanar(desarrollo, 0);
+              AnimacionGanar(data, desarrollo, 0);
               procesarArchivoSalida(salida, data, rutaArchivoSalida);
               Delay(300);
               writeln;
