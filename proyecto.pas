@@ -1441,9 +1441,6 @@ Begin
                               data.estrellas.cantidad, nave, planeta);
 
 
-  writeln('Errores: ', data.contErrores);
-  writeln('Movimientos: ', contArray-1);
-
   // Coloco las celdas
   For i := 1 To fil Do
     Begin
