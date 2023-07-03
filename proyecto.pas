@@ -1526,7 +1526,7 @@ Begin
 
               // Impresion del planeta
               If (terrenoModificado[i, j] = BANDERA) Then
-                ImpresoraColor(terrenoModificado[i, j], AZUL);
+                ImpresoraColor(terrenoModificado[i, j], MORADO);
 
 
               // Caso especial de la interrogacion encima de la estrella o del planeta
@@ -1727,13 +1727,75 @@ Begin
                         If (activo = 1) Then
                           Begin
                             Clrscr;
-                            Writeln('Gud Lock');
+                            writeln('Instrucciones:');
+                            writeln;
+                            write('1. Movimiento hacia arriba: Presiona la tecla: ');
+                            ImpresoraColor('W', AZUL);
+                            writeln;
+                            write('2. Movimiento hacia abajo: Presiona la tecla: ');
+                            ImpresoraColor('S', AZUL);
+                            writeln;
+                            write('3. Movimiento hacia la izquierda: Presione la tecla: ');
+                            ImpresoraColor('A', AZUL);
+                            writeln;
+                            write('4. Movimiento hacia la derecha: Presione la tecla: ');
+                            ImpresoraColor('D', AZUL);
+                            writeln;
+                            write('5. Movimiento diagonal superior izquierdo: Presione la tecla: ');
+                            ImpresoraColor('Q', AZUL);
+                            writeln;
+                            write('6. Movimiento diagonal superior derecho: Presione la tecla: ');
+                            ImpresoraColor('E', AZUL);
+                            writeln;
+                            write('7. Movimiento diagonal inferior izquierdo: Presione la tecla: ');
+                            ImpresoraColor('Z', AZUL);
+                            writeln;
+                            write('8. Movimiento diagonal inferior derecho: Presione la tecla: ');
+                            ImpresoraColor('X', AZUL);
+                            writeln;
+                            writeln;
+                            textcolor(BLANCO);
+
+                            writeln('Presiona cualquier tecla para volver...');
                             Readkey;
                           End;
                         If (activo = 2) Then
                           Begin
                             Clrscr;
-                            Writeln('BUENA SUERTE');
+                            writeln('Instrucciones: ');
+                            writeln;
+                            writeln('El juego se conforma de 5 elementos principales: ');
+                            writeln;
+                            write('- La ');
+                            ImpresoraColor(PERSONAJEPOS, BLANCO);
+                            write(': es la nave, la cual controla el usuario y su objetivo es llegar a tocar el planeta: ');
+                            ImpresoraColor(BANDERA, MORADO);
+                            writeln;
+                            writeln;
+                            write('- Las estrellas: ');
+                            ImpresoraColor(STAR, VERDE);
+                            write(' son el elemento de direccion del mapa, unicamente la nave puede avanzar');
+                            writeln;
+                            write('en direccion a las estrellas, de forma diagonal o directa.' );
+                            writeln;
+                            writeln;
+                            writeln('- No podras atravesar ni pasar por encima de las estrellas, unicamente sirven de guia.');
+                            writeln;
+                            write('- Las pistas: ');
+                            ImpresoraColor(POSMOV, AZUL);
+                            write(' ayudan a orientarse para ir en direccion a las estrellas.');
+                            writeln;
+                            writeln;
+
+                            write('- En el mapa puedes encontrarte de forma visible (o no) los siguientes destructores: ');
+                            ImpresoraColor(BOMBA, ROJO);
+                            writeln;
+                            write(' Si llegas a pisarlos la nave explotara y perderas la partida.');
+                            writeln;
+                            writeln;
+                            textcolor(BLANCO);
+
+                            writeln('Presiona cualquier tecla para volver...');
                             Readkey;
                           End;
                         If (activo = 3) Then
@@ -1760,13 +1822,74 @@ Begin
                   If (activo = 1) Then
                     Begin
                       Clrscr;
-                      Writeln('Gud Lock');
+                      writeln('Instrucciones:');
+                      writeln;
+                      write('1. Movimiento hacia arriba: Presiona la tecla: ');
+                      ImpresoraColor('W', AZUL);
+                      writeln;
+                      write('2. Movimiento hacia abajo: Presiona la tecla: ');
+                      ImpresoraColor('S', AZUL);
+                      writeln;
+                      write('3. Movimiento hacia la izquierda: Presione la tecla: ');
+                      ImpresoraColor('A', AZUL);
+                      writeln;
+                      write('4. Movimiento hacia la derecha: Presione la tecla: ');
+                      ImpresoraColor('D', AZUL);
+                      writeln;
+                      write('5. Movimiento diagonal superior izquierdo: Presione la tecla: ');
+                      ImpresoraColor('Q', AZUL);
+                      writeln;
+                      write('6. Movimiento diagonal superior derecho: Presione la tecla: ');
+                      ImpresoraColor('E', AZUL);
+                      writeln;
+                      write('7. Movimiento diagonal inferior izquierdo: Presione la tecla: ');
+                      ImpresoraColor('Z', AZUL);
+                      writeln;
+                      write('8. Movimiento diagonal inferior derecho: Presione la tecla: ');
+                      ImpresoraColor('X', AZUL);
+                      writeln;
+                      writeln;
+                      textcolor(BLANCO);
+
+                      writeln('Presiona cualquier tecla para volver...');
                       Readkey;
                     End;
                   If (activo = 2) Then
                     Begin
                       Clrscr;
-                      Writeln('BUENA SUERTE');
+                      writeln('Instrucciones: ');
+                      writeln;
+                      writeln('El juego se conforma de 5 elementos principales: ');
+                      writeln;
+                      write('- La ');
+                      ImpresoraColor(PERSONAJEPOS, BLANCO);
+                      write(': es la nave, la cual controla el usuario y su objetivo es llegar a tocar el planeta: ');
+                      ImpresoraColor(BANDERA, MORADO);
+                      writeln;
+                      writeln;
+                      write('- Las estrellas: ');
+                      ImpresoraColor(STAR, VERDE);
+                      write(' son el elemento de direccion del mapa, unicamente la nave puede avanzar');
+                      writeln;
+                      write('en direccion a las estrellas, de forma diagonal o directa.' );
+                      writeln;
+                      writeln;
+                      writeln('- No podras atravesar ni pasar por encima de las estrellas, unicamente sirven de guia.');
+                      writeln;
+                      write('- Las pistas: ');
+                      ImpresoraColor(POSMOV, AZUL);
+                      write(' ayudan a orientarse para ir en direccion a las estrellas.');
+                      writeln;
+                      writeln;
+
+                      write('- En el mapa puedes encontrarte de forma visible (o no) los siguientes destructores: ');
+                      ImpresoraColor(BOMBA, ROJO);
+                      writeln;
+                      write(' Si llegas a pisarlos la nave explotara y perderas la partida.');
+                      writeln;
+                      writeln;
+                      textcolor(BLANCO);
+                      writeln('Presiona cualquier tecla para volver...');
                       Readkey;
                     End;
                   If (activo = 3) Then
@@ -1801,7 +1924,9 @@ Begin
       Else
         Writeln('Pasaste al siguiente nivel: ', score, ' ...');
       Writeln;
-      Delay(1000);
+      // El delay solo entra en juego si el tipo de mapa no es tipoArchivo
+      If (tipo <> tipoArchivo) Then
+        Delay(1000);
     End;
 End;
 
