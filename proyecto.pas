@@ -1,4 +1,3 @@
-
 Program proyectoProgram;
 
 Uses crt;
@@ -108,8 +107,8 @@ Type
 
 // ---- VARIABLES ARCHIVO
 Var 
-  entrada, salida: Text;
-  rutaArchivoEntrada, rutaArchivoSalida: String;
+  entrada, salida, mejorCamino: Text;
+  rutaArchivoEntrada, rutaArchivoSalida, rutaArchivoMejorCamino: String;
 
 // Se usa para validar elementos del archivo
 Function validarElemento(elemento: Integer; lim: integer; mensaje: String): Boolean;
@@ -621,7 +620,7 @@ Begin
 End;
 
 // Historial de Movimientos del personaje
-Procedure agregarAlHistorialDeMovimientos(nave: vector; Var historialMov:
+Procedure agregarAlHistorialDeMovimientos(nave, planeta: vector; Var historialMov:
                                           ArrayHistorialMovimientos; Var contMov
                                           :Integer);
 Begin
@@ -632,17 +631,18 @@ Begin
   // Como contMov empieza en 1, Si todavia no se ha movido, guardar esa como la posicion inicial
   If (contMov = 1) Then
     Begin
-      historialMov[contMov].PosicionX := nave[1];
-      historialMov[contMov].PosicionY := nave[2];
+      historialMov[contMov].posicionX := nave[1];
+      historialMov[contMov].posicionY := nave[2];
       contMov := contMov + 1;
     End;
 		
-  // Si alguna de las coordenadas (X o Y) son distintas (es un movimiento valido)
-  If ((nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[
-     contMov - 1].posicionY) And (nave[1] <> 0) And (nave[2] <> 0)) Then
+  // Si la posición actual es diferente a la posición anterior (es un movimiento valido)
+	// Tambien verificar que la posicion no es la misma que la del planeta
+  If ((nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[contMov - 1].posicionY)
+	   And (nave[1] <> 0) And (nave[2] <> 0)) And (nave[1] <> planeta[1]) And(nave[2] <> planeta[2]) Then
   Begin
-    historialMov[contMov].PosicionX := nave[1];
-    historialMov[contMov].PosicionY := nave[2];
+    historialMov[contMov].posicionX := nave[1];
+    historialMov[contMov].posicionY := nave[2];
     contMov := contMov + 1;
   End;
 	
@@ -678,6 +678,89 @@ Begin
   generarArchivoSalida(datosMapa);
 End;
 
+// Funcion que cuenta la cantidad de numeros de un archivo
+Function contNrosArchivo(var archivo: Text): Integer;
+Var
+  cont, nro: Integer;
+Begin
+  cont := 0;  // Inicializar la variable cont
+
+  reset(archivo);
+  while not eof(archivo) Do
+  Begin
+    while not eoln(archivo) do
+    begin
+      read(archivo, nro);
+      cont := cont + 1;
+    end;
+    Readln(archivo); // Omitir el resto de la línea
+  End;
+
+  close(archivo);
+
+  contNrosArchivo := cont;
+End;
+
+// Funcion que retorna (true o false) dependiendo de si el historial de movs coincide con el mejor camino (archivo)
+Function coincideConMejorCamino(data: dataMapa; var salida, mejorCamino: Text; rutaArchivoMejorCamino: String):Boolean;
+Var
+  posXMejor, posYMejor: Integer;
+  posXSalida, posYSalida: Integer;
+  cantNrosSalida, cantNrosMejorCamino: Integer;
+  i: Integer;
+  coinciden: Boolean;
+Begin
+
+  Assign(mejorCamino, rutaArchivoMejorCamino);
+
+  cantNrosSalida:= (data.contadorMovimientos - 1) * 2; {Como el contador de movs empieza en 1, restar 1
+	                                                      y multiplicar por 2 ya que son 2 coordenadas X,Y}
+	cantNrosMejorCamino:= contNrosArchivo(mejorCamino); // Cantidad de numeros del archivo de mejor camino
+
+	// writeLn('El archivo de mejor camino tiene ', cantNrosMejorCamino, ' numeros');
+	// writeLn('El archivo de salida tiene ', cantNrosSalida, ' numeros');
+
+	// Si las cantidades de números son iguales
+	if (cantNrosSalida = cantNrosMejorCamino) Then
+	Begin
+	  reset(salida); // Abrir archivo
+		reset(mejorCamino); // Abrir archivo
+		// Como la cantidad cuenta los pares, entonces div 2
+    for i:=1 to (cantNrosSalida div 2) Do
+		Begin
+		  Read(salida, posXSalida, posYSalida); // Leer coordenadas X,Y del archivo de salida
+			// writeLn('Salida ', i, ' [',posXSalida,',',posYSalida,']');
+			Read(mejorCamino, posXMejor, posYMejor); // Leer coordenadas X,Y del archivo de mejorCamino
+			// writeLn('Mejor ', i, ' [',posXMejor,',',posYMejor,']');
+
+			// Si las coordenadas X e Y coinciden, entonces true
+			if (posXSalida = posXMejor) and  (posYMejor = posYSalida) Then
+			Begin
+				 coinciden:= True;
+				 // writeLn('Los numeros coinciden con el mejor camino :) X [',posXSalida,',',posXMejor,'] Y [',posYSalida,',',posYMejor,']');
+			End
+			Else
+			Begin
+			  coinciden:= False;
+				writeLn('Los numeros que no coincidieron fueron:X [',posXSalida,',',posXMejor,'] Y [',posYSalida,',',posYMejor,']');
+			End;
+		End;
+		close(salida);
+
+		if (coinciden) Then
+		  writeLn('Recorriste el mejor camino posible del mapa!')
+		Else
+		  writeLn('No fue el mejor camino :(');
+	End
+	Else
+	Begin
+    writeLn('No fue el mejor camino :(');
+	End;
+
+	coincideConMejorCamino:= coinciden;
+
+End;
+
 // Historial de coordenadas de la nave
 Procedure imprimirHistorialMovimientos(data: dataMapa);
 
@@ -689,7 +772,7 @@ Begin
   writeLn('El historial de movimientos fue: ');
   writeLn('Historial de movimientos: ');
 	
-  For i:=1 To (data.contadorMovimientos) Do
+  For i:=1 To (data.contadorMovimientos - 1) Do
     writeLn('[',data.historialMovimientos[i].PosicionX, ',',data.
             historialMovimientos[i].PosicionY,']');
 
@@ -1542,7 +1625,7 @@ Begin
 
 
       // Guardar historial de movimientos de la nave para generar archivo de salida
-      agregarAlHistorialDeMovimientos(nave, data.historialMovimientos,data.contadorMovimientos);
+      agregarAlHistorialDeMovimientos(nave, planeta,data.historialMovimientos,data.contadorMovimientos);
 
       // Si gano la partida, el boolean es true
       If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
@@ -1565,10 +1648,6 @@ Begin
   // Registrar el abandono
   If (ord(ch) = ESC) Then
     desarrolloPartida := abandono;
-
-  // Guardar historial de movimientos de la nave para generar archivo de salida
-  agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
-                                  contadorMovimientos);
 
   // Imprimir data de los archivos
   procesarArchivoSalida(salida,data, rutaArchivoSalida);
@@ -1690,6 +1769,7 @@ Begin
         Begin
           Clrscr;
           imprimirHistorialMovimientos(data);
+					coincideConMejorCamino(data, salida, mejorCamino, rutaArchivoMejorCamino);
           readkey;
         End;
 
@@ -2131,6 +2211,7 @@ Begin
   // Ruta archivo de entrada
   rutaArchivoEntrada := 'C:\project-ucab\est.dat';
   rutaArchivoSalida := 'C:\project-ucab\est.res';
+	rutaArchivoMejorCamino:= 'C:\project-ucab\mejorCamino.dat';
   // Partida Completa
   Menu(dataPrincipal, opc, volver, salir);
 End.
