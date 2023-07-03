@@ -11,6 +11,7 @@ Const
   // MAIN
   LIMITE = 15;
   LIMITE_PERSONALIZADO = 15;
+  LIMITE_MINIMO = 7;
   LIMITE_ELEMENTOS = 10;
   LIMITE_MOVIMIENTOS = 200;
   MOVIMIENTOS_MAXIMO = 8;
@@ -44,12 +45,12 @@ Const
   X = 88;
 
   // Colores
+  COLOR_NORMAL = 0;
   AZUL = 1;
   VERDE = 3;
   ROJO = 4;
   MORADO = 5;
   FONDO = 7;
-  COLOR_NORMAL = 8;
   TURQUESA = 9;
   BLANCO = 15;
 
@@ -133,7 +134,7 @@ End;
 
 
 // Funcion validadora del personalizado:
-Procedure validarPersonalizado(Var fil, col: integer; lim: Integer);
+Procedure validarPersonalizado(Var fil, col: integer; limMin, limMax: Integer);
 
 Var 
   total, i: integer;
@@ -158,23 +159,38 @@ Begin
     Repeat
       write('Indica la cantidad de filas: ');
       readLn(fil);
-      If (fil < 7) Then
-        writeLn('Error, indique cantidad entre 7 y ', lim);
+      If (fil < limMin) Or (fil > limMax)  Then
+        writeLn('Error, indique cantidad entre ', limMin, ' y ', limMax);
       writeLn;
-    Until (fil >= 7) And (fil <= lim);
+    Until (fil >= limMin) And (fil <= limMax);
     writeln;
 
     // Cantidad de columnas no mayor a 15 ni menor a 3
     Repeat
       write('Indica la cantidad de columnas: ');
       readLn(col);
-      If (col < 7) Then
-        writeLn('Error, indique cantidad entre 7 y ', lim);
+      If (col < limMin) Or (col > limMax) Then
+        writeLn('Error, indique cantidad entre ', limMin, ' y ', limMax);
       writeLn;
-    Until (col >= 7) And  (col <= lim);
+    Until (col >= limMin) And  (col <= limMax);
 
   Until (fil+col >= 12);
 End;
+
+
+// Funcion que valida tanto filas como columnas
+Function validarDim(n: Integer; mensaje: String; lim: Integer): Integer;
+Begin
+  Repeat
+    Write('Indique la cantidad de ', mensaje, ' a ingresar: ');
+    Readln(n);
+    If (n < 1) Or (n > lim) Then
+      Writeln('Error, la cantidad de ', mensaje,
+              ' debe estar comprendido entre 1 y ', lim);
+  Until (n>=1) And (n<=lim);
+  validarDim := n;
+End;
+
 
 
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
@@ -837,20 +853,6 @@ Begin
   writeln;
   writeln('cantidad de movimientos: ', data.contadorMovimientos);
   Writeln;
-End;
-
-
-// Funcion que valida tanto filas como columnas
-Function validarDim(n: Integer; mensaje: String; lim: Integer): Integer;
-Begin
-  Repeat
-    Write('Indique la cantidad de ', mensaje, ' a ingresar: ');
-    Readln(n);
-    If (n < 1) Or (n > lim) Then
-      Writeln('Error, la cantidad de ', mensaje,
-              ' debe estar comprendido entre 1 y ', lim);
-  Until (n>=1) And (n<=lim);
-  validarDim := n;
 End;
 
 // --------------------- Relleno ---------------------
@@ -1553,7 +1555,8 @@ Begin
                       // Impresion del destructor, quiero que aparezca vacio
                       If (terrenoModificado[i, j] = BOMBA) Then
                         Begin
-                          If (data.score = 1) Then
+                          If (data.score = 1) And (data.tipoMapa <> tipoArchivo) Then
+                            // Si el nivel es = 1 o el modo de juego es Archivo no muestra destructores
                             ImpresoraColor(terrenoModificado[i, j], ROJO)
                           Else
                             ImpresoraColor(CELDA, COLOR_NORMAL);
@@ -1861,7 +1864,7 @@ Begin
   If (tipo = TipoPersonalizado) Then
     Begin
       // Filas y Columnas
-      validarPersonalizado(fil, col, LIMITE_PERSONALIZADO);
+      validarPersonalizado(fil, col, LIMITE_MINIMO, LIMITE_PERSONALIZADO);
       // Cantidad Estrellas y Destructores
       data.estrellas.cantidad := 5;
       data.destructores.cantidad := 5;
@@ -2151,6 +2154,7 @@ Begin
   menuVector[2] := 'Tutorial';
   menuVector[3] := 'Salir';
   textBackground(FONDO);
+  textcolor(COLOR_NORMAL);
   Writeln('---Bienvenido a L nave---');
   Writeln;
   Writeln('Presiona cualquier tecla para comenzar...');
