@@ -686,9 +686,9 @@ Begin
   cont := 0;  // Inicializar la variable cont
 
   reset(archivo);
-  while not eof(archivo) Do
+  while not (eof(archivo)) Do
   Begin
-    while not eoln(archivo) do
+    while not (eoln(archivo)) do
     begin
       read(archivo, nro);
       cont := cont + 1;
@@ -701,8 +701,7 @@ Begin
   contNrosArchivo := cont;
 End;
 
-// Funcion que retorna (true o false) dependiendo de si el historial de movs coincide con el mejor camino (archivo)
-Function coincideConMejorCamino(data: dataMapa; var salida, mejorCamino: Text; rutaArchivoMejorCamino: String):Boolean;
+Function coincideConMejorCamino(data: dataMapa; var salida, mejorCamino: Text; rutaArchivoMejorCamino: String): Boolean;
 Var
   posXMejor, posYMejor: Integer;
   posXSalida, posYSalida: Integer;
@@ -710,56 +709,48 @@ Var
   i: Integer;
   coinciden: Boolean;
 Begin
-
   Assign(mejorCamino, rutaArchivoMejorCamino);
 
-  cantNrosSalida:= (data.contadorMovimientos - 1) * 2; {Como el contador de movs empieza en 1, restar 1
-	                                                      y multiplicar por 2 ya que son 2 coordenadas X,Y}
-	cantNrosMejorCamino:= contNrosArchivo(mejorCamino); // Cantidad de numeros del archivo de mejor camino
+  cantNrosSalida := (data.contadorMovimientos - 1) * 2;
+  cantNrosMejorCamino := contNrosArchivo(mejorCamino);
 
-	// writeLn('El archivo de mejor camino tiene ', cantNrosMejorCamino, ' numeros');
-	// writeLn('El archivo de salida tiene ', cantNrosSalida, ' numeros');
+  if (cantNrosSalida = cantNrosMejorCamino) Then
+  Begin
+    Reset(salida);
+    Reset(mejorCamino);
 
-	// Si las cantidades de nÃºmeros son iguales
-	if (cantNrosSalida = cantNrosMejorCamino) Then
-	Begin
-	  reset(salida); // Abrir archivo
-		reset(mejorCamino); // Abrir archivo
-		// Como la cantidad cuenta los pares, entonces div 2
-    for i:=1 to (cantNrosSalida div 2) Do
-		Begin
-		  Read(salida, posXSalida, posYSalida); // Leer coordenadas X,Y del archivo de salida
-			// writeLn('Salida ', i, ' [',posXSalida,',',posYSalida,']');
-			Read(mejorCamino, posXMejor, posYMejor); // Leer coordenadas X,Y del archivo de mejorCamino
-			// writeLn('Mejor ', i, ' [',posXMejor,',',posYMejor,']');
+    coinciden := True; // Inicializar la variable coinciden
 
-			// Si las coordenadas X e Y coinciden, entonces true
-			if (posXSalida = posXMejor) and  (posYMejor = posYSalida) Then
-			Begin
-				 coinciden:= True;
-				 // writeLn('Los numeros coinciden con el mejor camino :) X [',posXSalida,',',posXMejor,'] Y [',posYSalida,',',posYMejor,']');
-			End
-			Else
-			Begin
-			  coinciden:= False;
-				writeLn('Los numeros que no coincidieron fueron:X [',posXSalida,',',posXMejor,'] Y [',posYSalida,',',posYMejor,']');
-			End;
-		End;
-		close(salida);
+    for i := 1 to (cantNrosSalida div 2) Do
+    Begin
+      Read(salida, posXSalida, posYSalida);
+      Read(mejorCamino, posXMejor, posYMejor);
 
-		if (coinciden) Then
-		  writeLn('Recorriste el mejor camino posible del mapa!')
-		Else
-		  writeLn('No fue el mejor camino :(');
-	End
-	Else
-	Begin
-    writeLn('No fue el mejor camino :(');
-	End;
+      if (posXSalida <> posXMejor) or (posYSalida <> posYMejor) Then
+      Begin
+        coinciden := False;
+        WriteLn('Los numeros que no coincidieron fueron: X [', posXSalida, ',', posXMejor, '] Y [', posYSalida, ',', posYMejor, ']');
+        Break; // Salir del bucle si hay una discrepancia
+      End;
+    End;
 
-	coincideConMejorCamino:= coinciden;
+    Close(salida);
+    Close(mejorCamino);
 
+    if (coinciden) Then
+      WriteLn('Recorriste el mejor camino posible del mapa!')
+    Else
+      WriteLn('No fue el mejor camino :(');
+  End
+  Else
+  Begin
+    WriteLn('No fue el mejor camino :(');
+    coinciden := False; // Establecer coinciden en False si las cantidades de números no son iguales
+  End;
+
+  coincideConMejorCamino := coinciden;
 End;
+
 
 // Historial de coordenadas de la nave
 Procedure imprimirHistorialMovimientos(data: dataMapa);
@@ -2208,7 +2199,7 @@ Var
   salir, volver: menuBoolean;
 Begin
   Clrscr;
-  // Ruta archivo de entrada
+  // Rutas de archivos
   rutaArchivoEntrada := 'C:\project-ucab\est.dat';
   rutaArchivoSalida := 'C:\project-ucab\est.res';
 	rutaArchivoMejorCamino:= 'C:\project-ucab\mejorCamino.dat';
