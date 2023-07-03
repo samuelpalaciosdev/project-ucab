@@ -2064,7 +2064,7 @@ Begin
 
           If (desarrollo = navePerdida) Then
             Begin
-              AnimacionPerder(desarrollo);
+              perdidaAnimacion(desarrollo);
               Delay(300);
               writeln;
               writeln('Presiona para seguir...');
