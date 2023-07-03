@@ -2345,6 +2345,13 @@ Begin
                     salir := marchar;
                 End;
     End;
+
+
+    writeln;
+    writeln;
+    textcolor(BLANCO);
+
+    writeln('Creado por: Samuel Palacios y Daniel Ross');
   Until (salir = marchar);
 End;
 
