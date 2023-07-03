@@ -2358,9 +2358,9 @@ Var
 Begin
   Clrscr;
   // Rutas de archivos
-  rutaArchivoEntrada := 'c:\Users\user\Desktop\Proyecto\project-ucab\est.dat';
-  rutaArchivoSalida := 'c:\Users\user\Desktop\Proyecto\project-ucab\est.res';
-  rutaArchivoMejorCamino := 'c:\Users\user\Desktop\Proyecto\project-ucab\mejorCamino.dat';
+  rutaArchivoEntrada := 'C:\datos\Archivo.txt';
+  rutaArchivoSalida := 'C:\datos\Salida.txt';
+  rutaArchivoMejorCamino := 'C:\datos\mejorCamino.txt';
   // Partida Completa
   Menu(dataPrincipal, opc, volver, salir);
 End.
