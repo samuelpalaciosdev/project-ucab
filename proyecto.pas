@@ -137,7 +137,7 @@ End;
 Procedure validarPersonalizado(Var fil, col: integer; limMin, limMax: Integer);
 
 Var 
-  total, i: integer;
+  i: integer;
 
 Begin
 
@@ -499,7 +499,7 @@ Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
                                    coordenadas: ArrayDinamico; fil, col: integer; Var validadorIndividual: Boolean; mensaje: String);
 
 Var 
-  i, j, cant_1, cant_2: Integer;
+  i, j, cant_1: Integer;
   singular: String;
 Begin
 
@@ -663,7 +663,6 @@ Procedure procesarArchivoEntrada(Var entrada: Text; Var datosMapa: dataMapa;
                                  rutaArchivoEntrada: String);
 
 Var 
-  i: Integer;
   validadorIndividual: boolean;
 Begin
 
@@ -1055,7 +1054,7 @@ Procedure condicionalEstrella(Var listaMovimientos: ArrayMovimientos; Var
                               vector);
 
 Var 
-  i, j: Integer;
+  i: Integer;
   difX, difY: Integer;
   difFila, difCol: Integer;
   llaveDer, llaveIzq, llaveArr, llaveAbj, llaveArrIzq,llaveArrDer, llaveAbjIzq, llaveAbjDer: boolean;
@@ -1459,7 +1458,6 @@ Procedure leerMapa(Var data: dataMapa; Var terreno: mapa; Var nave,
 
 Var 
   i, j: Integer;
-  estrellaDisponible: Boolean;
   listaMovimientos: ArrayMovimientos;
   contArray, contMov: integer;
   terrenoModificado: mapa;
