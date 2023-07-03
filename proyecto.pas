@@ -11,15 +11,14 @@ Const
   // MAIN
   LIMITE = 15;
   LIMITE_PERSONALIZADO = 15;
-  // LIMITE_ELEMENTOS = 10;
   LIMITE_ELEMENTOS = 10;
   LIMITE_MOVIMIENTOS = 200;
   MOVIMIENTOS_MAXIMO = 8;
   CELDA = '.';
   PARED = '|';
   PISO = '_';
-  PERSONAJEPOS = 'A';
-  BANDERA = '#';
+  PERSONAJEPOS = 'H';
+  BANDERA = 'T';
   BOMBA = 'D';
   STAR = 'E';
   POSMOV = '?';
@@ -107,20 +106,18 @@ Type
     dataPersonalizada: dataMapa;
   End;
 
-  // VARIABLES ARCHIVO
-
+// ---- VARIABLES ARCHIVO
 Var 
   entrada, salida: Text;
   rutaArchivoEntrada, rutaArchivoSalida: String;
 
-
+// Se usa para validar elementos del archivo
 Function validarElemento(elemento: Integer; lim: integer; mensaje: String): Boolean;
-
 Var 
   elementoValido: Boolean;
 Begin
 
-  elementoValido := True;
+  elementoValido := True; // Inicializar en true
 
   If (elemento < 1) Or (elemento > lim) Then
     Begin
@@ -132,78 +129,77 @@ Begin
 End;
 
 // Procedimiento reutilizable para mostrar la cantidad y las coordenadas de las estrellas y destructores
-
 Procedure MostrarCantidadYCoordenadas(cantidad: Integer; coordenadas:
-                                      ArrayDinamico; validadorIndividual: Boolean;mensaje: String);
-
+          ArrayDinamico; validadorIndividual: Boolean;mensaje: String);
 Var 
   i: Integer;
 Begin
   Writeln('Cantidad de ', mensaje, ': ', cantidad);
   // Mostrar la cantidad de estrellas o destructores
   Writeln('Coordenadas de ', mensaje, ':');
-  // Mostrar las coordenadas de estrellas o destructores
+  // Mostrar las coordenadas de estrellas o destructores si está validado la info
   If (validadorIndividual = true) Then
     Begin
       For i := 1 To cantidad Do
         Begin
-          Writeln(i, ': X=', coordenadas[i].posicionX, ', Y=', coordenadas[i].
-                  posicionY);
           // Mostrar las coordenadas de cada elemento
+          Writeln(i, ': X=', coordenadas[i].posicionX, ', Y=', coordenadas[i].posicionY);
         End;
     End;
 End;
 
+// ---- Genera y posiciona destructores en el mapa
 Procedure bloqueDestructores(Var destructores: ArrayDinamico; niveles: integer; tipo: TipoGeneracionMapa; nave, planeta: vector; fil, col: Integer; Var cantDestructores: Integer);
-
 Var 
   i, promedio: integer;
-
 Begin
 
   randomize;
 
   niveles := niveles - 2;
 
-  // Determino la cantidad de destructores
+  // Determinar la cantidad de destructores basado en el promedio del tamaño del mapa
   promedio := (fil+col) Div 2;
 
   // Generacion de destructores dependiendo del nivel
+  // Si el nivel es >= a 3, se agregan mas destructores
+  // Si es < a 3, se restan algunos destructores
 
   If (niveles >= 3) Then
     cantDestructores := (promedio Div 2)+(niveles)
   Else
     cantDestructores := (promedio Div 2)-2;
-
-
+  // Generar las posiciones de los destructores
   For i:= 1 To cantDestructores Do
     Begin
       Repeat
 
         // Destructor junto del 1ro
-
+		 // Posicionar el primer destructor alejado de los bordes del mapa
         If (i = 1) Then
-          Begin
-            Repeat
-              destructores[i].posicionX := Random(fil-6)+4;
-              destructores[i].posicionY := Random(col-6)+4;
-            Until (Abs(destructores[i].posicionX - fil) > 2) And (Abs(destructores[i].posicionY - col) > 2);
-          End
+        Begin
+          Repeat
+            destructores[i].posicionX := Random(fil-6)+4;
+            destructores[i].posicionY := Random(col-6)+4;
+          Until (Abs(destructores[i].posicionX - fil) > 2) And (Abs(destructores[i].posicionY - col) > 2);
+        End
 
-          // Destructor junto del 1ro
+        // Destructor junto del 1ro
+		// Posicionar el segundo destructor junto al primero (debajo del primero)
         Else If (i = 2) Then
-               Begin
-                 destructores[i].posicionX := destructores[1].posicionX + 1;
-                 destructores[i].posicionY := destructores[1].posicionY;
-               End
+        Begin
+          destructores[i].posicionX := destructores[1].posicionX + 1;
+          destructores[i].posicionY := destructores[1].posicionY;
+        End
 
-               // Destructor junto del 1ro
+        // Destructor junto del 1ro
+		// Posicionar el tercer destructor junto al primero (a la izquierda del primero)
         Else If (i = 3) Then
-               Begin
-                 destructores[i].posicionX := destructores[1].posicionX;
-                 destructores[i].posicionY := destructores[1].posicionY - 1;
-               End
-               //  Demas destructores despues de los 3 primeros
+        Begin
+          destructores[i].posicionX := destructores[1].posicionX;
+          destructores[i].posicionY := destructores[1].posicionY - 1;
+        End
+        //  Demas destructores despues de los 3 primeros
         Else
           Begin
             Repeat
@@ -211,7 +207,7 @@ Begin
               destructores[i].posicionX := Random(fil)+1;
               destructores[i].posicionY := Random(col)+1;
 
-              // Este condicional me evita un posible destructor detras del planeta
+              // Evitar un posible destructor detras del planeta
               If (destructores[i].posicionX = 1) And ((destructores[i].posicionY = (planeta[2]-1)) Or (destructores[i].posicionY = (planeta[2]+1))) Then
                 destructores[i].posicionX := destructores[i].posicionX + 3;
 
@@ -230,7 +226,7 @@ Begin
   readkey;
 End;
 
-// Bloque del generador de estrellas (No repetir codigo)
+// ---- Genera y posiciona estrellas en el mapas
 Procedure bloqueEstrellas(Var estrella: ArrayDinamico; niveles: integer; tipo: TipoGeneracionMapa;
                           nave, planeta: vector; fil
                           , col: Integer; Var cantEstrellas: Integer);
@@ -240,7 +236,7 @@ Var
 Begin
   Randomize;
 
-  // Determino la cantEstrellas de estrellas en el mapa con la formula Magica
+  // Determinar la cantEstrellas de estrellas en el mapa con la formula magica
   promedio := (fil+col) Div 2;
 
   // Generacion de estrellas dependiendo del nivel
@@ -261,7 +257,6 @@ Begin
       Repeat
 
         // Condicional de la estrella detras del planeta
-
         If (i = 1) Then
           Begin
             estrella[i].posicionX := 1;
@@ -325,8 +320,7 @@ Begin
                    End;
                End
 
-               // Estrella en la misma columna que el planeta
-
+        // Estrella en la misma columna que el planeta
         Else If (i = 3) Then
                Begin
                  estrella[i].posicionX := planeta[1];
@@ -346,7 +340,7 @@ Begin
             estrella[i].posicionX := Random(fil)+1;
             estrella[i].posicionY := Random(col)+1;
 
-            // Hacer el intento que las estrellas randomizadas no coincidan con el camino de la diagonal de la estrella[2] y la estrella[1]
+            // Que las estrellas randomizadas no coincidan con el camino de la diagonal de la estrella[2] y la estrella[1]
             If (Abs(estrella[2].posicionX - estrella[i].posicionX) = Abs(estrella[2].posicionY - estrella[i].posicionY)) Or (Abs(estrella[1].posicionX - estrella[i].posicionX) =
                Abs(estrella[1].posicionY - estrella[i].posicionY)) Then
               Begin
@@ -360,8 +354,8 @@ Begin
             // En caso de que la estrella[i] este muy cerca de estrella[2]
             If (Abs(estrella[2].posicionX - estrella[i].posicionX) <= 1) Then
               Begin
+							
                 // En caso de que la fila sea mayor a 3 la muevo 2 posiciones hacia la izquierda
-
                 If (estrella[i].posicionY > 3) Then
                   estrella[i].posicionY := estrella[i].posicionY - 2
                 Else
@@ -369,25 +363,25 @@ Begin
               End;
 
             // En caso de que hayan varias estrellas[i] en la fila columna del planeta
-
             If (planeta[1] = estrella[i].posicionX) Then
               Begin
                 estrella[i].posicionX := estrella[i].posicionX + 2;
               End;
 
           End;
-        // el condicional para romper el bucle verifica si las estrellas estan encima del planeta y/o la nave
+        // El condicional para romper el bucle verifica si las estrellas estan encima del planeta y/o la nave
       Until ((estrella[i].posicionX <> nave[1]) Or (estrella[i].posicionY <> nave[2])
             ) And ((estrella[i].posicionX <> planeta[1]) Or (estrella[i].posicionY <>
             planeta[2]));
     End;
 End;
-// Generador
+
+{ ----  Generar las posiciones de la nave, el planeta, las estrellas y los destructores en el mapa
+				(para tipo personalizado o aleatorio) }
 Procedure Generador(Var data: dataMapa; Var tipo:TipoGeneracionMapa; Var nave,
                     planeta: vector;
                     Var cant, cant2: Integer; Var param1, param2: ArrayDinamico;
                     fil, col: Integer);
-
 Var 
   i, j: Integer;
 Begin
@@ -395,7 +389,7 @@ Begin
   If ((tipo = TipoPersonalizado) Or (tipo = TipoAleatorio)) Then
     Begin
 
-      // ---- Randomizar la posicion X,Y de la  nave
+      // -- Randomizar la posicion X,Y de la  nave
 
       // Va a agarrar la penultima o la ultima fila la posicion en X de la nave
       nave[1] := Random(2)+(fil-1);
@@ -405,7 +399,7 @@ Begin
         nave[2] := Random(col-4)+3;
       Until (nave[2] <> col) And (Abs(nave[2] - col) > 2);
 
-      // ---- Randomizar la posición X,Y del planeta
+      // -- Randomizar la posición X,Y del planeta
       Repeat
         // Posiciono el planeta en la 2da fila
         planeta[1] := 2;
@@ -426,18 +420,21 @@ Begin
         End;
     End;
 End;
-// ARCHIVOS
+
+
+// -------------------- ARCHIVOS -------------------------
+//
 //
 
 // Procedimiento reutilizable para leer la cantidad y las coordenadas de las estrellas y destructores desde un archivo
-
 Procedure leerCantidadYCoordenadas(Var entrada: Text; Var cantidad: Integer; Var
           coordenadas: ArrayDinamico; fil, col: integer; Var validadorIndividual: Boolean; mensaje: String);
 Var
-  i, cant_1, cant_2: Integer; // Índice
+  i, cant_1, cant_2: Integer;
   singular: String;
 Begin
-  validadorIndividual := true;
+
+  validadorIndividual := true; // Inicializar en true
 
   // Convertir mensaje a singular
   if (mensaje = 'estrellas') Then
@@ -445,21 +442,22 @@ Begin
   Else if (mensaje = 'destructores') Then
     singular:= 'destructor';
 
-  // Leer el primer número de la cantidad de estrellas o destructores del archivo de entrada y comprueba si empieza con 0
+  // Leer el primer numero de la cantidad de estrellas o destructores del archivo de entrada y comprueba si empieza con 0
+	// Si empieza con 0 (ej. 0 12, 0 5) denota cantidad
   Read(entrada, cant_1);
 
   // Verificar si es 0
   if (cant_1 = 0) then
   begin
-    Read(entrada, cantidad); // Guardar el siguiente número como la cantidad
+    Read(entrada, cantidad); // Guardar el siguiente numero como la cantidad
   end
   else
   begin
-    validadorIndividual := false;
+    validadorIndividual := false; 
     writeln('Error, el valor no denota una cantidad de ', mensaje);
   end;
 
-  // Asegurar que la cantidad esté entre el límite
+  // Asegurar que la cantidad esta entre el limite
   If (cantidad < 1) or (cantidad > LIMITE_ELEMENTOS) Then
   Begin
     writeln('Cantidad inválida de ', mensaje, ', debe estar entre 1 y ', LIMITE_ELEMENTOS);
@@ -475,29 +473,37 @@ Begin
     // Leer una coordenada
     If not Eof(entrada) Then
     Begin
+		  // Guardar cada coordenada X, Y en el array de objetos de tipo coordenada
       Read(entrada, coordenadas[i].posicionX, coordenadas[i].posicionY);
 
+			// Si la coordenada X es 0 es una cantidad no una coordenada
+      If (coordenadas[i].posicionX = 0) And (coordenadas[i].posicionY <> 0 ) Then
+      Begin
+        writeLn('Error, valor de posicion X (0) de ', singular, ' en la posicion ', i ,' denota una cantidad no una coordenada');
+        validadorIndividual := false;
+      End;
+
       // ---- Validar coordenadas
-      // Si la coordenada X es inválida
+      // Si la coordenada X es invalida
       If (coordenadas[i].posicionX < 1) Or (coordenadas[i].posicionX > fil) Then
       Begin
         writeLn('Error, valor de posicion X (', coordenadas[i].posicionX, ') de ', singular, ' en la posicion ', i ,' es invalido');
         validadorIndividual := false;
       End;
-
-      // Si la coordenada Y es inválida
+      // Si la coordenada Y es invalida
       If (coordenadas[i].posicionY < 1) Or (coordenadas[i].posicionY > col) Then
       Begin
         writeLn('Error, valor de posicion Y (', coordenadas[i].posicionY, ') de ', singular, ' en la posicion ', i ,' es invalido');
         validadorIndividual := false;
       End;
+			
     End
+		// Si llega al final del archivo (destructores)
     Else
     Begin
       writeln('Error, se esperaban ', cantidad, ' coordenadas de ', mensaje, ' pero solo se encontraron ', i-1);
       validadorIndividual := false;
-			i := cantidad + 1;
-		// No se necesita el break, simplemente se deja de iterar asignando i a cantidad + 1
+			i := cantidad + 1; // Se deja de iterar asignando i a cantidad + 1
     End;
   End;
 
@@ -505,61 +511,58 @@ Begin
 End;
 
 // Leer archivo de entrada (guardar su data en el objeto de tipo dataMapa)
-Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa; Var archivoValidado: boolean; Var validadorIndividual: boolean);
-
-
+Procedure leerArchivo(Var entrada: Text; Var datosMapa: dataMapa; Var archivoValidado: boolean;
+					Var validadorIndividual: boolean);
 Begin
 
-  archivoValidado := true;
+  archivoValidado := true; // Inicializar en true
   // Abrir archivo
   Reset(entrada);
+	
   // Guardar fila y columna en el objeto
   Read(entrada, datosMapa.dimensiones.fil, datosMapa.dimensiones.col);
+	
   // Validar fila y columna
   validadorIndividual := validarELemento(datosMapa.dimensiones.fil, LIMITE, 'las filas');
-
   If (validadorIndividual = false) Then
     archivoValidado := false;
-  // Debe guardarse en una booleana
+		
   validadorIndividual := validarELemento(datosMapa.dimensiones.col, LIMITE, 'las columnas');
-
-
   If (validadorIndividual = false) Then
     archivoValidado := false;
-  // Debe guardarse en una booleana 
-  // Guardar posicion nave     (X,Y)
+		
+  // Guardar posicion nave (X,Y)
   Read(entrada, datosMapa.naveT[1], datosMapa.naveT[2]);
+	
   // Validar posicion X,Y nave
   validadorIndividual := validarELemento(datosMapa.naveT[1], datosMapa.dimensiones.fil, 'la posicion en X de la nave');
-
   If (validadorIndividual = false) Then
     archivoValidado := false;
-  // Debe guardarse en una booleana
+		
   validadorIndividual := validarELemento(datosMapa.naveT[2], datosMapa.dimensiones.col, 'la posicion en Y de la nave');
-
-
   If (validadorIndividual = false) Then
     archivoValidado := false;
-  // Debe guardarse en una booleana 
+		
+
   // Guardar posicion planetaT (X,Y)
   Read(entrada, datosMapa.planetaT[1], datosMapa.planetaT[2]);
+	
   // Validar posicion X,Y planeta
   validadorIndividual := validarELemento(datosMapa.planetaT[1], datosMapa.dimensiones.fil, 'la posicion en X del planeta');
-
   If (validadorIndividual = false) Then
     archivoValidado := false;
-  // Debe guardarse en una booleana
+
   validadorIndividual := validarELemento(datosMapa.planetaT[2], datosMapa.dimensiones.col, 'la posicion en Y del planeta');
-
   If (validadorIndividual = false) Then
     archivoValidado := false;
-  // Debe guardarse en una booleana
+
+			
   // Guarda cantidad y coordenadas de estrellas
   leerCantidadYCoordenadas(entrada, datosMapa.estrellas.cantidad, datosMapa.
                            estrellas.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col,
                            validadorIndividual, 'estrellas');
 
-
+  // Validacion pasa por parametro a la cantidad y cantidad de estrellas
   If (validadorIndividual = false) Then
     archivoValidado := false;
 
@@ -570,7 +573,8 @@ Begin
       leerCantidadYCoordenadas(entrada, datosMapa.destructores.cantidad, datosMapa.
                                destructores.coordenadas, datosMapa.dimensiones.fil, datosMapa.dimensiones.col,
                                validadorIndividual, 'destructores');
-
+															 
+      // Validacion pasa por parametro a la cantidad y cantidad de destructores
       If (validadorIndividual = false) Then
         archivoValidado := false;
     End;
@@ -586,13 +590,14 @@ Procedure procesarArchivoEntrada(Var entrada: Text; Var datosMapa: dataMapa;
 Var 
   i: Integer;
   validadorIndividual: boolean;
-
 Begin
+
   // Asignar la variable archivo al archivo en la ruta (rutaArchivoEntrada)
   Assign(entrada, rutaArchivoEntrada);
   // Extraer los datos del archivo y almacenarlos en el objeto "datosMapa"
   leerArchivo(entrada, datosMapa, datosMapa.archivoValidado, validadorIndividual);
-  // Mostrar info del archivo de entrada
+	
+  // ----Mostrar info del archivo de entrada
   Writeln('El valor de filas es ', datosMapa.dimensiones.fil,' y de columnas ',
           datosMapa.dimensiones.col);
   Writeln('Las coordenadas de la nave son: ', datosMapa.naveT[1], ' y ',
@@ -606,6 +611,7 @@ Begin
   Delay(300);
   Writeln;
 
+  // Si el archivo es valido
   If (datosMapa.archivoValidado) Then
     Writeln('Presiona para jugar si estas listo...')
   Else
@@ -615,41 +621,34 @@ Begin
 End;
 
 // Historial de Movimientos del personaje
-
 Procedure agregarAlHistorialDeMovimientos(nave: vector; Var historialMov:
                                           ArrayHistorialMovimientos; Var contMov
                                           :Integer);
 Begin
 
-  // [{X,Y}]
-
   If (contMov = 0) Then
     contMov := contMov + 1;
 
-
-
-  // Como contMov empieza en 1, Si todavía no se ha movido, guardar esa como la posicion inicial
+  // Como contMov empieza en 1, Si todavia no se ha movido, guardar esa como la posicion inicial
   If (contMov = 1) Then
     Begin
       historialMov[contMov].PosicionX := nave[1];
       historialMov[contMov].PosicionY := nave[2];
       contMov := contMov + 1;
     End;
-
-
-
+		
   // Si alguna de las coordenadas (X o Y) son distintas (es un movimiento valido)
   If ((nave[1] <> historialMov[contMov - 1].posicionX)Or (nave[2]<> historialMov[
      contMov - 1].posicionY) And (nave[1] <> 0) And (nave[2] <> 0)) Then
-    Begin
-      historialMov[contMov].PosicionX := nave[1];
-      historialMov[contMov].PosicionY := nave[2];
-      contMov := contMov + 1;
-    End;
-
-
+  Begin
+    historialMov[contMov].PosicionX := nave[1];
+    historialMov[contMov].PosicionY := nave[2];
+    contMov := contMov + 1;
+  End;
+	
 End;
 
+// Proceso que con el historial de movimientos genera el archivo de salida
 Procedure generarArchivoSalida(data: dataMapa);
 
 Var 
@@ -662,15 +661,16 @@ Begin
 
   rewrite(salida);
 
+  // Como empieza en 1 iterar hasta i - 1
   For i:=1 To (contMovs - 1) Do
-    Begin
-      writeLn(salida, historialMovs[i].PosicionX, ' ' ,historialMovs[i].
-              PosicionY);
-    End;
+  Begin
+    writeLn(salida, historialMovs[i].PosicionX, ' ' ,historialMovs[i].PosicionY);
+  End;
 
   close(salida);
 End;
 
+// Proceso donde se asigna el archivo de salida y se llama a la funcion para generarlo
 Procedure procesarArchivoSalida(Var salida: Text;  datosMapa: dataMapa;
                                 rutaArchivoSalida: String);
 Begin
@@ -679,19 +679,19 @@ Begin
 End;
 
 // Historial de coordenadas de la nave
-
 Procedure imprimirHistorialMovimientos(data: dataMapa);
 
 Var 
-  j: Integer;
+  i: Integer;
 Begin
   Clrscr;
   textColor(blue);
   writeLn('El historial de movimientos fue: ');
   writeLn('Historial de movimientos: ');
-  For j:=1 To (data.contadorMovimientos) Do
-    writeLn('[',data.historialMovimientos[j].PosicionX, ',',data.
-            historialMovimientos[j].PosicionY,']');
+	
+  For i:=1 To (data.contadorMovimientos) Do
+    writeLn('[',data.historialMovimientos[i].PosicionX, ',',data.
+            historialMovimientos[i].PosicionY,']');
 
   writeln;
   writeln('cantidad de movimientos: ', data.contadorMovimientos);
@@ -711,12 +711,9 @@ Begin
   Until (n>=1) And (n<=lim);
   validarDim := n;
 End;
-// POR HACER RELLENO ESTATICO
-//
-//
+
 
 // Funcion validadora del personalizado:
-
 Procedure validarPersonalizado(Var fil, col: integer; lim: Integer);
 
 Var 
@@ -737,6 +734,7 @@ Begin
     writeln('Presiona para continuar...');
     readkey;
     writeln;
+		
     // Cantidad de filas no mayor a 15 ni menor a 3;
     Repeat
       write('Indica la cantidad de filas: ');
@@ -746,6 +744,7 @@ Begin
       writeLn;
     Until (fil >= 6) And (fil <= lim);
     writeln;
+		
     // Cantidad de columnas no mayor a 15 ni menor a 3
     Repeat
       write('Indica la cantidad de columnas: ');
@@ -758,7 +757,7 @@ Begin
   Until (fil+col >= 12);
 End;
 
-// Relleno
+// --------------------- Relleno ---------------------
 // 
 // 
 Procedure relleno(Var terreno: mapa; Var data: dataMapa; Var nave, planeta:
@@ -770,12 +769,12 @@ Var
 Begin
 {Condicionales para saber que data voy a generar dependiendo del tipo de mapa}
   If ((data.tipoMapa = TipoAleatorio) Or (data.tipoMapa = TipoPersonalizado))
-    Then
-    Begin
-      Generador(data, data.tipoMapa, nave, planeta, data.estrellas.cantidad,
-                data.destructores.cantidad, data.estrellas.coordenadas, data.
-                destructores.coordenadas, fil, col);
-    End;
+  Then
+  Begin
+    Generador(data, data.tipoMapa, nave, planeta, data.estrellas.cantidad,
+              data.destructores.cantidad, data.estrellas.coordenadas, data.
+              destructores.coordenadas, fil, col);
+  End;
   coordEst := data.estrellas.coordenadas;
   coordDest := data.destructores.coordenadas;
   For i := 1 To fil Do
@@ -793,26 +792,24 @@ Begin
         Else
           terreno[i, j] := CELDA;
       End;
-  // Estrellas
+			
+  // Colocar estrellas en el terreno
   For i := 1 To data.estrellas.cantidad Do
     terreno[coordEst[i].posicionX, coordEst[i].posicionY] := STAR;
-  // Destructores
+  // Colocar destructores en el terreno
   For i:= 1 To data.destructores.cantidad Do
     terreno[coordDest[i].posicionX, coordDest[i].posicionY] := BOMBA;
 End;
 
 // Condicional para la generacion de PosMov = '?'
-
 Procedure generacionInterrogaciones(Var terrenoModificado: mapa; Var contMovimientos: integer; param:
                                     ArrayDinamico;
                                     cantidadEstrellas: integer; nave, planeta:
                                     vector);
-
 Var 
   i: integer;
   difX, difY: Integer;
   difFila, difCol: Integer;
-
 Begin
 
   contMovimientos := 1;
@@ -827,7 +824,7 @@ Begin
       difFila := param[i].posicionX - nave[1];
       difCol := param[i].posicionY - nave[2];
 
-      // Si la estrella y nave están en la misma fila pero distinta columna
+      // Si la estrella y nave estan en la misma fila pero distinta columna
       If (nave[1] = param[i].posicionX) And (nave[2] <> param[i].posicionY) Then
         Begin
 
@@ -836,10 +833,9 @@ Begin
             Begin
               // Contador movimientos
               contMovimientos := contMovimientos + 1;
-              // Poner interrogacion si la dist entre nave y estrella es > 1
+              // Poner interrogacion si la dist entre nave y estrella es > 1 (para no sobreescribir la estrella)
               If (Abs(nave[2] - param[i].posicionY) > 1) Then
                 terrenoModificado[nave[1], nave[2]+1] := POSMOV;
-              //POSMOV := '?'
             End;
 
           // Estrella en misma columna hacia la izquierda
@@ -847,7 +843,7 @@ Begin
             Begin
               // Contador movimientos
               contMovimientos := contMovimientos + 1;
-              // Condicional para no sobreescribir la estrella
+              // Poner interrogacion si la dist entre nave y estrella es > 1 (para no sobreescribir la estrella)
               If (Abs(nave[2] - param[i].posicionY) > 1) Then
                 // Animacion de la interrogacion
                 terrenoModificado[nave[1], nave[2]-1] := POSMOV;
@@ -855,38 +851,31 @@ Begin
 
         End
 
-        // Misma fila, distinta columna
+      // Si la estrella y nave estan en la misma columna pero distinta fila (fila vertical, col horizontal)
       Else If (nave[2] = param[i].posicionY) And (nave[1] <> param[i].posicionX)
              Then
              Begin
 
-               //  Estrella misma fila hacia abajo
+               //  Estrella misma columna hacia abajo
                If (nave[1] < param[i].posicionX) Then
                  Begin
                    // Contador movimientos
                    contMovimientos := contMovimientos + 1;
-                   //  Condicional para no sobreescribir la estrella
+                   // Poner interrogacion si la dist entre nave y estrella es > 1 (para no sobreescribir la estrella)
                    If (Abs(nave[1] - param[i].posicionX) > 1) Then
                      //  Animacion de la interrogacion
-                     terrenoModificado[nave[1]+1, nave[2]] := POSMOV;
-                   // Fila hacia abajo (se pone interrogacion abajo)
+                     terrenoModificado[nave[1]+1, nave[2]] := POSMOV; // Poner interrogacion abajo de la nave
                  End;
 
-               // Estrella en misma fila hacia arriba
-
+               // Estrella en misma columna hacia arriba
                If (nave[1] > param[i].posicionX) Then
                  Begin
                    // Contador movimientos
                    contMovimientos := contMovimientos + 1;
-                   //  Condicional para no sobreescribir la estrella
+                   // Poner interrogacion si la dist entre nave y estrella es > 1 (para no sobreescribir la estrella)
                    If (Abs(nave[1] - param[i].posicionX) > 1) Then
                      //  Animacion de la interrogacion
-                     Begin
-                       terrenoModificado[nave[1]-1, nave[2]] := POSMOV;
-                     End;
-
-                   // Poner estrella arriba de la nave
-
+                     terrenoModificado[nave[1]-1, nave[2]] := POSMOV;  // Poner interrogacion arriba de la nave
                  End;
              End;
 
@@ -894,19 +883,18 @@ Begin
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
         Begin
+				
           // Diagonal Abajo Derecha
-
           If (difFila > 0) And (difCol > 0) And (nave[1] < param[i].posicionX)
             Then
             Begin
               // Contador movimientos
               contMovimientos := contMovimientos + 1;
-              // Animacion para no sobreescribir la estrella
+              // Poner interrogacion si la dist entre nave y estrella es > 1 (para no sobreescribir la estrella)
               If (Abs(nave[1] - param[i].posicionX) > 1) Then
                 // Animacion de la interrogacion
                 terrenoModificado[nave[1]+1, nave[2]+1] := POSMOV;
               // Poner interrogacion abajo derecha de la nave
-
             End;
 
           // Diagonal Arriba Izquierda
@@ -915,7 +903,7 @@ Begin
             Begin
               // Contador movimientos
               contMovimientos := contMovimientos + 1;
-              // Animacion para no sobreescrbir la estrella
+              // Poner interrogacion si la dist entre nave y estrella es > 1 (para no sobreescribir la estrella)
               If (Abs(nave[1] - param[i].posicionX) > 1) Then
                 // Animacion para la interrrogacion
                 terrenoModificado[(nave[1])-1, nave[2]-1] := POSMOV;
@@ -934,7 +922,7 @@ Begin
             Begin
               // Contador movimientos
               contMovimientos := contMovimientos + 1;
-              // Condicional para no sobreescrbir la estrella
+              // Poner interrogacion si la dist entre nave y estrella es > 1 (para no sobreescribir la estrella)
               If (Abs(nave[1] - param[i].posicionX) > 1) Then
                 // Animacion para la interrogacion
                 terrenoModificado[nave[1]+1, nave[2]-1] := POSMOV;
@@ -947,7 +935,7 @@ Begin
             Begin
               // Contador movimientos
               contMovimientos := contMovimientos + 1;
-              // Condicional para no sobreescribir la estrella
+              // Poner interrogacion si la dist entre nave y estrella es > 1 (para no sobreescribir la estrella)
               If (Abs(nave[1] - param[i].posicionX) > 1) Then
                 // Animacion para la interrogacion
                 terrenoModificado[nave[1]-1, nave[2]+1] := POSMOV;
@@ -1002,6 +990,8 @@ Begin
       difCol := param[i].posicionY - nave[2];
 
       // Dif normal => x1 = x2 or y1 = y2 (vertical u horizontal)
+      // MIENTRAS MENOR LA X MAS ARRIBA ESTÁ
+      // MIENTRAS MAYOR LA X MAS ABAJO ESTÁ
 
       // Si la estrella y nave están en la misma fila pero distinta columna
       If (nave[1] = param[i].posicionX) And (nave[2] <>
@@ -1015,62 +1005,59 @@ Begin
               // Posibles movimientos que puede hacer el usuario
               listaMovimientos[contMovimientos] := 'Derecha';
 
-              // Voy a meter el movimiento dentro del array
+              // Meter el movimiento dentro de la variable
               contMovimientos := contMovimientos + 1;
 
-              // Cierro la llave
+              // Cerrar la llave
               llaveDer := false;
             End;
 
           // Estrella en misma columna hacia la izquierda
-
           If (nave[2] > param[i].posicionY) And (llaveIzq) Then
             Begin
               // Lista de movimientos
               listaMovimientos[contMovimientos] := 'Izquierda';
-              // Voy a meter el movimiento dentro de la variable
+              // Meter el movimiento dentro de la variable
               contMovimientos := contMovimientos + 1;
 
-              // Cierro la llave
+              // Cerrar la llave
               llaveIzq := false;
             End;
 
         End
-        // Misma fila, distinta columna
-      Else If (nave[2] = param[i].posicionY) And (nave[1]
-              <> param[i].posicionX) Then
+				
+          // Misma columna, distinta fila
+          Else If (nave[2] = param[i].posicionY) And (nave[1]<> param[i].posicionX) Then
              Begin
-
-               //  Estrella en misma fila hacia abajo
-
+							 
+               //  Estrella en misma columna hacia abajo (estrella abajo de la nave) 
                If (nave[1] < param[i].posicionX) And (llaveAbj) Then
                  Begin
                    // Lista de movimientos
                    listaMovimientos[contMovimientos] := 'Abajo';
 
-                   // Voy a meter el movimiento dentro de la variable
+                   // Meter el movimiento dentro de la variable
                    contMovimientos := contMovimientos + 1;
 
-                   // Cierro la llave
+                   // Cerrar la llave
                    llaveAbj := false;
                  End;
 
-               // Estrella en misma fila hacia arriba
-
+               // Estrella en misma columna hacia arriba (estrella arriba de la nave)
                If (nave[1] > param[i].posicionX) And (llaveArr) Then
                  Begin
                    //  Lista de movimientos
                    listaMovimientos[contMovimientos] := 'Arriba';
 
-                   // Voy a meter el movimiento dentro de la variable
+                   // Meter el movimiento dentro de la variable
                    contMovimientos := contMovimientos + 1;
 
-                   //  Cierro la llave
+                   //  Cerrar la llave
                    llaveArr := false;
                  End;
              End;
 
-      // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda], IMPORTANTE USAR ABS()
+      // Dif celdas => nave[1] - nave[2] = estrellaX - estrellaY, [Abajo Derecha y Arriba Izquierda]
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
         Begin
@@ -1081,10 +1068,10 @@ Begin
               // Lista de movimientos
               listaMovimientos[contMovimientos] := 'abjDerecha';
 
-              // Voy a meter el movimiento dentro de la variable
+              // Meter el movimiento dentro de la variable
               contMovimientos := contMovimientos + 1;
 
-              // Cierro la llave
+              // Cerrar la llave
               llaveAbjDer := false;
             End;
 
@@ -1094,15 +1081,15 @@ Begin
             Begin
               // Lista de movimientos
               listaMovimientos[contMovimientos] := 'arrIzquierda';
-              // Voy a meter el movimiento dentro de la variable
+    					// Meter el movimiento dentro de la variable
               contMovimientos := contMovimientos + 1;
 
-              // Cierro la llave
+              // Cerrar la llave
               llaveArrIzq := false;
             End;
         End;
 
-      // Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda], IMPORTANTE USAR ABS()
+      // Dif Igual => nave[1] - estrellaX = nave[2] - estrellaY, [Arriba Derecha y Abajo Izquierda]
       If (Abs(nave[1] - param[i].posicionX) = Abs(nave[2] -
          param[i].posicionY)) Then
         Begin
@@ -1112,10 +1099,10 @@ Begin
             Begin
               // Lista de movimientos
               listaMovimientos[contMovimientos] := 'abjIzquierda';
-              // Voy a meter el movimiento dentro de la variable
+              // Meter el movimiento dentro de la variable
               contMovimientos := contMovimientos + 1;
 
-              // Cierro la llave
+              // Cerrar la llave
               llaveAbjIzq := false;
             End;
 
@@ -1125,36 +1112,33 @@ Begin
             Begin
               // Lista de movimientos
               listaMovimientos[contMovimientos] := 'arrDerecha';
-              // Voy a meter el movimiento dentro de la variable
+              // Meter el movimiento dentro de la variable
               contMovimientos := contMovimientos + 1;
 
-              // Cierro la llave
+              // Cerrar la llave
               llaveArrDer := false;
             End;
         End;
     End;
 End;
 
-// Personaje
-// Funciones del Personaje
+// --------------------- Personaje ---------------------
+//
+//
 Procedure Personaje(listaMovimientos: ArrayMovimientos; Var errores: Integer; contMovimientos:
                     Integer; terreno: mapa; Var nave, planeta:
                     vector; fil, col, tecla:
                     Integer);
-
 Var 
   bucle: boolean;
   i: integer;
-
 Begin
 
   // Inicializo:
-
   i := 0;
   bucle := false;
 
-  // Aqui procedemos a modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
-
+  // Modificar el vector de la nave de Posicion de X e Y dependiendo del ASCII
   Repeat
     Begin
       // Normales
@@ -1230,7 +1214,6 @@ Begin
           If (terreno[nave[1]-1, nave[2]-1] = 'E') Then
             Begin
               writeln('Ingresa otro movimiento, estrella interrumpe tu camino.');
-
             End
           Else
             Begin
@@ -1277,7 +1260,6 @@ Begin
       If ((tecla = X) And (nave[1] < fil) And (nave[2] < col)  And (
          listaMovimientos[i+1] = 'abjDerecha')) Then
         //  Abajo derecha
-
         Begin
           If (terreno[nave[1]+1, nave[2]+1] = 'E') Then
             Begin
@@ -1292,8 +1274,7 @@ Begin
             End;
         End;
 
-      i := i + 1;
-      // era 0. ahora es 1
+      i := i + 1; // era 0. ahora es 1...
     End;
   Until ((bucle = true) Or (i = contMovimientos));
 
@@ -1301,11 +1282,12 @@ Begin
 
 End;
 
-// ANIMACIONES
-
+// --------------------- ANIMACIONES ---------------------
+//
+//
 Procedure ImpresoraColor(caracter: char; color: integer);
 Begin
-  // Cambio los colores
+  // Cambiar los colores
   textColor(color);
   write(caracter, ' ');
   // RESET
@@ -1314,9 +1296,7 @@ Begin
 End;
 
 // Animacion de los colores en los menus...
-Procedure AnimacionMenu(activo, max: Integer; Var menuVector:
-                        vectorString);
-
+Procedure AnimacionMenu(activo, max: Integer; Var menuVector:vectorString);
 Var 
   i: Integer;
 Begin
@@ -1338,12 +1318,11 @@ End;
 
 
 // Algoritmo nave Perdida
-
-Procedure navePerdidaAlgor(Var errores: Integer; contMovimientos: integer; nave: vector; estrellas: ArrayDinamico; cantidadEstrellas: integer);
+Procedure navePerdidaAlgor(Var errores: Integer; contMovimientos: integer; nave: vector;
+					estrellas: ArrayDinamico; cantidadEstrellas: integer);
 
 Var 
   i: integer;
-
 Begin
 
   contMovimientos := contMovimientos - 1;
@@ -1367,7 +1346,7 @@ Begin
     End;
 End;
 
-// LEER EL MAPA FINAL PROCEDIMIENTO
+// --------------------- LEER MAPA ---------------------
 //
 //
 Procedure leerMapa(Var data: dataMapa; Var terreno: mapa; Var nave,
@@ -1392,8 +1371,8 @@ Begin
   terrenoModificado := terreno;
 
   // Inicializar la 2da variable del array de Movimientos vacio
-
-  // Procedo a mover el personaje
+	
+  // Mover el personaje
   If (tecla > 0) Then
     Begin
 
@@ -1422,7 +1401,7 @@ Begin
                               data.estrellas.cantidad, nave, planeta);
 
 
-  // Coloco las celdas
+  // Colocar las celdas
   For i := 1 To fil Do
     Begin
       j := 0;
@@ -1504,6 +1483,7 @@ Begin
   Writeln;
   Writeln('Presiona ESC para salir');
 End;
+
 // ---------- Aqui se desarrolla el bucle principal del juego
 //
 //
@@ -1526,18 +1506,15 @@ Begin
   relleno(terreno, data, nave, planeta, fil, col);
 
   // Contadores inicializados
-  data.contadorMovimientos := 0;
+  data.contadorMovimientos := 0; // Inicializar contador de movimientos en 0 (agregarAlHistorialDeMovimientos)
   data.contErrores := 0;
 
   // Inicializo el rastro
   rastro[1] := nave[1];
   rastro[2] := nave[2];
 
-  // Inicializar contador de movimientos en 1 (agregarAlHistorialDeMovimientos)
-
   // Se lee el mapa inicial
-  leerMapa(data, terreno, nave,
-           planeta, fil, col, 0);
+  leerMapa(data, terreno, nave,planeta, fil, col, 0);
 
   // Bucle donde se desarollan los movimientos
   Repeat
@@ -1565,8 +1542,7 @@ Begin
 
 
       // Guardar historial de movimientos de la nave para generar archivo de salida
-      agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
-                                      contadorMovimientos);
+      agregarAlHistorialDeMovimientos(nave, data.historialMovimientos,data.contadorMovimientos);
 
       // Si gano la partida, el boolean es true
       If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
@@ -1590,18 +1566,15 @@ Begin
   If (ord(ch) = ESC) Then
     desarrolloPartida := abandono;
 
-
   // Guardar historial de movimientos de la nave para generar archivo de salida
   agregarAlHistorialDeMovimientos(nave, data.historialMovimientos, data.
                                   contadorMovimientos);
-
 
   // Imprimir data de los archivos
   procesarArchivoSalida(salida,data, rutaArchivoSalida);
 End;
 
 // Menu tutorial
-
 Procedure menuTutorial(Var opc: Integer; Var volver, salir: menuBoolean);
 
 Var 
@@ -1703,7 +1676,7 @@ Begin
   Until (salir = marchar) Or (volver = marchar);
 End;
 
-// ANIMACIONES
+// --------------------- ANIMACIONES ---------------------
 //
 //
 
@@ -1732,7 +1705,6 @@ Begin
 End;
 
 // Animacion Perder
-
 Procedure AnimacionPerder(desarrollo: Victoria);
 Begin
   // Si el personaje llego a perder
@@ -1759,16 +1731,14 @@ Begin
 End;
 
 
-// MENU JUGAR::
+// --------------------- MENU JUGAR ---------------------
+//
+//
 Procedure bloqueMenuJugar(Var data: dataMapa; Var plano: mapa; Var nave,
-                          planeta:
-                          vector;Var fil, col: Integer; tipo:
-                          TipoGeneracionMapa)
-;
-
+                          planeta:vector;Var fil, col: Integer;
+													tipo:TipoGeneracionMapa);
 Var 
   desarrollo: Victoria;
-
 Begin
 
   // Inicializar el score:
@@ -1877,13 +1847,10 @@ Begin
     End;
 
 End;
-// Menu opcion jugar
 
+// --------------------- Menu opcion jugar ---------------------
 Procedure menuJugar(Var data: dataJuego; Var opc: Integer; Var volver,
-                    salir
-                    :
-                    menuBoolean);
-
+                    salir:menuBoolean);
 Var 
   keyPad: Char;
   menuVector: vectorString;
@@ -1956,15 +1923,7 @@ Begin
                           End;
                         If (activo = 2) Then
                           Begin
-                            data.dataPersonalizada.tipoMapa := 
-
-
-
-
-
-
-                                                               TipoPersonalizado
-                            ;
+                            data.dataPersonalizada.tipoMapa :=TipoPersonalizado;
                             bloqueMenuJugar(data.dataPersonalizada, data.
                                             dataPersonalizada.plano,
                                             data.dataPersonalizada.naveT,
@@ -1979,9 +1938,7 @@ Begin
                                             dimensiones
                                             .
                                             col, data.dataPersonalizada.
-                                            tipoMapa
-                            )
-                            ;
+                                            tipoMapa);
                           End;
                         If (activo = 3) Then
                           Begin
@@ -2047,9 +2004,7 @@ Begin
                                       planetaT, data.dataPersonalizada.
                                       dimensiones.fil,
                                       data.dataPersonalizada.dimensiones.
-                                      col, data.dataPersonalizada.tipoMapa
-                      )
-                      ;
+                                      col, data.dataPersonalizada.tipoMapa);
                     End;
                   If (activo = 3) Then
                     Begin
@@ -2072,8 +2027,8 @@ Begin
     End;
   Until (volver = marchar) Or (salir = marchar);
 End;
-// Menu
 
+// --------------------- Menu ---------------------
 Procedure Menu(Var data: dataJuego; Var opc: Integer; Var volver, salir:
                menuBoolean);
 
