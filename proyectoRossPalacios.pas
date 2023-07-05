@@ -786,34 +786,42 @@ Var
   posXSalida, posYSalida: Integer;
   cantNrosSalida, cantNrosMejorCamino: Integer;
   i: Integer;
-  coinciden: Boolean;
+  coinciden, corte: Boolean;
 Begin
   Assign(mejorCamino, rutaArchivoMejorCamino);
 
   cantNrosSalida := (data.contadorMovimientos - 1) * 2;
   cantNrosMejorCamino := contNrosArchivo(mejorCamino);
 
+  // Inicializar la i 
+  i := 1;
+  corte := true;
+
+
   If (cantNrosSalida = cantNrosMejorCamino) Then
     Begin
       Reset(salida);
       Reset(mejorCamino);
 
-      coinciden := True;
       // Inicializar la variable coinciden
+      coinciden := True;
 
-      For i := 1 To (cantNrosSalida Div 2) Do
-        Begin
-          Read(salida, posXSalida, posYSalida);
-          Read(mejorCamino, posXMejor, posYMejor);
+      // Bucle para leer los numeros
+      Repeat
 
-          If (posXSalida <> posXMejor) Or (posYSalida <> posYMejor) Then
-            Begin
-              coinciden := False;
-              WriteLn('Los numeros que no coincidieron fueron: X [', posXSalida, ',', posXMejor, '] Y [', posYSalida, ',', posYMejor, ']');
-              Break;
-              // Salir del bucle si hay una discrepancia
-            End;
-        End;
+        Read(salida, posXSalida, posYSalida);
+        Read(mejorCamino, posXMejor, posYMejor);
+
+        If (posXSalida <> posXMejor) Or (posYSalida <> posYMejor) Then
+          Begin
+            coinciden := false;
+            writeln('Los numeros que no coincidieron fueron: X [', posXSalida, ',', posXMejor, '] Y [', posYSalida, ',', posYMejor, ']');
+            corte := false;
+          End;
+
+        i := i + 1;
+
+      Until (i = (cantNrosSalida Div 2)) Or (corte = false);
 
       Close(salida);
       Close(mejorCamino);
