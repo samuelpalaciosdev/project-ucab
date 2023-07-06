@@ -1783,7 +1783,7 @@ Begin
         End;
 
       // En caso de nave Perdida
-      If (data.contErrores >= 8) Then
+      If (data.contErrores >= 8) And (desarrolloPartida <> gano) Then
         desarrolloPartida := navePerdida;
     End;
   Until (Ord(ch) = ESC) Or (desarrolloPartida = gano) Or (desarrolloPartida = perder) Or (desarrolloPartida = navePerdida);
