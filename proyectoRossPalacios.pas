@@ -43,6 +43,7 @@ Const
   D = 68;
   Z = 90;
   X = 88;
+  N = 78;
 
   // Colores
   COLOR_NORMAL = 0;
@@ -88,6 +89,8 @@ Type
     dimensiones: Record
       fil: Integer;
       col: Integer;
+      filMod: Integer;
+      colMod: Integer;
     End;
     naveT: vector;
     planetaT: vector;
@@ -1399,7 +1402,7 @@ Procedure ImpresoraColor(caracter: char; color: integer);
 Begin
   // Cambiar los colores
   textColor(color);
-  write(caracter, ' ');
+  Write(caracter, ' ');
   // RESET
   textBackground(FONDO);
   textColor(COLOR_NORMAL);
@@ -1483,7 +1486,7 @@ Begin
   // Inicializar la 2da variable del array de Movimientos vacio
 
   // Mover el personaje
-  If (tecla > 0) Then
+  If (tecla > 0) Or (tecla <> N) Then
     Begin
 
       // Este Condicional se encarga de mandar el objeto de Movimientos verdadero:
@@ -1580,6 +1583,9 @@ Begin
       Writeln;
     End;
 
+  writeln('Presiona la tecla N para simular el recorrido...');
+  writeln;
+
   Writeln;
   Writeln('Presiona la letra para moverte: ');
   Writeln;
@@ -1593,6 +1599,102 @@ Begin
   Writeln('No dejes presionado ninguna tecla...');
   Writeln;
   Writeln('Presiona ESC para salir');
+End;
+
+// -------------------- Recorrido en L ---------------------
+// 
+// 
+Procedure recorridoL(Var data: dataMapa; Var terreno: mapa; Var nave, planeta: vector; fil, col, tecla: Integer; Var filMod, colMod: Integer; destructores: ArrayDinamico; cantDest:
+                     integer;
+                     Var desarrollo: Victoria);
+
+Var 
+  i, j, p: integer;
+  salgo: boolean;
+
+Begin
+
+  salgo := true;
+
+  // Algoritmo para hacer la iteracion
+  If (tecla = N) Then
+    While (desarrollo = sigue) Do
+      Begin
+
+        i := 1;
+        j := 1;
+
+
+        nave[1] := filMod;
+        nave[2] := 1;
+
+        // Evitar posibles bugs:
+        data.contErrores := 0;
+
+        Repeat
+          i := i + 1;
+          If (desarrollo <> sigue) Then
+            Begin
+              i := colMod;
+              salgo := false;
+            End;
+
+          nave[2] := i;
+          // Leo el mapa
+          leerMapa(data, terreno, nave ,planeta, fil, col, 0);
+
+          // Verifico si pisa planeta
+          If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+            desarrollo := gano;
+
+          // Verifico si pisa destructor
+          For p:= 1 To cantDest Do
+            Begin
+              If ((nave[1] = destructores[i].posicionX) And (nave[2] = destructores[i].
+                 posicionY))
+                Then
+                desarrollo := perder;
+            End;
+
+        Until (i = colMod) Or (salgo = false) Or (desarrollo = gano) Or (desarrollo = perder);
+
+        // 
+        // 
+        // 
+        // 2 
+
+        Repeat
+          j := j + 1;
+
+          If (desarrollo <> sigue) Then
+            Begin
+              i := colMod;
+              salgo := false;
+            End;
+
+
+          nave[1] := j;
+          // Leo el mapa
+          leerMapa(data, terreno, nave,planeta, fil, col, 0);
+
+          // Verifico si pisa planeta
+          If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+            desarrollo := gano;
+
+          // Verifico si pisa destructor
+          For p:= 1 To cantDest Do
+            Begin
+              If ((nave[1] = destructores[i].posicionX) And (nave[2] = destructores[i].
+                 posicionY))
+                Then
+                desarrollo := perder;
+            End;
+        Until (j = fil) Or (salgo = false)  Or (desarrollo = gano) Or (desarrollo = perder);
+
+        filMod := filMod + 1;
+        colMod := colMod - 1;
+
+      End;
 End;
 
 // ---------- Aqui se desarrolla el bucle principal del juego
@@ -1620,6 +1722,10 @@ Begin
   data.contadorMovimientos := 0;
   // Inicializar contador de movimientos en 0 (agregarAlHistorialDeMovimientos)
   data.contErrores := 0;
+
+  // Incializo Filas y Columnas modificadas
+  data.dimensiones.filMod := 1;
+  data.dimensiones.colMod := col;
 
   // Inicializo el rastro
   rastro[1] := nave[1];
@@ -1649,6 +1755,14 @@ Begin
       //
       //
       ch := Upcase(Readkey);
+
+      If (Ord(ch) = N) Then
+        Begin
+          // Recorrido en L
+          recorridoL(data, terreno, nave, planeta, fil, col, Ord(ch), data.dimensiones.filMod, data.dimensiones.colMod, destructores, cant, desarrolloPartida);
+          delay(300);
+          leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
+        End;
 
       leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
 
@@ -2301,6 +2415,7 @@ Begin
       End
     Else
       keyPad := Upcase(Readkey);
+
     Case Ord(keyPad) Of 
       0:
          Begin
@@ -2372,6 +2487,7 @@ Var
   salir, volver: menuBoolean;
 Begin
   Clrscr;
+
   // Rutas de archivos
   rutaArchivoEntrada := 'C:\Users\user\Desktop\Proyecto\project-ucab\Archivo.txt';
   rutaArchivoSalida := 'C:\Users\user\Desktop\Proyecto\project-ucab\Salida.txt';

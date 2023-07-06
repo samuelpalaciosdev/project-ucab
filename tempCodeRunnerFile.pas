@@ -1,0 +1,1 @@
+  rutaArchivoEntrada := 'C:\Users\user\Desktop\Proyecto\project-ucab\Archivo.txt';
