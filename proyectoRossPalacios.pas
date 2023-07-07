@@ -44,6 +44,7 @@ Const
   Z = 90;
   X = 88;
   N = 78;
+  V = 86;
 
   // Colores
   COLOR_NORMAL = 0;
@@ -91,6 +92,8 @@ Type
       col: Integer;
       filMod: Integer;
       colMod: Integer;
+      extFil: Integer;
+      extCol: Integer;
     End;
     naveT: vector;
     planetaT: vector;
@@ -1583,7 +1586,13 @@ Begin
       Writeln;
     End;
 
+  writeln;
+  writeln;
+
   writeln('Presiona la tecla N para simular el recorrido...');
+  writeln;
+
+  writeln('Presiona la tecla V para simular un espiral...');
   writeln;
 
   Writeln;
@@ -1601,10 +1610,186 @@ Begin
   Writeln('Presiona ESC para salir');
 End;
 
+// ---------------------- Recorrido en Espiral -------------------
+Procedure recorridoEspiral(Var data: dataMapa; Var terreno: mapa; Var nave, planeta: vector; fil, col: Integer; Var filMod, colMod: Integer; Var extFil, extCol: Integer;
+                           destructores: ArrayDinamico;
+                           cantDest: Integer; Var desarrollo: Victoria);
+
+Var 
+  i, j, p: Integer;
+  salgo: boolean;
+
+Begin
+
+  nave[1] := 1;
+  nave[2] := 1;
+
+
+  // inicializo
+  extFil := fil;
+  extCol := col;
+  filMod := 1;
+  colMod := 1;
+  j := 0;
+  i := 0;
+
+  While (desarrollo = sigue) Do
+    Begin
+
+      // Reinicio
+
+      // El caso del if Representa que en la primera posicion necesito que empiecen en 0 y despues si tomen los valores modificados
+      If (extfil < fil) Then
+        Begin
+          j := colMod;
+          i := filMod;
+        End;
+
+      p := 0;
+
+      // Reducir columnas
+      If (extfil < fil) Then
+        extCol := extCol - 1;
+      // SI EL DESARROLLO = SIGUE, EL ALGORITMO SE VA A ALTERAR
+      //
+      //
+      //
+
+
+{Todos los repeats siguen la misma logica tomando en cuenta si tienen que ir hacia arriba o hacia la izquierda se juega con filMod y colMod, en caso contrario se juega con los extFil y extCol}
+
+      If (desarrollo = sigue) Then
+        // Hacia la derecha
+        Repeat
+          i := i + 1;
+          nave[2] := i;
+
+          // Verifico si pisa planeta
+          If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+            desarrollo := gano;
+
+          // Verifico si pisa destructor
+          For p:= 1 To cantDest Do
+            Begin
+              If ((nave[1] = destructores[i].posicionX) And (nave[2] = destructores[i].
+                 posicionY))
+                Then
+                desarrollo := perder;
+            End;
+
+          // Leo el mapa
+          leerMapa(data, terreno, nave ,planeta, fil, col, 0);
+        Until (i = extCol) Or (desarrollo <> sigue);
+
+      p := 1;
+
+
+      If (extfil < fil) Then
+        colMod := colMod + 1;
+
+
+      If (desarrollo = sigue) Then
+        // Hacia Abajo
+        // 
+        // 
+        Repeat
+          j := j + 1;
+          nave[1] := j;
+
+
+          // Verifico si pisa planeta
+          If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+            desarrollo := gano;
+
+          // Verifico si pisa destructor
+          For p:= 1 To cantDest Do
+            Begin
+
+              If ((nave[1] = destructores[i].posicionX) And (nave[2] = destructores[i].
+                 posicionY))
+                Then
+                desarrollo := perder;
+            End;
+
+          // leo el mapa
+          leerMapa(data, terreno, nave ,planeta, fil, col, 0);
+        Until (j = extFil) Or (desarrollo <> sigue);
+
+
+      p := 1;
+
+
+      If (desarrollo = sigue) Then
+        // Hacia la izquierda
+        // 
+        // 
+        Repeat
+          i := i - 1;
+          nave[2] := i;
+
+
+          // Verifico si pisa planeta
+          If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+            desarrollo := gano;
+
+          // Verifico si pisa destructor
+          For p:= 1 To cantDest Do
+            Begin
+
+              If ((nave[1] = destructores[i].posicionX) And (nave[2] = destructores[i].
+                 posicionY))
+                Then
+                desarrollo := perder;
+            End;
+
+          // leo el mapa
+          leerMapa(data, terreno, nave, planeta, fil, col, 0);
+        Until (i = colMod) Or (desarrollo <> sigue);
+
+
+      p := 1;
+
+
+      // Lanzo la fila una posicion abajo: 
+      extFil := extFil - 1;
+      filMod := filMod + 1;
+
+
+      If (desarrollo = sigue) Then
+        // Hacia arriba
+        // 
+        // 
+        Repeat
+          j := j - 1;
+          nave[1] := j;
+
+
+          // Verifico si pisa planeta
+          If ((nave[1] = planeta[1]) And (nave[2] = planeta[2])) Then
+            desarrollo := gano;
+
+          // Verifico si pisa destructor
+          For p:= 1 To cantDest Do
+            Begin
+
+              If ((nave[1] = destructores[i].posicionX) And (nave[2] = destructores[i].
+                 posicionY))
+                Then
+                desarrollo := perder;
+            End;
+
+          // Leo el mapa
+          leerMapa(data, terreno, nave, planeta, fil, col, 0);
+        Until (j = filMod) Or (desarrollo <> sigue);
+    End;
+
+End;
+
 // -------------------- Recorrido en L ---------------------
 // 
 // 
-Procedure recorridoL(Var data: dataMapa; Var terreno: mapa; Var nave, planeta: vector; fil, col, tecla: Integer; Var filMod, colMod: Integer; destructores: ArrayDinamico; cantDest:
+Procedure recorridoL(Var data: dataMapa; Var terreno: mapa; Var nave, planeta: vector; fil, col, tecla: Integer; Var filMod, colMod: Integer; destructores: ArrayDinamico;
+                     cantDest:
                      integer;
                      Var desarrollo: Victoria);
 
@@ -1727,6 +1912,10 @@ Begin
   data.dimensiones.filMod := 1;
   data.dimensiones.colMod := col;
 
+  // Inicializo dimensiones del espiral
+  data.dimensiones.extFil := fil;
+  data.dimensiones.extCol := col;
+
   // Inicializo el rastro
   rastro[1] := nave[1];
   rastro[2] := nave[2];
@@ -1756,12 +1945,22 @@ Begin
       //
       ch := Upcase(Readkey);
 
+      // Recorrido en L
+
       If (Ord(ch) = N) Then
         Begin
           // Recorrido en L
           recorridoL(data, terreno, nave, planeta, fil, col, Ord(ch), data.dimensiones.filMod, data.dimensiones.colMod, destructores, cant, desarrolloPartida);
           delay(300);
-          leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
+        End;
+
+
+      // Recorrido en espiral
+      If (Ord(ch) = V) Then
+        Begin
+          recorridoEspiral(data, terreno, nave, planeta, fil, col, data.dimensiones.filMod, data.dimensiones.colMod, data.dimensiones.extfil, data.dimensiones.extCol, destructores,
+                           cant, desarrolloPartida);
+          delay(300);
         End;
 
       leerMapa(data, terreno, nave, planeta, fil, col, Ord(ch));
@@ -1827,6 +2026,7 @@ Begin
       End
     Else
       keyPad := Upcase(Readkey);
+
     Case Ord(keyPad) Of 
       0:
          Begin
