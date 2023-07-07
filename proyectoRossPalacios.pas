@@ -1656,7 +1656,10 @@ Begin
       //
 
 
+
 {Todos los repeats siguen la misma logica tomando en cuenta si tienen que ir hacia arriba o hacia la izquierda se juega con filMod y colMod, en caso contrario se juega con los extFil y extCol}
+
+      // Son 4 repeats
 
       If (desarrollo = sigue) Then
         // Hacia la derecha
